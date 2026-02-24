@@ -8,7 +8,7 @@ const HeroSection = () => {
       <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           {/* Heading */}
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium italic leading-[1.1] max-w-lg">
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-lg">
             Expressing
             <br />
             His Fullness
@@ -29,9 +29,9 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Hero Image */}
+      {/* Hero Image with curved edges */}
       <div className="container max-w-6xl mx-auto px-4 pb-0">
-        <div className="w-full overflow-hidden rounded-t-lg">
+        <div className="w-full overflow-hidden" style={{ borderRadius: '60px 60px 60px 60px' }}>
           <img
             src={heroImage}
             alt="Pastor preaching at WaterGate Church"
