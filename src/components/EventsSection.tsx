@@ -138,7 +138,7 @@ const EventsSection = () => {
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-3xl md:text-5xl font-medium text-center text-foreground italic mb-10">
+        <h2 className="font-heading text-3xl md:text-5xl font-medium text-center text-foreground mb-10">
           Explore what's
           <br />
           happening next

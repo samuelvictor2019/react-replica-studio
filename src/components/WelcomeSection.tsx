@@ -10,7 +10,7 @@ const WelcomeSection = () => {
         <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start">
           {/* Left: Text */}
           <div className="flex-1 max-w-md">
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground italic mb-5">
+            <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-5">
               Who We Are
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-8">
@@ -24,29 +24,35 @@ const WelcomeSection = () => {
             </a>
           </div>
 
-          {/* Right: Photo grid */}
+          {/* Right: Photo grid — left column lower, right column upper */}
           <div className="flex-1 w-full">
             <div className="grid grid-cols-2 gap-3">
-              <img
-                src={community1}
-                alt="Church community members"
-                className="w-full h-40 md:h-48 object-cover rounded-lg"
-              />
-              <img
-                src={community2}
-                alt="Church youth group"
-                className="w-full h-40 md:h-48 object-cover rounded-lg"
-              />
-              <img
-                src={community3}
-                alt="Church families"
-                className="w-full h-40 md:h-48 object-cover rounded-lg"
-              />
-              <img
-                src={community4}
-                alt="Church worship"
-                className="w-full h-40 md:h-48 object-cover rounded-lg"
-              />
+              {/* Left column — pushed down */}
+              <div className="flex flex-col gap-3 mt-8">
+                <img
+                  src={community1}
+                  alt="Church community members"
+                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                />
+                <img
+                  src={community3}
+                  alt="Church families"
+                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                />
+              </div>
+              {/* Right column — pushed up */}
+              <div className="flex flex-col gap-3">
+                <img
+                  src={community2}
+                  alt="Church youth group"
+                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                />
+                <img
+                  src={community4}
+                  alt="Church worship"
+                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                />
+              </div>
             </div>
           </div>
         </div>
