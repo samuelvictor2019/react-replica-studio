@@ -1,17 +1,17 @@
-import contact1Img from "@/assets/contact-1.jpg";
-import contact2Img from "@/assets/contact-2.jpg";
+import contact1Img from "@/assets/contact-1.png";
+import contact2Img from "@/assets/contact-2.png";
 
 const ContactSection = () => {
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-3xl md:text-4xl font-medium text-center text-foreground mb-2">
+        <h2 className="font-heading text-3xl md:text-4xl font-medium text-center text-black mb-2">
           We would love to
           <br />
           hear from you!
         </h2>
-        <p className="text-sm text-muted-foreground text-center mb-10">
+        <p className="text-sm text-black/70 text-center mb-10">
           Whether you're new, need prayers, or want to
           <br />
           know more — we're here for you.
@@ -27,10 +27,10 @@ const ContactSection = () => {
               className="w-full h-48 object-cover"
             />
             <div className="p-5">
-              <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
+              <h3 className="font-heading text-xl font-semibold text-black mb-3">
                 Service Times
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm text-black/70 leading-relaxed">
                 Sundays - 9:00AM
                 <br />
                 Wednesdays - 6:00PM
@@ -46,10 +46,10 @@ const ContactSection = () => {
               className="w-full h-48 object-cover"
             />
             <div className="p-5">
-              <h3 className="font-heading text-xl font-semibold text-foreground mb-3">
+              <h3 className="font-heading text-xl font-semibold text-black mb-3">
                 Contact Us
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm text-black/70 leading-relaxed">
                 Email - watergatechurch@gmail.com
                 <br />
                 Telephone - +234 810 284 8784

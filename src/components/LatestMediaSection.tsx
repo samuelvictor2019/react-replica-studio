@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import mediaIcon from "@/assets/media_icon.png";
 
 const tabs = ["SERMON", "WORSHIP", "RESOURCES"] as const;
 
@@ -24,16 +25,16 @@ const mediaItems: MediaItem[] = [
 
 const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => (
   <div className="flex items-center gap-4 py-3 border-b border-border last:border-b-0">
-    <span className="text-sm font-semibold text-muted-foreground w-5">{index}</span>
-    <div className="w-10 h-10 rounded bg-muted flex-shrink-0" />
+    <span className="text-sm font-semibold text-black w-5">{index}</span>
+    <img src={mediaIcon} alt="media" className="w-10 h-10 rounded object-cover flex-shrink-0" />
     <div className="flex-1 min-w-0">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+      <p className="text-[10px] uppercase tracking-wider text-black/70">
         {item.date} · PARTAKERS OF THE HOLYGHOST
       </p>
-      <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{item.speaker}</p>
+      <p className="text-sm font-semibold text-black truncate">{item.title}</p>
+      <p className="text-[10px] uppercase tracking-wider text-black/70">{item.speaker}</p>
     </div>
-    <span className="text-xs text-muted-foreground flex-shrink-0">{item.duration}</span>
+    <span className="text-xs text-black/70 flex-shrink-0">{item.duration}</span>
   </div>
 );
 
@@ -48,12 +49,12 @@ const LatestMediaSection = () => {
       <div className="container max-w-5xl mx-auto px-4">
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground">
+          <h2 className="font-heading text-3xl md:text-4xl font-medium text-black">
             Latest Media
           </h2>
           <a
             href="#"
-            className="hidden md:inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-foreground uppercase hover:text-primary transition-colors"
+            className="hidden md:inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase hover:text-primary transition-colors"
           >
             VIEW ALL MEDIA <ArrowRight size={14} />
           </a>
@@ -68,7 +69,7 @@ const LatestMediaSection = () => {
               className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
                 activeTab === tab
                   ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-black/60 hover:text-black"
               }`}
             >
               {tab}
@@ -94,7 +95,7 @@ const LatestMediaSection = () => {
         <div className="flex justify-center mt-8 md:hidden">
           <a
             href="#"
-            className="inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-foreground uppercase"
+            className="inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase"
           >
             VIEW ALL MEDIA <ArrowRight size={14} />
           </a>

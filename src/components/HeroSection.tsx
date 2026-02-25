@@ -3,7 +3,7 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-foreground text-primary-foreground">
+    <section className="relative bg-white text-black">
       {/* Top content */}
       <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
@@ -16,12 +16,12 @@ const HeroSection = () => {
 
           {/* Description */}
           <div className="max-w-sm">
-            <p className="text-sm leading-relaxed text-primary-foreground/70 mb-4">
+            <p className="text-sm leading-relaxed text-black/70 mb-4">
               We are Christ-centered community of believers (star-seed) who are naturally supernatural and supernaturally natural with the mandate to see the knowledge of the glory of the LORD take over the earth as the waters cover the sea.
             </p>
             <a
               href="#about"
-              className="inline-flex items-center gap-2 text-primary text-xs font-semibold tracking-widest hover:gap-3 transition-all"
+              className="inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 text-xs font-semibold tracking-widest hover:gap-3 transition-all"
             >
               LEARN MORE <ArrowRight size={14} />
             </a>
@@ -31,7 +31,7 @@ const HeroSection = () => {
 
       {/* Hero Image with curved edges */}
       <div className="container max-w-6xl mx-auto px-4 pb-0">
-        <div className="w-full overflow-hidden" style={{ borderRadius: '60px 60px 60px 60px' }}>
+        <div className="w-full">
           <img
             src={heroImage}
             alt="Pastor preaching at WaterGate Church"

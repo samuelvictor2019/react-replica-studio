@@ -1,3 +1,5 @@
+import logo from "@/assets/logo.png";
+
 const footerLinks = {
   about: ["ABOUT TWC", "DOCTRINAL STATEMENT", "PASTORS PROFILE", "CONTACT US"],
   getInvolved: ["I'M A NEW MEMBER", "HOUSE GROUPS", "FAITHFUL STEWARDS", "FORMS"],
@@ -7,19 +9,18 @@ const footerLinks = {
 
 const Footer = () => {
   return (
-    <footer className="bg-[hsl(220,60%,96%)] text-foreground">
+    <footer className="bg-[hsl(220,60%,96%)] text-black">
       <div className="container max-w-6xl mx-auto px-4 py-12 md:py-16">
         {/* Top row */}
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_1fr_1fr] gap-10 md:gap-6">
           {/* Brand column */}
           <div className="flex flex-col gap-4">
             <div>
-              <span className="font-heading text-2xl font-bold tracking-wider text-primary">WATERGATE</span>
-              <p className="text-[10px] tracking-[0.25em] text-primary font-medium -mt-1">CHURCH</p>
+              <img src={logo} alt="Watergate" className="h-10 object-contain" />
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Expressing His Fullness</p>
+              <p className="text-xs text-black/70 mt-2">Expressing His Fullness</p>
             <div className="mt-4">
-              <p className="text-xs font-semibold tracking-wide text-foreground mb-3">CONNECT WITH US</p>
+              <p className="text-xs font-semibold tracking-wide text-black mb-3">CONNECT WITH US</p>
               <div className="flex items-center gap-3">
                 {/* YouTube */}
                 <a href="#" className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white hover:opacity-80 transition-opacity" aria-label="YouTube">
@@ -44,13 +45,13 @@ const Footer = () => {
           {/* Link columns */}
           {Object.entries(footerLinks).map(([key, links]) => (
             <div key={key}>
-              <h4 className="text-xs font-bold tracking-[0.15em] text-foreground mb-4 uppercase">
+              <h4 className="text-xs font-bold tracking-[0.15em] text-black mb-4 uppercase">
                 {key === "getInvolved" ? "GET INVOLVED" : key.toUpperCase()}
               </h4>
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link}>
-                    <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                    <a href="#" className="text-xs text-black hover:text-black transition-colors">
                       {link}
                     </a>
                   </li>
@@ -64,7 +65,7 @@ const Footer = () => {
       {/* Bottom bar */}
       <div className="border-t border-foreground/10">
         <div className="container max-w-6xl mx-auto px-4 py-4 text-center">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-black/70">
             ©{new Date().getFullYear()} Watergate Church
           </p>
         </div>

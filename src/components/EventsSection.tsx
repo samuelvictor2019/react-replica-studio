@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { MapPin, Clock } from "lucide-react";
-import event1Img from "@/assets/event-1.jpg";
-import event2Img from "@/assets/event-2.jpg";
-import event3Img from "@/assets/event-3.jpg";
+import event1Img from "@/assets/event-1.png";
+import event2Img from "@/assets/event-2.png";
+import event3Img from "@/assets/event-3.png";
 
 const tabs = ["UPCOMING", "THIS WEEK", "THIS MONTH"] as const;
 
@@ -77,39 +77,39 @@ const EventCard = ({ event }: { event: EventData }) => (
       {/* Left info */}
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <span className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+          <span className="text-xs font-semibold tracking-widest text-black/70 uppercase">
             {event.category}
           </span>
-          <h3 className="font-heading text-xl md:text-2xl font-bold text-foreground mt-1 mb-3">
+          <h3 className="font-heading text-xl md:text-2xl font-bold text-black mt-1 mb-3">
             {event.title}
           </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-black/70 leading-relaxed">
             {event.description}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 mt-4">
-          <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[11px] font-semibold px-3 py-1.5 rounded-full">
+          <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
             <Clock size={12} />
             {event.dateRange}
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[11px] font-semibold px-3 py-1.5 rounded-full">
+          <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
             <Clock size={12} />
             {event.time}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 mt-3 text-xs text-black/70 border border-black px-2 py-1 rounded-full">
           <MapPin size={12} />
-          <span>{event.location}</span>
+          <span className="truncate">{event.location}</span>
         </div>
       </div>
 
       {/* Right info */}
       <div className="flex flex-col items-start md:items-end justify-between md:min-w-[180px]">
         <div className="text-right">
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm font-semibold text-black">
             {event.attendees}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-black/70 mt-0.5">
             Open to All
           </p>
         </div>
@@ -119,10 +119,10 @@ const EventCard = ({ event }: { event: EventData }) => (
             alt="Church logo"
             className="w-20 h-10 object-contain rounded"
           />
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[10px] text-black/70">
             {event.registration}
           </p>
-          <button className="bg-primary text-primary-foreground text-sm font-semibold px-8 py-2.5 rounded-full hover:opacity-90 transition-opacity">
+          <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-white hover:text-black transition-colors">
             REGISTER
           </button>
         </div>
@@ -138,7 +138,7 @@ const EventsSection = () => {
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-3xl md:text-5xl font-medium text-center text-foreground mb-10">
+        <h2 className="font-heading text-3xl md:text-5xl font-medium text-center text-black mb-10">
           Explore what's
           <br />
           happening next
@@ -153,7 +153,7 @@ const EventsSection = () => {
               className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
                 activeTab === tab
                   ? "text-primary border-b-2 border-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-black/60 hover:text-black"
               }`}
             >
               {tab}
@@ -170,7 +170,7 @@ const EventsSection = () => {
 
         {/* View All */}
         <div className="flex justify-center mt-10">
-          <button className="border border-foreground text-foreground text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-foreground hover:text-background transition-colors">
+          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-white hover:text-black transition-colors">
             VIEW ALL EVENTS
           </button>
         </div>

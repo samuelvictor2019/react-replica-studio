@@ -4,6 +4,9 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import aboutHeroImg from "@/assets/about-hero.jpg";
 import aboutWaterImg from "@/assets/about-water.jpg";
+import aboutMission from "@/assets/about-mission.jpg";
+import aboutVision from "@/assets/about-vision.jpg";
+import aboutTwc from "@/assets/about-twc.png";
 import leader1 from "@/assets/leader-1.jpg";
 import leader2 from "@/assets/leader-2.jpg";
 import leader3 from "@/assets/leader-3.jpg";
@@ -44,14 +47,14 @@ const scriptureCards = [
     text: "Till we all come in the unity of the faith, and of the knowledge of the Son of God, unto a perfect man, unto the measure of the stature of the fulness of Christ.",
   },
   {
-    img: aboutHeroImg,
-    title: "Habakkuk 2:14",
-    text: "For the earth shall be filled with the knowledge of the glory of the LORD, as the waters cover the sea.",
+    img: aboutMission,
+    title: "The Mission",
+    text: "To raise a people that will stand as true and faithful witnesses, leaders and commanders across their spheres of influence by preaching Christ without distortion.",
   },
   {
-    img: aboutWaterImg,
-    title: "Isaiah 61:1",
-    text: "The Spirit of the Lord GOD is upon me; because the LORD hath anointed me to preach good tidings unto the meek; he hath sent me to bind up the brokenhearted, to proclaim liberty to the captives.",
+    img: aboutVision, 
+    title: "The Vision",
+    text: "To build a people that will demonstrate the nature and attain stature of Jesus Christ until the knowledge of the glory of the LORD takes over the earth as the waters cover the sea.",
   },
 ];
 
@@ -84,7 +87,7 @@ const About = () => {
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-foreground text-primary-foreground">
+      <section className="bg-background text-black">
         <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-2xl">
             Worship. Word.
@@ -93,7 +96,7 @@ const About = () => {
           </h1>
         </div>
         <div className="container max-w-6xl mx-auto px-4 pb-0">
-          <div className="w-full overflow-hidden" style={{ borderRadius: "60px" }}>
+          <div className="w-full">
             <img
               src={aboutHeroImg}
               alt="Worship team at WaterGate Church"
@@ -109,10 +112,10 @@ const About = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             {/* Text */}
             <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-6">
+              <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6">
                 About TWC
               </h2>
-              <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+              <div className="space-y-4 text-sm leading-relaxed text-black/70">
                 <p>
                   We are a Christ-centered community of believers (star-seed) who are naturally
                   supernatural and supernaturally natural with the mandate to see the knowledge
@@ -134,7 +137,7 @@ const About = () => {
             {/* Image */}
             <div className="w-full overflow-hidden" style={{ borderRadius: "40px" }}>
               <img
-                src={aboutHeroImg}
+                src={aboutTwc}
                 alt="Church community"
                 className="w-full h-[320px] md:h-[400px] object-cover"
               />
@@ -167,10 +170,10 @@ const About = () => {
 
               {/* Scripture text */}
               <div>
-                <h2 className="font-heading text-2xl md:text-3xl font-medium text-foreground mb-4">
+                <h2 className="font-heading text-2xl md:text-3xl font-medium text-black mb-4">
                   {card.title}
                 </h2>
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="text-sm leading-relaxed text-black/70">
                   "{card.text}"
                 </p>
               </div>
@@ -184,14 +187,14 @@ const About = () => {
               className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-foreground/5 transition-colors"
               aria-label="Previous scripture"
             >
-              <ArrowLeft className="w-4 h-4 text-foreground" />
+              <ArrowLeft className="w-4 h-4 text-black" />
             </button>
             <button
               onClick={() => goTo("next")}
               className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-foreground/5 transition-colors"
               aria-label="Next scripture"
             >
-              <ArrowRight className="w-4 h-4 text-foreground" />
+              <ArrowRight className="w-4 h-4 text-black" />
             </button>
           </div>
         </div>
@@ -200,7 +203,7 @@ const About = () => {
       {/* The Strategy */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl mx-auto px-4 text-center">
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-14">
+          <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-14">
             The Strategy
           </h2>
 
@@ -210,7 +213,7 @@ const About = () => {
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-primary">
                   <img src={l.img} alt={l.name} className="w-full h-full object-cover" />
                 </div>
-                <p className="text-xs leading-relaxed text-muted-foreground max-w-[180px]">
+                <p className="text-xs text-left leading-relaxed text-black/70 max-w-[180px]">
                   {l.desc}
                 </p>
               </div>
