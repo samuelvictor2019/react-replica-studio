@@ -4,6 +4,7 @@ import WelcomeSection from "@/components/WelcomeSection";
 import EventsSection from "@/components/EventsSection";
 import LatestMediaSection from "@/components/LatestMediaSection";
 import ContactSection from "@/components/ContactSection";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -14,6 +15,7 @@ const Index = () => {
       <EventsSection />
       <LatestMediaSection />
       <ContactSection />
+      <Footer />
     </div>
   );
 };
