@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
-const navLinks = ["HOME", "ABOUT", "GET INVOLVED", "EVENTS", "MEDIA"];
+const navLinks = [
+  { label: "HOME", href: "/" },
+  { label: "ABOUT", href: "/about" },
+  { label: "GET INVOLVED", href: "#" },
+  { label: "EVENTS", href: "#events" },
+  { label: "MEDIA", href: "#" },
+];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,11 +24,11 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
-              key={link}
-              href="#"
+              key={link.label}
+              href={link.href}
               className="text-[11px] font-semibold tracking-widest text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
-              {link}
+              {link.label}
             </a>
           ))}
         </div>
@@ -50,11 +56,11 @@ const Navbar = () => {
         <div className="md:hidden bg-foreground/95 backdrop-blur-sm px-4 pb-6 pt-2 flex flex-col gap-4">
           {navLinks.map((link) => (
             <a
-              key={link}
-              href="#"
+              key={link.label}
+              href={link.href}
               className="text-xs font-semibold tracking-widest text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
-              {link}
+              {link.label}
             </a>
           ))}
           <a
