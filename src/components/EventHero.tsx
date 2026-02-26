@@ -14,14 +14,12 @@ const EventHero: React.FC<{ title?: string; subtitle?: string }> = ({
         {subtitle && <p className="mt-4 text-black/70 max-w-2xl">{subtitle}</p>}
       </div>
 
-      <div className="container max-w-6xl mx-auto px-4 pb-0">
-        <div className="w-full overflow-hidden">
-          <img
-            src={eventHeroImg}
-            alt={`${title} hero`}
-            className="w-full h-[320px] md:h-[480px] lg:h-[560px] object-cover"
-          />
-        </div>
+      <div className="w-full">
+        <img
+          src={eventHeroImg}
+          alt={`${title} hero`}
+          className="w-full h-[320px] md:h-[480px] lg:h-[560px] object-cover"
+        />
       </div>
     </section>
   );

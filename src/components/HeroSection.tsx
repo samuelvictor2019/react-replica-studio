@@ -29,15 +29,13 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Hero Image with curved edges */}
-      <div className="container max-w-6xl mx-auto px-4 pb-0">
-        <div className="w-full">
-          <img
-            src={heroImage}
-            alt="Pastor preaching at WaterGate Church"
-            className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
-          />
-        </div>
+      {/* Hero Image */}
+      <div className="w-full">
+        <img
+          src={heroImage}
+          alt="Pastor preaching at WaterGate Church"
+          className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
+        />
       </div>
     </section>
   );
