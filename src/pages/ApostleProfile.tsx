@@ -35,11 +35,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Bio Section 1 */}
+      {/* Bio Section 1 — left-aligned (bleeds left) */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15]">
+        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-4 md:pl-8">
               Apostle.
               <br />
               Shepherd.
@@ -47,7 +47,7 @@ const ApostleProfile = () => {
               Father.
             </h2>
 
-            <p className="text-sm leading-relaxed text-foreground/70">
+            <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
               Apostle Adebowale Adesina is the Serving Overseer of The WaterGate
               Church and the Lead Facilitator of Present Truth Leadership Forum,
               a Christ-centered community of saints, pressing into the fullness
@@ -58,11 +58,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Gallery 1 */}
+      {/* Gallery 1 — bleeds left */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
+        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
           <div className="grid grid-cols-3 gap-3 md:gap-5">
-            <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-hidden rounded-r-2xl">
               <img src={gallery1} alt="Ministry moment" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
@@ -75,11 +75,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Bio Section 2 — Discipler. Mentor. Teacher. */}
+      {/* Bio Section 2 — right-aligned (bleeds right) */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
+        <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <p className="text-sm leading-relaxed text-foreground/70">
+            <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
               He is also the Facilitator of Hiddekel Miracle Explosion,
               Hiddekel School of Leadership and the Supernatural which comprises
               of Psalmist Boot Camp, Seers and Scribes Boot Camp, and other
@@ -89,7 +89,7 @@ const ApostleProfile = () => {
               expressing the fullness of Christ across the earth.
             </p>
 
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-4 md:pr-8">
               Discipler.
               <br />
               Mentor.
@@ -100,9 +100,9 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Gallery 2 */}
+      {/* Gallery 2 — bleeds right */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
+        <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
           <div className="grid grid-cols-3 gap-3 md:gap-5">
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery4} alt="Teaching" className="w-full h-[160px] md:h-[240px] object-cover" />
@@ -110,7 +110,7 @@ const ApostleProfile = () => {
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
-            <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-hidden rounded-l-2xl">
               <img src={gallery6} alt="Discipleship" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
           </div>
