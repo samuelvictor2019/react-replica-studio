@@ -9,6 +9,7 @@ import Events from "./pages/Events";
 import Media from "./pages/Media";
 import NewMember from "./pages/NewMember";
 import ApostleProfile from "./pages/ApostleProfile";
+import AltarCall from "./pages/AltarCall";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/media" element={<Media />} />
           <Route path="/new-member" element={<NewMember />} />
           <Route path="/apostle" element={<ApostleProfile />} />
+          <Route path="/altar-call" element={<AltarCall />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
