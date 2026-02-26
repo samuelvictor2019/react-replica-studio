@@ -4,6 +4,12 @@ import heroImg from "@/assets/apostles_hero.jpg";
 import gallery1 from "@/assets/community-1.jpg";
 import gallery2 from "@/assets/community-2.jpg";
 import gallery3 from "@/assets/community-3.jpg";
+import gallery4 from "@/assets/leader-1.jpg";
+import gallery5 from "@/assets/community-4.jpg";
+import gallery6 from "@/assets/leader-2.jpg";
+import gallery7 from "@/assets/leader-3.jpg";
+import gallery8 from "@/assets/community-11.jpg";
+import gallery9 from "@/assets/leader-4.jpg";
 
 const ApostleProfile = () => {
   return (
@@ -29,7 +35,7 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Bio Section */}
+      {/* Bio Section 1 */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
@@ -52,30 +58,107 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Gallery */}
+      {/* Gallery 1 */}
       <section className="pb-16 md:pb-24 bg-background">
         <div className="container max-w-5xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-3 md:gap-5">
             <div className="overflow-hidden rounded-2xl">
-              <img
-                src={gallery1}
-                alt="Ministry moment"
-                className="w-full h-[160px] md:h-[240px] object-cover"
-              />
+              <img src={gallery1} alt="Ministry moment" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
-              <img
-                src={gallery2}
-                alt="Serving"
-                className="w-full h-[160px] md:h-[240px] object-cover"
-              />
+              <img src={gallery2} alt="Serving" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
-              <img
-                src={gallery3}
-                alt="Community"
-                className="w-full h-[160px] md:h-[240px] object-cover"
-              />
+              <img src={gallery3} alt="Community" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bio Section 2 — Discipler. Mentor. Teacher. */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <p className="text-sm leading-relaxed text-foreground/70">
+              He is also the Facilitator of Hiddekel Miracle Explosion,
+              Hiddekel School of Leadership and the Supernatural which comprises
+              of Psalmist Boot Camp, Seers and Scribes Boot Camp, and other
+              modules of training in the Supernatural. He is committed to
+              training, equipping, and discipleship of the saints within and
+              outside the nation. He is passionate about intimacy with God and
+              expressing the fullness of Christ across the earth.
+            </p>
+
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right">
+              Discipler.
+              <br />
+              Mentor.
+              <br />
+              Teacher.
+            </h2>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery 2 */}
+      <section className="pb-16 md:pb-24 bg-background">
+        <div className="container max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-5">
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery4} alt="Teaching" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery6} alt="Discipleship" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bio Section 3 — Leader. Builder. Husband. */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15]">
+              Leader.
+              <br />
+              Builder.
+              <br />
+              Husband.
+            </h2>
+
+            <div className="space-y-4">
+              <p className="text-sm leading-relaxed text-foreground/70">
+                He is a graduate of Agricultural Engineering from the University
+                of Ibadan. He also obtained two master degrees; the first in
+                Geographical Information Systems and secondly, in Soil and Water
+                Conservation Engineering. He was a former University lecturer at
+                the Olabisi Onabanjo University before he resigned to pioneer The
+                WaterGate Church.
+              </p>
+              <p className="text-sm leading-relaxed text-foreground/70">
+                He resides in Sango-Ota, Ogun state, Nigeria. He is married to
+                Oluwatosin Adesina.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery 3 */}
+      <section className="pb-16 md:pb-24 bg-background">
+        <div className="container max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-3 gap-3 md:gap-5">
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery8} alt="Family" className="w-full h-[160px] md:h-[240px] object-cover" />
+            </div>
+            <div className="overflow-hidden rounded-2xl">
+              <img src={gallery9} alt="Building" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
           </div>
         </div>
