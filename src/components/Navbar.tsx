@@ -27,6 +27,7 @@ const navItems = [
       { label: "I'm a New Member", href: "/new-member", icon: newMember },
       { label: "House Groups", href: "/house-groups", icon: houseGroups },
       { label: "Faithful Stewards", href: "/stewards", icon: stewards },
+      { label: "Altar Call", href: "/altar-call", icon: formsImg },
       { label: "Forms", href: "/forms", icon: formsImg },
     ],
   },
