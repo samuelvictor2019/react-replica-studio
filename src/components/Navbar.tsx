@@ -17,7 +17,7 @@ const navItems = [
     submenu: [
       { label: "About TWC", href: "/about", icon: aboutTwc },
       { label: "Doctrinal Statement", href: "/doctrine", icon: doctrinal },
-      { label: "Pastor's Profile", href: "/pastor", icon: pastor },
+      { label: "Apostle's Profile", href: "/apostle", icon: pastor },
       { label: "Contact US", href: "/contact", icon: contactImg },
     ],
   },
