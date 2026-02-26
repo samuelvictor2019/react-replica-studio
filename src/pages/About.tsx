@@ -95,14 +95,12 @@ const About = () => {
             Community. Purpose.
           </h1>
         </div>
-        <div className="container max-w-6xl mx-auto px-4 pb-0">
-          <div className="w-full">
-            <img
-              src={aboutHeroImg}
-              alt="Worship team at WaterGate Church"
-              className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
-            />
-          </div>
+        <div className="w-full">
+          <img
+            src={aboutHeroImg}
+            alt="Worship team at WaterGate Church"
+            className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
+          />
         </div>
       </section>
 
