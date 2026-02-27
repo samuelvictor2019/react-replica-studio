@@ -126,68 +126,69 @@ const FaithfulStewards: React.FC = () => {
       </section>
 
       {/* ── Why Serve? ── */}
-      <section className="bg-background py-16 md:py-24">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-            <div>
+      <section className="bg-muted/40 py-16 md:py-24">
+        <div className="max-w-[1400px] mx-auto px-4">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
+            {/* Left – heading, text, arrows */}
+            <div className="flex-shrink-0 md:w-[280px] lg:w-[320px] flex flex-col justify-center md:pr-10">
               <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight">
                 Why Serve?
               </h2>
-              <p className="mt-3 text-sm text-muted-foreground max-w-md">
+              <p className="mt-3 text-sm text-muted-foreground max-w-[260px]">
                 We believe service is a pathway to maturity, leadership, and joy
                 in the body of Christ.
               </p>
-            </div>
-
-            {/* Arrows */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => scroll("left")}
-                disabled={!canScrollLeft}
-                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
-                aria-label="Scroll left"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <button
-                onClick={() => scroll("right")}
-                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
-                aria-label="Scroll right"
-              >
-                <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-
-          {/* Horizontal scroll cards */}
-          <div
-            ref={scrollRef}
-            onScroll={updateScroll}
-            className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {serveCards.map((card) => (
-              <div
-                key={card.title}
-                className="min-w-[260px] max-w-[280px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
-              >
-                <div className="overflow-hidden">
-                  <img
-                    src={card.img}
-                    alt={card.title}
-                    className="w-full h-44 object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-5">
-                  <h4 className="font-heading text-lg font-semibold text-foreground mb-1">
-                    {card.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {card.text}
-                  </p>
-                </div>
+              <div className="flex items-center gap-3 mt-8">
+                <button
+                  onClick={() => scroll("left")}
+                  disabled={!canScrollLeft}
+                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                  aria-label="Scroll left"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <button
+                  onClick={() => scroll("right")}
+                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
+                  aria-label="Scroll right"
+                >
+                  <ArrowRight size={18} />
+                </button>
               </div>
-            ))}
+            </div>
+
+            {/* Right – scrollable cards */}
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div
+                ref={scrollRef}
+                onScroll={updateScroll}
+                className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {serveCards.map((card) => (
+                  <div
+                    key={card.title}
+                    className="min-w-[260px] w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
+                  >
+                    <div className="overflow-hidden">
+                      <img
+                        src={card.img}
+                        alt={card.title}
+                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <h4 className="font-heading text-lg font-semibold text-foreground mb-1">
+                        {card.title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {card.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
