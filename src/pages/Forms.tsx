@@ -41,21 +41,35 @@ const Forms = () => {
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             <div>
-              <h2 className="font-heading text-2xl md:text-3xl font-medium text-black mb-4">We're here to walk with you</h2>
-              <p className="text-sm text-black/70 max-w-xl">
+              <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-5">
+                We're here to
+                <br />
+                walk with you
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-sm leading-relaxed mb-3">
                 This page brings together important forms that help us serve you better—whether you're celebrating a milestone, taking a next step, or sharing what God has done.
+              </p>
+              <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+                Select the form that applies to you, and we'll take it from there.
               </p>
             </div>
 
-            <div>
-              <p className="text-sm text-black/70">Support for every season</p>
-              <p className="text-sm text-black/70 mt-2">Simple steps that help us walk with you through every season.</p>
+            <div className="flex items-start gap-3 pt-2">
+              <span className="text-6xl md:text-7xl font-heading text-muted-foreground/30 leading-none -mt-4">"</span>
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-2">Support for every season</p>
+                <p className="text-sm font-semibold text-foreground leading-relaxed">
+                  Simple steps that help us walk with you
+                  <br />
+                  through every season.
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="mt-10">
             <div className="overflow-hidden rounded-2xl">
-              <img src={formsOne} alt="community" className="w-full h-48 md:h-64 object-cover" />
+              <img src={formsOne} alt="community" className="w-full h-[280px] md:h-[400px] object-cover" />
             </div>
           </div>
         </div>
