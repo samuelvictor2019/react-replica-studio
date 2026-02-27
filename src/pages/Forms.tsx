@@ -22,8 +22,8 @@ const Forms = () => {
           </h1>
         </div>
 
-        <div className="w-full overflow-hidden">
-          <img src={formsHero} alt="Forms hero" className="w-full h-[360px] md:h-[480px] object-cover rounded-b-[40%]" />
+        <div className="w-full">
+          <img src={formsHero} alt="Forms hero" className="w-full h-auto object-contain" />
         </div>
       </section>
 
@@ -67,9 +67,9 @@ const Forms = () => {
             </div>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10 pl-4 md:pl-12">
             <div className="overflow-hidden rounded-2xl">
-              <img src={formsOne} alt="community" className="w-full h-[280px] md:h-[400px] object-cover" />
+              <img src={formsOne} alt="community" className="w-full h-[260px] md:h-[380px] object-cover" />
             </div>
           </div>
         </div>
