@@ -32,12 +32,12 @@ const WelcomeSection = () => {
                 <img
                   src={community1}
                   alt="Church community members"
-                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
                 />
                 <img
                   src={community3}
                   alt="Church families"
-                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
                 />
               </div>
               {/* Right column — pushed up */}
@@ -45,12 +45,12 @@ const WelcomeSection = () => {
                 <img
                   src={community2}
                   alt="Church youth group"
-                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
                 />
                 <img
                   src={community4}
                   alt="Church worship"
-                  className="w-full h-40 md:h-48 object-cover rounded-lg"
+                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
                 />
               </div>
             </div>

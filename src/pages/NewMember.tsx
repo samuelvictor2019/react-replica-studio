@@ -1,8 +1,12 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import onboardingImg from "@/assets/newmember_hero.jpg";
-import joinImg from "@/assets/community-4.jpg";
-import whatImg from "@/assets/community-3.jpg";
+import joinImg from "@/assets/newmember_1.jpg";
+import whatImg from "@/assets/newmember2.jpg";
+import slideOne from "@/assets/slide1.jpg";
+import slideTwo from "@/assets/slide2.jpg";
+import slideThree from "@/assets/slide3.jpg";
+import slideFour from "@/assets/slide4.jpg";
 
 const NewMember = () => {
   return (
@@ -11,20 +15,22 @@ const NewMember = () => {
 
       {/* Hero */}
       <section className="relative bg-white">
-        <div className="container max-w-6xl mx-auto px-4 pt-12 pb-6">
-          <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-medium leading-tight text-black">
+        <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
+          <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-medium leading-tight text-black hero-fade delay-1">
             WaterGate Church
             <br />
             is a family
           </h1>
         </div>
 
-        <div className="w-full overflow-hidden">
-          <img
-            src={onboardingImg}
-            alt="WaterGate family"
-            className="w-full h-[420px] md:h-[520px] lg:h-[620px] object-cover"
-          />
+        <div className="w-full">
+          <div className="w-full overflow-hidden group hero-fade delay-2">
+            <img
+              src={onboardingImg}
+              alt="WaterGate family"
+              className="w-full h-[420px] md:h-[520px] lg:h-[620px] object-cover hero-kenburns transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
         </div>
       </section>
 
@@ -62,7 +68,7 @@ const NewMember = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={whatImg} alt="Expect" className="w-full h-40 object-cover" />
+              <img src={slideOne} alt="Expect" className="w-full h-40 object-cover" />
               <div className="p-4">
                 <h4 className="font-medium text-black mb-2">A Warm, Loving Community</h4>
                 <p className="text-sm text-black/70">You'll find people who care, worship and serve together.</p>
@@ -70,7 +76,7 @@ const NewMember = () => {
             </div>
 
             <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={joinImg} alt="Expect" className="w-full h-40 object-cover" />
+              <img src={slideTwo} alt="Expect" className="w-full h-40 object-cover" />
               <div className="p-4">
                 <h4 className="font-medium text-black mb-2">Practical Teaching</h4>
                 <p className="text-sm text-black/70">Teaching that applies Jesus' life and love to everyday living.</p>
@@ -78,7 +84,15 @@ const NewMember = () => {
             </div>
 
             <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={onboardingImg} alt="Expect" className="w-full h-40 object-cover" />
+              <img src={slideThree} alt="Expect" className="w-full h-40 object-cover" />
+              <div className="p-4">
+                <h4 className="font-medium text-black mb-2">Connect & Serve</h4>
+                <p className="text-sm text-black/70">Small groups, ministries and opportunities to grow in service and faith.</p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
+              <img src={slideFour} alt="Expect" className="w-full h-40 object-cover" />
               <div className="p-4">
                 <h4 className="font-medium text-black mb-2">Connect & Serve</h4>
                 <p className="text-sm text-black/70">Small groups, ministries and opportunities to grow in service and faith.</p>

@@ -8,20 +8,20 @@ const HeroSection = () => {
       <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           {/* Heading */}
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-lg">
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-lg hero-fade delay-1">
             Expressing
             <br />
             His Fullness
           </h1>
 
           {/* Description */}
-          <div className="max-w-sm">
+          <div className="max-w-sm hero-fade delay-2">
             <p className="text-sm leading-relaxed text-black/70 mb-4">
               We are Christ-centered community of believers (star-seed) who are naturally supernatural and supernaturally natural with the mandate to see the knowledge of the glory of the LORD take over the earth as the waters cover the sea.
             </p>
             <a
               href="#about"
-              className="inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 text-xs font-semibold tracking-widest hover:gap-3 transition-all"
+              className="inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 text-xs font-semibold tracking-widest hover:gap-3 transition-all hero-fade delay-3"
             >
               LEARN MORE <ArrowRight size={14} />
             </a>
@@ -31,11 +31,13 @@ const HeroSection = () => {
 
       {/* Hero Image */}
       <div className="w-full">
-        <img
-          src={heroImage}
-          alt="Pastor preaching at WaterGate Church"
-          className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
-        />
+          <div className="w-full overflow-hidden group hero-fade delay-2">
+            <img
+              src={heroImage}
+              alt="Pastor preaching at WaterGate Church"
+              className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover hero-kenburns transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
       </div>
     </section>
   );

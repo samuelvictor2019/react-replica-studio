@@ -3,7 +3,7 @@ import MediaHero from "@/components/MediaHero";
 import LatestMediaSection from "@/components/LatestMediaSection";
 import MediaNotice from "@/components/MediaNotice";
 import Footer from "@/components/Footer";
-import mediaThumb from "@/assets/community-4.jpg";
+import mediaThumb from "@/assets/media_hub.jpg";
 
 const Media = () => {
   return (
@@ -21,7 +21,7 @@ const Media = () => {
             </div>
 
             <div className="overflow-hidden rounded-[18px]">
-              <img src={mediaThumb} alt="Media hero" className="w-full h-56 md:h-72 object-cover" />
+              <img src={mediaThumb} alt="Media hub" className="w-full h-56 md:h-72 object-cover" />
             </div>
           </div>
         </div>

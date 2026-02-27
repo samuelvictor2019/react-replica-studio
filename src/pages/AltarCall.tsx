@@ -26,6 +26,7 @@ const AltarCall = () => {
     consent: false,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const update = (field: string, value: string | boolean) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -33,9 +34,18 @@ const AltarCall = () => {
   const canProceed = formData.fullName.trim() && formData.phone.trim() && formData.decision;
   const canSubmit = formData.consent;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      const { postForm } = await import('@/lib/api');
+      await postForm('altar-call', formData);
+      setSubmitted(true);
+    } catch (err: any) {
+      alert(err?.message || 'Submission failed');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -242,10 +252,10 @@ const AltarCall = () => {
                 ) : (
                   <Button
                     className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90"
-                    disabled={!canSubmit}
+                    disabled={!canSubmit || submitting}
                     onClick={handleSubmit}
                   >
-                    SUBMIT FORM
+                    {submitting ? 'SENDING...' : 'SUBMIT FORM'}
                   </Button>
                 )}
               </div>

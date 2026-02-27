@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import logo from "@/assets/logo.png";
-import aboutTwc from "@/assets/about-twc.png";
-import doctrinal from "@/assets/doctrinal_hero.jpg";
-import pastor from "@/assets/leader-1.jpg";
-import contactImg from "@/assets/contact-1.jpg";
-import newMember from "@/assets/community-1.png";
-import houseGroups from "@/assets/community-3.jpg";
-import stewards from "@/assets/community-2.png";
-import formsImg from "@/assets/about-mission.jpg";
+import aboutTwc from "@/assets/about_nav.jpg";
+import doctrinal from "@/assets/doctrinal_nav.jpg";
+import pastor from "@/assets/pastor_nav.jpg";
+import contactImg from "@/assets/contact_nav.jpg";
+import newMember from "@/assets/newmember_nav.jpg";
+import houseGroups from "@/assets/housegroup_nav.jpg";
+import stewards from "@/assets/stewards_nav.jpg";
+import formsImg from "@/assets/forms_nav.jpg";
 
 const navItems = [
   { label: "HOME", href: "/" },
@@ -27,7 +27,6 @@ const navItems = [
       { label: "I'm a New Member", href: "/new-member", icon: newMember },
       { label: "House Groups", href: "/house-groups", icon: houseGroups },
       { label: "Faithful Stewards", href: "/stewards", icon: stewards },
-      { label: "Altar Call", href: "/altar-call", icon: formsImg },
       { label: "Forms", href: "/forms", icon: formsImg },
     ],
   },

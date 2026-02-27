@@ -85,6 +85,41 @@
   }
 }
 
+/* Hero image subtle Ken Burns animation (slower and stronger for visibility) */
+@keyframes hero-kenburns {
+  0% { transform: scale(1) translateX(0); }
+  50% { transform: scale(1.08) translateX(3%); }
+  100% { transform: scale(1) translateX(0); }
+}
+
+.hero-kenburns {
+  animation: hero-kenburns 30s ease-in-out infinite;
+  transform-origin: center;
+  animation-play-state: running;
+  will-change: transform;
+}
+
+/* Pause the Ken Burns animation while hovering (hover will apply scale via Tailwind) */
+.group:hover .hero-kenburns {
+  animation-play-state: paused;
+}
+
+/* Entrance animation for hero content on page load */
+@keyframes hero-fade {
+  0% { opacity: 0; transform: translateY(18px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.hero-fade {
+  opacity: 0;
+  animation: hero-fade 900ms cubic-bezier(.22,.9,.32,1) both;
+}
+
+/* stagger helpers */
+.hero-fade.delay-1 { animation-delay: 160ms; }
+.hero-fade.delay-2 { animation-delay: 320ms; }
+.hero-fade.delay-3 { animation-delay: 480ms; }
+
 @layer base {
   * {
     @apply border-border;

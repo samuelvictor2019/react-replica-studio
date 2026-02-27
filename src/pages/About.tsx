@@ -89,18 +89,20 @@ const About = () => {
       {/* Hero */}
       <section className="bg-background text-black">
         <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-2xl">
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-2xl hero-fade delay-1">
             Worship. Word.
             <br />
             Community. Purpose.
           </h1>
         </div>
         <div className="w-full">
-          <img
-            src={aboutHeroImg}
-            alt="Worship team at WaterGate Church"
-            className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover"
-          />
+          <div className="w-full overflow-hidden group hero-fade delay-2">
+            <img
+              src={aboutHeroImg}
+              alt="Worship team at WaterGate Church"
+              className="w-full h-[300px] md:h-[450px] lg:h-[520px] object-cover hero-kenburns transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          </div>
         </div>
       </section>
 

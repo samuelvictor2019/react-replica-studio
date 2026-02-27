@@ -1,0 +1,131 @@
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import formsHero from "@/assets/forms_hero.jpg";
+import formsOne from "@/assets/form1.jpg";
+import formsTwo from "@/assets/form2.jpg";
+import NewMemberRegistration from "./NewMemberRegistration";
+
+const Forms = () => {
+  const [showNewMember, setShowNewMember] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+
+      <section className="relative bg-white">
+        <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
+          <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-medium leading-tight text-black">
+            We're here to
+            <br />
+            walk with you
+          </h1>
+        </div>
+
+        <div className="w-full overflow-hidden">
+          <img src={formsHero} alt="Forms hero" className="w-full h-[360px] md:h-[480px] object-cover rounded-b-[40%]" />
+        </div>
+      </section>
+
+      {/* New Member modal overlay */}
+      {showNewMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowNewMember(false)} />
+          <div className="relative z-50 mx-4 w-full max-w-3xl">
+            <NewMemberRegistration modal onClose={() => setShowNewMember(false)} />
+          </div>
+        </div>
+      )}
+
+      <section className="py-12 md:py-20 bg-white">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <div>
+              <h2 className="font-heading text-2xl md:text-3xl font-medium text-black mb-4">We're here to walk with you</h2>
+              <p className="text-sm text-black/70 max-w-xl">
+                This page brings together important forms that help us serve you better—whether you're celebrating a milestone, taking a next step, or sharing what God has done.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-black/70">Support for every season</p>
+              <p className="text-sm text-black/70 mt-2">Simple steps that help us walk with you through every season.</p>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <div className="overflow-hidden rounded-2xl">
+              <img src={formsOne} alt="community" className="w-full h-48 md:h-64 object-cover" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Forms Grid */}
+      <section className="py-12 md:py-20 bg-background">
+        <div className="container max-w-6xl mx-auto px-4">
+          <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6 text-center">Connecting You to Care, Celebration, and Community</h2>
+          <p className="text-sm text-black/70 text-center max-w-2xl mx-auto mb-8">Select the form that applies to you, and we'll take it from there. Your submissions are treated with care, prayer, and confidentiality.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Baby Dedication Form', desc: "Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." , action: 'FILL FORM →'},
+              { title: 'Baby Naming Form', desc: "We rejoice with your family. Please share the needed details so we can support you and properly document this joyful milestone.", action: 'FILL FORM →'},
+              { title: 'Testimony Form', desc: "Has God done something beautiful in your life? Share your testimony so it can encourage others and glorify God among His people.", action: 'SHARE YOUR TESTIMONY →'},
+              { title: 'Feedback / Suggestion Form', desc: "Your voice matters to us. Help us grow and serve better by sharing your feedback, thoughts, or suggestions.", action: 'SEND FEEDBACK →'},
+              { title: 'Altar Call Form', desc: "If you gave your life to Christ or need pastoral support, fill this form so we can follow up and walk with you.", action: 'ALTAR CALL FORM →'},
+              { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
+              { title: 'Volunteer Form', desc: "Ready to serve? Tell us where you feel led and we'll help you find a place to serve.", action: 'BECOME A VOLUNTEER →'},
+              { title: 'Pre-Marital Counselling Form', desc: "Preparing for marriage is a sacred journey. This form helps us connect you with premarital counselling and guidance.", action: 'REQUEST COUNSELLING →'},
+              { title: 'Event Registration', desc: "Register to attend our events. Please provide contact details and attendance days so we can plan accordingly.", action: 'REGISTER →'},
+              { title: 'Counselling Request', desc: "If you need pastoral guidance, counselling, or spiritual support, tell us here so we can reach out pastorally and biblically.", action: 'REQUEST COUNSELLING →'},
+            ].map((f, idx) => (
+              <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="w-full h-40 md:h-44 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
+                  {/* image placeholder */}
+                </div>
+                <h3 className="font-medium text-black mb-2">{f.title}</h3>
+                <p className="text-sm text-black/70 mb-3">{f.desc}</p>
+                {f.title === 'First Timer Form' ? (
+                  <button onClick={() => setShowNewMember(true)} className="text-sm text-sky-500 font-semibold">{f.action}</button>
+                ) : (
+                  <a href={
+                    f.title === 'Altar Call Form' ? '/altar-call' :
+                    f.title === 'Baby Dedication Form' ? '/baby-dedication' :
+                    f.title === 'Testimony Form' ? '/testimony' :
+                    f.title === 'Pre-Marital Counselling Form' ? '/pre-marital-counseling' :
+                    f.title === 'Event Registration' ? '/event-registration' :
+                    f.title === 'Counselling Request' ? '/counselling' :
+                    '#'
+                  } className="text-sm text-sky-500 font-semibold">{f.action}</a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Form Submission Notice Section */}
+      <section className="py-12 md:py-20 bg-white">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="order-2 md:order-1">
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-black mb-4">Form Submission Notice</h2>
+              <p className="text-sm text-black/70 max-w-md">Some forms require pastoral confirmation before approval. Submitting a form does not automatically confirm scheduling or placement.</p>
+            </div>
+
+            <div className="order-1 md:order-2">
+              <div className="overflow-hidden rounded-2xl">
+                <img src={formsTwo} alt="form notice" className="w-full h-40 md:h-56 object-cover" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Forms;
