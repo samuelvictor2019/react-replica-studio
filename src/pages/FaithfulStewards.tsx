@@ -193,6 +193,52 @@ const FaithfulStewards: React.FC = () => {
         </div>
       </section>
 
+      {/* ── Find Where You Fit ── */}
+      <section className="bg-background py-16 md:py-24">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Left – text */}
+            <div>
+              <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
+                Find Where
+                <br />
+                You Fit
+              </h2>
+              <div className="space-y-4 text-sm leading-relaxed text-muted-foreground max-w-md">
+                <p>
+                  Not sure where to serve? That's okay.
+                  <br />
+                  We're committed to helping you discover the department that aligns with your giftings, availability, and passion. You don't need to have everything figured out—we'll walk with you.
+                </p>
+                <div>
+                  <p>After signing up, a department lead will reach out to guide you through:</p>
+                  <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li>Orientation and expectations</li>
+                    <li>Training (where required)</li>
+                    <li>Integration into a department or unit</li>
+                  </ul>
+                </div>
+              </div>
+              <a
+                href="/stewards/join"
+                className="inline-block mt-8 px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-foreground/90 transition-colors"
+              >
+                Join a Unit
+              </a>
+            </div>
+
+            {/* Right – image */}
+            <div className="w-full overflow-hidden rounded-2xl">
+              <img
+                src={leaderImg2}
+                alt="Community members"
+                className="w-full h-[360px] md:h-[460px] object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
