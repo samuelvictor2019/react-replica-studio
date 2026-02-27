@@ -19,6 +19,7 @@ import PreMaritalCounseling from "./pages/PreMaritalCounseling";
 import Testimony from "./pages/Testimony";
 import NewMemberRegistration from "./pages/NewMemberRegistration";
 import Counselling from "./pages/Counselling";
+import FaithfulStewards from "./pages/FaithfulStewards";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +45,8 @@ const App = () => (
           <Route path="/event-registration" element={<EventRegistration />} />
             <Route path="/pre-marital-counseling" element={<PreMaritalCounseling />} />
           <Route path="/testimony" element={<Testimony />} />
-          <Route path="/apostle" element={<ApostleProfile />} />
+           <Route path="/apostle" element={<ApostleProfile />} />
+           <Route path="/stewards" element={<FaithfulStewards />} />
           <Route path="/altar-call" element={<AltarCall />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
