@@ -2,12 +2,13 @@ import React, { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroImg from "@/assets/faithfulsteward_hero.jpg";
-import communityImg1 from "@/assets/community-1.jpg";
-import communityImg2 from "@/assets/community-2.jpg";
-import communityImg3 from "@/assets/community-3.jpg";
-import communityImg4 from "@/assets/community-4.jpg";
-import leaderImg1 from "@/assets/leader-11.jpg";
-import leaderImg2 from "@/assets/leader-21.jpg";
+import communityImg1 from "@/assets/stewardslide1.jpg";
+import communityImg2 from "@/assets/stewardslide2.jpg";
+import communityImg3 from "@/assets/stewardslide4.jpg";
+import communityImg4 from "@/assets/stewardslide5.jpg";
+import communityImg5 from "@/assets/stewardslide6.jpg";
+import leaderImg1 from "@/assets/steward1.jpg";
+import leaderImg2 from "@/assets/stewards2.jpg";
 import leaderImg3 from "@/assets/leader-31.jpg";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -30,6 +31,11 @@ const serveCards = [
   },
   {
     img: communityImg4,
+    title: "Impact Lives",
+    text: "Make a lasting difference in people's lives through service.",
+  },
+  {
+    img: communityImg5,
     title: "Impact Lives",
     text: "Make a lasting difference in people's lives through service.",
   },
