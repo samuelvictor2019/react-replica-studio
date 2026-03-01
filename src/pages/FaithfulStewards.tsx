@@ -69,11 +69,11 @@ const FaithfulStewards: React.FC = () => {
         </div>
 
         <div className="w-full">
-          <div className="w-full overflow-hidden group hero-fade delay-2">
+          <div className="w-full">
             <img
               src={heroImg}
               alt="Faithful Stewards hero"
-              className="w-full h-[320px] md:h-[480px] lg:h-[560px] object-cover hero-kenburns transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-auto object-contain hero-fade delay-2"
             />
           </div>
         </div>

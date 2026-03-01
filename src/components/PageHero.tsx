@@ -12,9 +12,7 @@ const PageHero = () => {
       </div>
 
       <div className="w-full">
-        <div className="w-full overflow-hidden group hero-fade delay-2">
-          <img src={heroImage} alt="People at event" className="w-full h-[420px] md:h-[480px] lg:h-[560px] object-cover hero-kenburns transition-transform duration-700 ease-out group-hover:scale-105" />
-        </div>
+        <img src={heroImage} alt="People at event" className="w-full h-auto object-contain hero-fade delay-2" />
       </div>
     </section>
   );

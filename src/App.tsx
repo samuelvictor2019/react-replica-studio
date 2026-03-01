@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Events from "./pages/Events";
@@ -24,6 +25,40 @@ import FaithfulStewards from "./pages/FaithfulStewards";
 const queryClient = new QueryClient();
 
 // Allow a local dev API URL via env: VITE_API_URL (e.g. http://localhost:4000)
+
+const TitleUpdater = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      "/": "Home",
+      "/about": "About",
+      "/events": "Events",
+      "/media": "Media",
+      "/new-member": "New Member",
+      "/new-member-registration": "New Member Registration",
+      "/doctrine": "Doctrine",
+      "/forms": "Forms",
+      "/counselling": "Counselling",
+      "/baby-dedication": "Baby Dedication",
+      "/event-registration": "Event Registration",
+      "/pre-marital-counseling": "Pre‑Marital Counseling",
+      "/testimony": "Testimony",
+      "/apostle": "Apostle",
+      "/stewards": "Faithful Stewards",
+      "/altar-call": "Altar Call",
+    };
+
+    const title = titles[location.pathname] ?? (() => {
+      const seg = location.pathname.split("/").filter(Boolean).pop() ?? "Page";
+      return seg.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+    })();
+
+    document.title = `WaterGate Church | ${title}`;
+  }, [location]);
+
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

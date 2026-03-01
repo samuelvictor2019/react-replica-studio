@@ -97,7 +97,7 @@ const EventCard = ({ event }: { event: EventData }) => (
             {event.time}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 mt-3 text-xs text-black/70 border border-black px-2 py-1 rounded-full">
+        <div className="inline-flex items-center gap-1.5 mt-3 text-xs text-black/70 border border-black px-2 py-1 rounded-full max-w-[70%] md:max-w-[70%]">
           <MapPin size={12} />
           <span className="truncate">{event.location}</span>
         </div>
