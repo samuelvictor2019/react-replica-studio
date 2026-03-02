@@ -68,19 +68,19 @@ const Doctrinal = () => {
 							</div>
 						</div>
 					</div>
-
-					{/* Full-bleed posture image (flows to right edge) */}
-					<div className="mt-6">
-						<div className="overflow-hidden rounded-[18px] md:rounded-[20px] md:ml-[296px]">
-							<img
-								src={doctrinalHero}
-								alt="Doctrinal posture"
-								className="block w-full md:w-[calc(100vw-296px)] h-56 md:h-64 lg:h-72 object-cover hero-kenburns"
-							/>
-						</div>
-					</div>
 				</div>
 			</section>
+
+			{/* Full-bleed posture image (flows to right edge) */}
+			<div className="ml-4 md:ml-[calc((100vw-64rem)/2+296px+2rem)]">
+				<div className="overflow-hidden rounded-l-[18px] md:rounded-l-[20px]">
+					<img
+						src={doctrinalHero}
+						alt="Doctrinal posture"
+						className="block w-full h-56 md:h-64 lg:h-72 object-cover hero-kenburns"
+					/>
+				</div>
+			</div>
 
 			{/* Doctrinal Statements: left nav + progress track + content */}
 			<section className="py-16 md:py-20 bg-white">
