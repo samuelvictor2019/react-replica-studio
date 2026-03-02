@@ -110,7 +110,7 @@ const About = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="flex flex-col md:flex-row items-stretch">
           {/* Text */}
-          <div className="flex-1 bg-sky-100 rounded-r-3xl md:rounded-r-[40px] py-10 px-6 md:py-14 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
+          <div className="flex-1 py-10 px-6 md:py-14 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
             <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-6">
               About TWC
             </h2>
