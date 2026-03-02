@@ -44,7 +44,7 @@ const NewMember = () => {
 
               <a
                 href="/new-member"
-                className="inline-flex items-center gap-3 bg-black text-white px-6 py-3 rounded-md font-semibold"
+                className="inline-flex items-center gap-3 bg-black text-white px-6 py-3 rounded-md font-semibold hover:bg-sky-200 hover:text-black"
               >
                 JOIN THE FAMILY
               </a>
@@ -105,7 +105,7 @@ const NewMember = () => {
             <div>
               <h4 className="font-heading text-xl text-black mb-2">Join the Family</h4>
               <p className="text-sm text-black/70 mb-4 max-w-md">Sign up to receive a welcome packet, service times and details about how to get connected.</p>
-              <a href="#" className="inline-flex items-center gap-3 bg-black text-white px-5 py-2.5 rounded-md font-semibold">JOIN THE FAMILY</a>
+              <a href="#" className="inline-flex items-center gap-3 bg-black text-white px-5 py-2.5 rounded-md font-semibold hover:bg-sky-200 hover:text-black">JOIN THE FAMILY</a>
             </div>
 
             <div className="overflow-hidden rounded-[12px]">

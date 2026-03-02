@@ -1,7 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useState } from "react";
-import doctrinalHero from "@/assets/doctrinal_hero.jpg";
+import doctrinalHero from "@/assets/doctrinal_hero1.jpg";
 // posture image removed — no longer used
 
 const Doctrinal = () => {
@@ -28,7 +28,7 @@ const Doctrinal = () => {
 			{/* Hero */}
 			<section className="relative bg-white">
 				<div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
-					<h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-medium leading-tight text-black hero-fade delay-1">
+					<h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-medium leading-tight text-black hero-fade delay-1">
 						A Christ-centered
 						<br />
 						confession of faith
@@ -42,19 +42,59 @@ const Doctrinal = () => {
 				</div>
 			</section>
 
+			{/* Posture preview (below hero) */}
+			<section className="py-12 md:py-16 bg-white">
+				<div className="container max-w-6xl mx-auto px-4">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+						<div>
+							<h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-4">Our Posture</h2>
+							<div className="space-y-4 text-sm leading-relaxed text-black/70">
+								<p>
+									We distinguish between essential doctrines and non-essential doctrines.
+								</p>
+								<p>
+									While we are committed to truth and accuracy in doctrine, we also uphold love, humility, and unity as essential Christian character.
+								</p>
+							</div>
+						</div>
+
+						<div>
+							<div className="mt-2 md:mt-0 bg-white rounded-lg p-6 inline-block">
+								<div className="relative">
+														<div className="text-7xl text-sky-100 absolute -left-6 -top-8 select-none">“</div>
+									<p className="text-sm italic text-black/80 relative z-10">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
+									<p className="text-xs text-black/70 mt-4 relative z-10">1 Timothy 1:5</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{/* Full-bleed posture image (flows to right edge) */}
+					<div className="mt-6">
+						<div className="overflow-hidden rounded-[18px] md:rounded-[20px] md:ml-[296px]">
+							<img
+								src={doctrinalHero}
+								alt="Doctrinal posture"
+								className="block w-full md:w-[calc(100vw-296px)] h-56 md:h-64 lg:h-72 object-cover hero-kenburns"
+							/>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			{/* Doctrinal Statements: left nav + progress track + content */}
 			<section className="py-16 md:py-20 bg-white">
 				<div className="container max-w-6xl mx-auto px-4">
 				
 					<div className="grid grid-cols-1 md:grid-cols-[260px_36px_1fr] gap-8">
-						{/* Left nav */}
-						<nav className="hidden md:block">
-							<ul className="space-y-3 text-sm text-black/70">
+						{/* Left nav (sticky on desktop) */}
+						<nav className="hidden md:block md:sticky md:top-28 md:self-start">
+							<ul className="space-y-3 text-sm text-black/70 md:max-h-[calc(100vh-7rem)] md:overflow-auto md:pr-2">
 								{sections.map((s, i) => (
 									<li key={s.id}>
 										<a
 											href={`#${s.id}`}
-											className={`block ${i === activeIndex ? 'text-blue-600 font-medium' : 'hover:underline'}`}
+											className={`block ${i === activeIndex ? 'text-black font-medium' : 'text-black/70 hover:underline'}`}
 											onClick={(e) => { e.preventDefault(); setActiveIndex(i); document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
 										>
 											{i + 1}. {s.title}
@@ -86,14 +126,14 @@ const Doctrinal = () => {
 								.details-body { margin-top:0.75rem; }
 							`}</style>
 								{sections.map((s, i) => (
-									<section id={s.id} key={s.id} className="mb-6">
+									<section id={s.id} key={s.id} className={`mb-6 ${i !== sections.length - 1 ? 'border-b border-border pb-6' : ''}`}>
 										{s.id === 'posture' ? (
 											<article>
 												<h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-4">{s.title}</h2>
 												<p className="text-sm text-black/70 leading-relaxed max-w-2xl">{s.text}</p>
 												<div className="mt-6 bg-white rounded-lg p-6 shadow-md inline-block">
 													<div className="relative">
-														<div className="text-7xl text-black/8 absolute -left-6 -top-8 select-none">“</div>
+														<div className="text-7xl text-sky-100 absolute -left-6 -top-8 select-none">“</div>
 														<p className="text-sm italic text-black/80 relative z-10">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
 														<p className="text-xs text-black/70 mt-4 relative z-10">1 Timothy 1:5</p>
 													</div>
@@ -112,11 +152,13 @@ const Doctrinal = () => {
 										) : (
 											<details className="bg-background/50 rounded-lg p-4" open={i === activeIndex} onToggle={(e) => e.currentTarget.open && setActiveIndex(i)}>
 												<summary className="details-summary">
-													<span className="font-heading text-lg text-black/90">{s.title}</span>
+													<span className="font-heading text-lg font-semibold text-sky-400">{s.title}</span>
 													<span className="icon transition-transform duration-200 text-black/60">
-														<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-															<path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-														</svg>
+														<span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 text-black/80">
+															<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+																<path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+															</svg>
+														</span>
 													</span>
 												</summary>
 												<div className="details-body">

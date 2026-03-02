@@ -14,11 +14,12 @@ const WelcomeSection = () => {
               Who We Are
             </h2>
             <p className="text-sm text-black/70 leading-relaxed mb-8">
-              WaterGate Church is a thriving community where God's presence, truth, and love shape everything we do. Here, you'll grow, be equipped, and find a family that walks with you in faith.
+              WaterGate Church is a thriving community <br />where God's presence, truth, and love shape 
+              <br />everything we do. Here, you'll grow, be equipped, <br />and find a family that walks with you in faith.
             </p>
             <a
               href="#"
-              className="inline-block bg-black text-white text-[11px] font-semibold tracking-widest px-7 py-3 rounded-sm hover:bg-white hover:text-black transition-colors"
+              className="inline-block bg-black text-white text-[11px] font-semibold tracking-widest px-7 py-3 rounded-full hover:bg-sky-200 hover:text-black transition-colors"
             >
               LEARN ABOUT TWC
             </a>
@@ -32,12 +33,12 @@ const WelcomeSection = () => {
                 <img
                   src={community1}
                   alt="Church community members"
-                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
+                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
                 />
                 <img
                   src={community3}
                   alt="Church families"
-                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
+                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
                 />
               </div>
               {/* Right column — pushed up */}
@@ -45,12 +46,12 @@ const WelcomeSection = () => {
                 <img
                   src={community2}
                   alt="Church youth group"
-                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
+                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
                 />
                 <img
                   src={community4}
                   alt="Church worship"
-                  className="w-[calc(100%-10px)] mx-auto h-[170px] md:h-[202px] object-cover rounded-lg"
+                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
                 />
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { ArrowRight, Search, ChevronLeft, ChevronRight, List } from "lucide-react";
 import mediaIcon from "@/assets/media_icon.png";
 
@@ -81,6 +82,10 @@ const LatestMediaSection = () => {
   const leftColumn = pageItems.slice(0, Math.ceil(pageItems.length / 2));
   const rightColumn = pageItems.slice(Math.ceil(pageItems.length / 2));
 
+  const location = useLocation();
+
+  const isHome = location.pathname === "/";
+
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
@@ -88,7 +93,7 @@ const LatestMediaSection = () => {
         <div className="flex items-end justify-between mb-6">
           <div>
             <h2 className="font-heading text-3xl md:text-4xl font-medium text-black">Latest Media</h2>
-            <p className="text-sm text-black/60">Sermons, worship and resources</p>
+            {/* <p className="text-sm text-black/60">Sermons, worship and resources</p> */}
           </div>
 
           <a href="#" className="hidden md:inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase hover:text-primary transition-colors">
@@ -97,15 +102,15 @@ const LatestMediaSection = () => {
         </div>
 
         {/* Tabs + controls */}
-        <div className="flex items-center justify-between mb-8 border-b border-border">
-          <div className="flex gap-6">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex gap-6 border-b border-border pb-3">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
                   activeTab === tab
-                    ? "text-primary border-b-2 border-primary"
+                    ? "text-sky-600 border-b-2 border-sky-300"
                     : "text-black/60 hover:text-black"
                 }`}
               >
@@ -114,47 +119,50 @@ const LatestMediaSection = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Search icon button (toggles input) */}
-            <div>
-              {!showSearch ? (
-                <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-2 rounded bg-background border border-border">
-                  <Search />
-                </button>
-              ) : (
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black/40" />
-                  <input
-                    autoFocus
-                    value={query}
-                    onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-                    placeholder="Search media"
-                    className="pl-10 pr-3 py-2 border border-border rounded text-sm w-48"
-                  />
-                </div>
-              )}
-            </div>
+          {/* Controls: hidden on the homepage */}
+          {!isHome && (
+            <div className="flex items-center gap-3">
+              {/* Search icon button (toggles input) */}
+              <div>
+                {!showSearch ? (
+                  <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-2 rounded bg-background border border-border">
+                    <Search />
+                  </button>
+                ) : (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black/40" />
+                    <input
+                      autoFocus
+                      value={query}
+                      onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+                      placeholder="Search media"
+                      className="pl-10 pr-3 py-2 border border-border rounded text-sm w-48"
+                    />
+                  </div>
+                )}
+              </div>
 
-            {/* Sort icon button (toggles select) */}
-            <div>
-              {!showSort ? (
-                <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-2 rounded bg-background border border-border">
-                  <List />
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <List className="text-black/60" />
-                  <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-sm border border-border rounded px-3 py-2">
-                    <option value="recent">Recently Added</option>
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="mostviewed">Most Viewed</option>
-                    <option value="atoz">A-Z Title</option>
-                  </select>
-                </div>
-              )}
+              {/* Sort icon button (toggles select) */}
+              <div>
+                {!showSort ? (
+                  <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-2 rounded bg-background border border-border">
+                    <List />
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <List className="text-black/60" />
+                    <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-sm border border-border rounded px-3 py-2">
+                      <option value="recent">Recently Added</option>
+                      <option value="newest">Newest First</option>
+                      <option value="oldest">Oldest First</option>
+                      <option value="mostviewed">Most Viewed</option>
+                      <option value="atoz">A-Z Title</option>
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Media Grid - two columns */}
@@ -180,10 +188,10 @@ const LatestMediaSection = () => {
 
             <div className="flex items-center gap-3">
               {Array.from({ length: totalPages }).map((_, i) => (
-                <button key={i} onClick={() => setPage(i + 1)} className={`text-sm ${currentPage === i + 1 ? 'text-primary font-semibold' : 'text-black/60'}`}>
-                  {i + 1}
-                </button>
-              ))}
+                  <button key={i} onClick={() => setPage(i + 1)} className={`text-sm ${currentPage === i + 1 ? 'text-sky-600 font-semibold' : 'text-black/60'}`}>
+                    {i + 1}
+                  </button>
+                ))}
             </div>
 
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="p-3 bg-background rounded-full border border-border">

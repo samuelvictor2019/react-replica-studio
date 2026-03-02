@@ -57,7 +57,7 @@ const Navbar = () => {
                   <ChevronDown className="w-3 h-3" />
                 </button>
 
-                <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity absolute left-0 mt-3 w-56 bg-background border border-foreground/10 shadow-md rounded-md p-2">
+                <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity absolute left-0 top-full mt-0 w-56 bg-background border border-foreground/10 shadow-md rounded-md p-2 z-50">
                   {item.submenu.map((s) => (
                     <a key={s.label} href={s.href} className="flex items-center gap-3 px-3 py-2 hover:bg-foreground/5 rounded">
                       <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" />
@@ -81,7 +81,7 @@ const Navbar = () => {
         {/* CTA */}
         <a
           href="/events"
-          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-sm hover:bg-white hover:text-black transition-colors"
+          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-sm hover:bg-sky-200 hover:text-black transition-colors"
         >
           UPCOMING EVENTS
         </a>
@@ -135,7 +135,7 @@ const Navbar = () => {
 
           <a
             href="/events"
-            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-sm text-center hover:bg-white hover:text-black transition-colors"
+            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-sm text-center hover:bg-sky-200 hover:text-black transition-colors"
           >
             UPCOMING EVENTS
           </a>

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MapPin, Clock } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { MapPin, Clock, Calendar } from "lucide-react";
 import event1Img from "@/assets/event-1.png";
 import event2Img from "@/assets/event-2.png";
 import event3Img from "@/assets/event-3.png";
@@ -23,46 +23,93 @@ const events: EventData[] = [
   {
     id: 1,
     image: event1Img,
-    category: "ETHANIEL 2025",
+    category: "ETHANIM 2025",
     title: "PARTAKERS OF THE HOLYGHOST",
     description:
       "At WaterGate Church, our events are moments of alignment, transformation, and community. From intimate trainings to weekly gatherings, each meeting is designed to be...",
     dateRange: "18TH - 21ST DEC, 2025",
-    time: "STARTS 8:00AM AT THURS...",
-    location: "THE WATERGATE CHURCH, JIBOWU, BUS-STOP, OJU ORE, OTA...",
+    time: "STARTS 8:00AM AT THURS",
+    location: "THE WATERGATE CHURCH, JENDOL BUS-STOP, OJU ORE, OTA",
     attendees: "100+ Attending",
     registration: "Free Registration Required",
   },
   {
     id: 2,
     image: event2Img,
-    category: "HOLY GHOST DINNER",
+    category: "HOLY GHOST SERVICE",
     title: "RIVERS OF LIVING WATER",
     description:
       "At WaterGate Church, our events are moments of alignment, transformation, and community. From intimate trainings to weekly gatherings, each meeting is designed to be...",
     dateRange: "20TH DEC, 2025",
-    time: "STARTS 8:00AM AT THURS...",
-    location: "THE WATERGATE CHURCH, JIBOWU, BUS-STOP, OJU ORE, OTA...",
+    time: "STARTS 8:00AM AT THURS",
+    location: "THE WATERGATE CHURCH, JENDOL BUS-STOP, OJU ORE",
     attendees: "100+ Attending",
     registration: "Free Registration Required",
   },
   {
     id: 3,
     image: event3Img,
-    category: "ETHANIEL 2025",
+    category: "ETHANIM 2025",
     title: "PARTAKERS OF THE HOLYGHOST",
     description:
       "At WaterGate Church, our events are moments of alignment, transformation, and community. From intimate trainings to weekly gatherings, each meeting is designed to be...",
     dateRange: "18TH - 21ST DEC, 2025",
-    time: "STARTS 8:00AM AT THURS...",
-    location: "THE WATERGATE CHURCH, JIBOWU, BUS-STOP, OJU ORE, OTA...",
+    time: "STARTS 8:00AM AT THURS",
+    location: "THE WATERGATE CHURCH, JENDOL BUS-STOP, OJU ORE, OTA",
     attendees: "100+ Attending",
     registration: "Free Registration Required",
   },
 ];
 
-const EventCard = ({ event }: { event: EventData }) => (
-  <div className="flex flex-col md:flex-row gap-6 bg-card rounded-lg overflow-hidden border border-border p-4 md:p-6">
+const EventCard = ({ event }: { event: EventData }) => {
+  const abbreviateDay = (text: string) => {
+    if (!text) return text;
+    // remove trailing ellipses and trim
+    let t = text.replace(/\.\.\.+$/g, "").trim();
+    // map full or partial weekday names to short forms (max 4 chars)
+    const map: Record<string, string> = {
+      monday: "MON",
+      tuesday: "TUE",
+      wednesday: "WED",
+      thursday: "THUR",
+      thurs: "THUR",
+      friday: "FRI",
+      saturday: "SAT",
+      sunday: "SUN",
+    };
+
+    // replace occurrences of weekday names with abbreviations
+    t = t.replace(/\b(monday|tuesday|wednesday|thursday|thurs|friday|saturday|sunday)\b/gi, (m) => {
+      return map[m.toLowerCase()] || m;
+    });
+
+    return t;
+  };
+
+  const displayTime = abbreviateDay(event.time);
+  const chipsRef = useRef<HTMLDivElement | null>(null);
+  const venueRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const syncWidth = () => {
+      if (chipsRef.current && venueRef.current) {
+        // Sum widths of the chip spans instead of using the container width
+        const spans = Array.from(chipsRef.current.querySelectorAll('span')) as HTMLElement[];
+        const total = spans.reduce((s, el) => s + el.offsetWidth, 0);
+        // subtract a small amount so the venue sits within the chips' visual width,
+        // then add a small buffer to account for the leading icon + gap/padding
+        const adjusted = Math.max(120, total - 12) + 20;
+        venueRef.current.style.width = `${adjusted}px`;
+      }
+    };
+
+    syncWidth();
+    window.addEventListener("resize", syncWidth);
+    return () => window.removeEventListener("resize", syncWidth);
+  }, [event.dateRange, event.time]);
+
+  return (
+    <div className="flex flex-col md:flex-row gap-6 bg-card rounded-lg overflow-hidden border border-border p-4 md:p-6">
     {/* Image */}
     <div className="w-full md:w-[220px] flex-shrink-0">
       <img
@@ -87,19 +134,23 @@ const EventCard = ({ event }: { event: EventData }) => (
             {event.description}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div ref={chipsRef} className="flex items-center gap-2 mt-3">
           <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
-            <Clock size={12} />
+            <Calendar size={12} />
             {event.dateRange}
           </span>
           <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
             <Clock size={12} />
-            {event.time}
+            {displayTime}
           </span>
         </div>
-        <div className="inline-flex items-center gap-1.5 mt-3 text-xs text-black/70 border border-black px-2 py-1 rounded-full max-w-[70%] md:max-w-[70%]">
-          <MapPin size={12} />
-          <span className="truncate">{event.location}</span>
+        <div
+          ref={venueRef}
+          className="inline-flex items-center gap-1.5 mt-2 text-[10px] text-black/70 border border-black px-2 py-1 rounded-full overflow-hidden whitespace-nowrap"
+          style={{ width: "auto" }}
+        >
+          <MapPin size={16} className="flex-shrink-0 text-black/70" aria-hidden />
+          <span className="leading-tight">{event.location.replace(/\.\.\.+$/, "")}</span>
         </div>
       </div>
 
@@ -122,14 +173,15 @@ const EventCard = ({ event }: { event: EventData }) => (
           <p className="text-[10px] text-black/70">
             {event.registration}
           </p>
-          <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-white hover:text-black transition-colors">
+          <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-200 hover:text-black transition-colors">
             REGISTER
           </button>
         </div>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const EventsSection = () => {
   const [activeTab, setActiveTab] = useState<string>("UPCOMING");
@@ -152,7 +204,7 @@ const EventsSection = () => {
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
                 activeTab === tab
-                  ? "text-primary border-b-2 border-primary"
+                  ? "text-sky-600 border-b-2 border-sky-300"
                   : "text-black/60 hover:text-black"
               }`}
             >
@@ -170,7 +222,7 @@ const EventsSection = () => {
 
         {/* View All */}
         <div className="flex justify-center mt-10">
-          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-white hover:text-black transition-colors">
+          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-200 hover:text-black transition-colors">
             VIEW ALL EVENTS
           </button>
         </div>

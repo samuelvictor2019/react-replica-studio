@@ -184,14 +184,14 @@ const About = () => {
           <div className="flex justify-center gap-4 mt-10">
             <button
               onClick={() => goTo("prev")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-foreground/5 transition-colors"
+              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
               aria-label="Previous scripture"
             >
               <ArrowLeft className="w-4 h-4 text-black" />
             </button>
             <button
               onClick={() => goTo("next")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-foreground/5 transition-colors"
+              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
               aria-label="Next scripture"
             >
               <ArrowRight className="w-4 h-4 text-black" />
@@ -208,10 +208,14 @@ const About = () => {
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {leaders.map((l) => (
-              <div key={l.name} className="flex flex-col items-center gap-3">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-primary">
-                  <img src={l.img} alt={l.name} className="w-full h-full object-cover" />
+            {leaders.map((l, idx) => (
+              <div key={l.name} className="bg-sky-200 rounded-2xl p-6 md:p-8 flex flex-col items-center gap-3">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden">
+                  <img
+                    src={l.img}
+                    alt={l.name}
+                    className={`w-full h-full object-cover shadow-none ${idx === 1 ? "shadow-none" : ""}`}
+                  />
                 </div>
                 <p className="text-xs text-left leading-relaxed text-black/70 max-w-[180px]">
                   {l.desc}

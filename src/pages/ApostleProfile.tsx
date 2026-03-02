@@ -41,7 +41,7 @@ const ApostleProfile = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-4 md:pl-8">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12">
               Apostle.
               <br />
               Shepherd.
@@ -63,7 +63,7 @@ const ApostleProfile = () => {
       {/* Gallery 1 — bleeds left */}
       <section className="pb-16 md:pb-24 bg-background">
         <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
-          <div className="grid grid-cols-3 gap-3 md:gap-5">
+          <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
             <div className="overflow-hidden rounded-r-2xl">
               <img src={gallery1} alt="Ministry moment" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
@@ -91,7 +91,7 @@ const ApostleProfile = () => {
               fullness of Christ across the earth.
             </p>
 
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-4 md:pr-8">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-8 md:pr-12">
               Discipler.
               <br />
               Mentor.
@@ -105,7 +105,7 @@ const ApostleProfile = () => {
       {/* Gallery 2 — bleeds right */}
       <section className="pb-16 md:pb-24 bg-background">
         <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
-          <div className="grid grid-cols-3 gap-3 md:gap-5">
+          <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '0.6fr 1fr 1.6fr' }}>
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery4} alt="Teaching" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
@@ -123,7 +123,7 @@ const ApostleProfile = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-4 md:pl-8">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12">
               Leader.
               <br />
               Builder.
@@ -150,11 +150,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Gallery 3 */}
+      {/* Gallery 3 (bleeds left like Gallery 1) */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-3 gap-3 md:gap-5">
-            <div className="overflow-hidden rounded-2xl">
+        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
+          <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
+            <div className="overflow-hidden rounded-r-2xl">
               <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">

@@ -6,21 +6,23 @@ const ContactSection = () => {
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
-        <h2 className="font-heading text-3xl md:text-4xl font-medium text-center text-black mb-2">
-          We would love to
-          <br />
-          hear from you!
-        </h2>
-        <p className="text-sm text-black/70 text-center mb-10">
-          Whether you're new, need prayers, or want to
-          <br />
-          know more — we're here for you.
-        </p>
+        <div className="mb-8">
+          <h2 className="font-heading text-3xl md:text-4xl font-medium text-center text-black mb-2">
+            We would love to
+            <br />
+            hear from you!
+          </h2>
+          <p className="text-sm text-black/70 text-center mb-0">
+            Whether you're new, need prayers, or want to
+            <br />
+            know more — we're here for you.
+          </p>
+        </div>
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
           {/* Service Times Card */}
-          <div className="rounded-xl overflow-hidden bg-card border border-border">
+          <div className="rounded-xl overflow-hidden bg-sky-50 border border-border">
             <img
               src={contact1Img}
               alt="Church congregation during worship"
@@ -39,7 +41,7 @@ const ContactSection = () => {
           </div>
 
           {/* Contact Us Card */}
-          <div className="rounded-xl overflow-hidden bg-card border border-border">
+          <div className="rounded-xl overflow-hidden bg-sky-50 border border-border">
             <img
               src={contact2Img}
               alt="Hands playing piano during worship"
