@@ -32,27 +32,24 @@ const NewMember = () => {
 
       {/* Intro / Join */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
               <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6">We're truly glad you're here</h2>
               <p className="text-sm text-black/70 mb-6 max-w-lg">
                 Welcome to WaterGate Church. If you're new, we want to make your first steps easy and
                 warm — whether you visit online or in person. Below you'll find what to expect, who to
                 meet and how to get connected.
               </p>
-
               <a
                 href="/new-member"
                 className="inline-flex items-center gap-3 bg-black text-white px-6 py-3 rounded-md font-semibold hover:bg-sky-200 hover:text-black"
               >
                 JOIN THE FAMILY
               </a>
-            </div>
+          </div>
 
-            <div className="overflow-hidden rounded-[18px]">
-              <img src={joinImg} alt="Join the family" className="w-full h-56 md:h-72 object-cover" />
-            </div>
+          <div className="md:w-[45%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
+            <img src={joinImg} alt="Join the family" className="w-full h-56 md:h-72 object-cover" />
           </div>
         </div>
       </section>
@@ -100,17 +97,15 @@ const NewMember = () => {
 
       {/* Join CTA block */}
       <section className="py-12 bg-white">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div>
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
               <h4 className="font-heading text-xl text-black mb-2">Join the Family</h4>
               <p className="text-sm text-black/70 mb-4 max-w-md">Sign up to receive a welcome packet, service times and details about how to get connected.</p>
               <a href="#" className="inline-flex items-center gap-3 bg-black text-white px-5 py-2.5 rounded-md font-semibold hover:bg-sky-200 hover:text-black">JOIN THE FAMILY</a>
-            </div>
+          </div>
 
-            <div className="overflow-hidden rounded-[12px]">
-              <img src={joinImg} alt="Join" className="w-full h-48 object-cover" />
-            </div>
+          <div className="md:w-[45%] overflow-hidden rounded-l-[12px] mt-8 md:mt-0">
+            <img src={joinImg} alt="Join" className="w-full h-48 object-cover" />
           </div>
         </div>
       </section>
