@@ -108,40 +108,38 @@ const About = () => {
 
       {/* About TWC — text left, image right */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            {/* Text */}
-            <div>
-              <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6">
-                About TWC
-              </h2>
-              <div className="space-y-4 text-sm leading-relaxed text-black/70">
-                <p>
-                  We are a Christ-centered community of believers (star-seed) who are naturally
-                  supernatural and supernaturally natural with the mandate to see the knowledge
-                  of the glory of the LORD take over the earth as the waters cover the sea.
-                </p>
-                <p>
-                  We are Oaks of Righteousness planted by the LORD in every institution, every sphere and
-                  every nation for the establishment of the dominion of Christ in every domain. The will of
-                  God will be done on earth and the earth as it is in heaven.
-                </p>
-                <p>
-                  We are salt of the earth and light of the world with grace to govern and power to prevail in
-                  every domain. We are believers with Divine Nature Attitude having determination to
-                  accurately represent Jesus our ultimate Role Model across the earth.
-                </p>
-              </div>
+        <div className="flex flex-col md:flex-row items-stretch">
+          {/* Text */}
+          <div className="flex-1 bg-sky-100 rounded-r-3xl md:rounded-r-[40px] py-10 px-6 md:py-14 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
+            <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-6">
+              About TWC
+            </h2>
+            <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+              <p>
+                We are a Christ-centered community of believers (star-seed) who are naturally
+                supernatural and supernaturally natural with the mandate to see the knowledge
+                of the glory of the LORD take over the earth as the waters cover the sea.
+              </p>
+              <p>
+                We are Oaks of Righteousness planted by the LORD in every institution, every sphere and
+                every nation for the establishment of the dominion of Christ in every domain. The will of
+                God will be done on earth and the earth as it is in heaven.
+              </p>
+              <p>
+                We are salt of the earth and light of the world with grace to govern and power to prevail in
+                every domain. We are believers with Divine Nature Attitude having determination to
+                accurately represent Jesus our ultimate Role Model across the earth.
+              </p>
             </div>
+          </div>
 
-            {/* Image */}
-            <div className="w-full overflow-hidden" style={{ borderRadius: "40px" }}>
-              <img
-                src={aboutTwc}
-                alt="Church community"
-                className="w-full h-[320px] md:h-[400px] object-cover"
-              />
-            </div>
+          {/* Image — bleeds to right edge */}
+          <div className="md:w-[45%] overflow-hidden">
+            <img
+              src={aboutTwc}
+              alt="Church community"
+              className="w-full h-[320px] md:h-full object-cover"
+            />
           </div>
         </div>
       </section>
@@ -149,9 +147,9 @@ const About = () => {
       {/* Scripture Carousel */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl mx-auto px-4">
-          <div className="overflow-hidden relative">
+          <div className="overflow-hidden relative rounded-3xl">
             <div
-              className={`grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-300 ease-in-out ${
+              className={`flex flex-col md:flex-row items-stretch transition-all duration-300 ease-in-out ${
                 isAnimating
                   ? slideDir === "right"
                     ? "opacity-0 translate-x-8"
@@ -160,7 +158,7 @@ const About = () => {
               }`}
             >
               {/* Image */}
-              <div className="w-full overflow-hidden" style={{ borderRadius: "40px" }}>
+              <div className="md:w-[45%] overflow-hidden">
                 <img
                   src={card.img}
                   alt={card.title}
@@ -169,11 +167,11 @@ const About = () => {
               </div>
 
               {/* Scripture text */}
-              <div>
-                <h2 className="font-heading text-2xl md:text-3xl font-medium text-black mb-4">
+              <div className="flex-1 bg-sky-100 flex flex-col justify-center px-8 py-10 md:px-12">
+                <h2 className="font-heading text-2xl md:text-3xl font-medium text-foreground mb-4">
                   {card.title}
                 </h2>
-                <p className="text-sm leading-relaxed text-black/70">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   "{card.text}"
                 </p>
               </div>
@@ -187,14 +185,14 @@ const About = () => {
               className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
               aria-label="Previous scripture"
             >
-              <ArrowLeft className="w-4 h-4 text-black" />
+              <ArrowLeft className="w-4 h-4 text-foreground" />
             </button>
             <button
               onClick={() => goTo("next")}
               className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
               aria-label="Next scripture"
             >
-              <ArrowRight className="w-4 h-4 text-black" />
+              <ArrowRight className="w-4 h-4 text-foreground" />
             </button>
           </div>
         </div>
