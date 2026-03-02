@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import onboardingImg from "@/assets/newmember_hero.jpg";
 import joinImg from "@/assets/newmember_1.jpg";
 import whatImg from "@/assets/newmember2.jpg";
@@ -7,6 +8,13 @@ import slideOne from "@/assets/slide1.jpg";
 import slideTwo from "@/assets/slide2.jpg";
 import slideThree from "@/assets/slide3.jpg";
 import slideFour from "@/assets/slide4.jpg";
+
+const expectSlides = [
+  { img: slideOne, title: "A Warm, Loving Community", desc: "From the moment you arrive, you'll experience a people committed to love, fellowship, and genuine connection. We believe no one should walk alone." },
+  { img: slideTwo, title: "Practical Teaching", desc: "Teaching that applies Jesus' life and love to everyday living, helping you grow in wisdom and faith." },
+  { img: slideThree, title: "Connect & Serve", desc: "Small groups, ministries and opportunities to grow in service and faith alongside others." },
+  { img: slideFour, title: "Spirit-Led Worship", desc: "Experience heartfelt worship that draws you into God's presence and transforms your perspective." },
+];
 
 const NewMember = () => {
   return (
@@ -59,39 +67,26 @@ const NewMember = () => {
         <div className="container max-w-6xl mx-auto px-4">
           <h3 className="font-heading text-2xl md:text-3xl font-medium text-black mb-8">What to Expect at WaterGate Church</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={slideOne} alt="Expect" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <h4 className="font-medium text-black mb-2">A Warm, Loving Community</h4>
-                <p className="text-sm text-black/70">You'll find people who care, worship and serve together.</p>
-              </div>
+          <Carousel opts={{ align: "start", loop: true }} className="w-full">
+            <CarouselContent className="-ml-4">
+              {expectSlides.map((slide, i) => (
+                <CarouselItem key={i} className="pl-4 basis-[85%] md:basis-[60%] lg:basis-[45%]">
+                  <div className="relative overflow-hidden rounded-2xl h-[320px] md:h-[380px]">
+                    <img src={slide.img} alt={slide.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-6 md:p-8">
+                      <h4 className="font-heading text-xl md:text-2xl font-semibold text-white mb-2">{slide.title}</h4>
+                      <p className="text-sm text-white/80 max-w-sm">{slide.desc}</p>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center gap-3 mt-6">
+              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-black/5" />
+              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-black/5" />
             </div>
-
-            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={slideTwo} alt="Expect" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <h4 className="font-medium text-black mb-2">Practical Teaching</h4>
-                <p className="text-sm text-black/70">Teaching that applies Jesus' life and love to everyday living.</p>
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={slideThree} alt="Expect" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <h4 className="font-medium text-black mb-2">Connect & Serve</h4>
-                <p className="text-sm text-black/70">Small groups, ministries and opportunities to grow in service and faith.</p>
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <img src={slideFour} alt="Expect" className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <h4 className="font-medium text-black mb-2">Connect & Serve</h4>
-                <p className="text-sm text-black/70">Small groups, ministries and opportunities to grow in service and faith.</p>
-              </div>
-            </div>
-          </div>
+          </Carousel>
         </div>
       </section>
 
