@@ -21,6 +21,7 @@ import Testimony from "./pages/Testimony";
 import NewMemberRegistration from "./pages/NewMemberRegistration";
 import Counselling from "./pages/Counselling";
 import FaithfulStewards from "./pages/FaithfulStewards";
+import HouseGroups from "./pages/HouseGroups";
 
 const queryClient = new QueryClient();
 
@@ -82,7 +83,8 @@ const App = () => (
           <Route path="/testimony" element={<Testimony />} />
            <Route path="/apostle" element={<ApostleProfile />} />
            <Route path="/stewards" element={<FaithfulStewards />} />
-          <Route path="/altar-call" element={<AltarCall />} />
+           <Route path="/altar-call" element={<AltarCall />} />
+           <Route path="/house-groups" element={<HouseGroups />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
