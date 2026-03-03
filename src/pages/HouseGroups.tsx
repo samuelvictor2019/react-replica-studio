@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import heroImg from "@/assets/housegroup_hero.jpg";
-import joinImg from "@/assets/community-21.jpg";
+import joinImg from "@/assets/housegroup1.jpg";
 import { BookOpen, Users, HandHeart } from "lucide-react";
 
 const whyCards = [

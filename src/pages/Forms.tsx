@@ -5,6 +5,16 @@ import formsHero from "@/assets/forms_hero.jpg";
 import formsOne from "@/assets/form1.jpg";
 import formsTwo from "@/assets/form2.jpg";
 import NewMemberRegistration from "./NewMemberRegistration";
+import babyDedicationImg from "@/assets/community-1.jpg";
+import babyNamingImg from "@/assets/community-1.jpg";
+import testimonyImg from "@/assets/testimony.jpg";
+import feedbackImg from "@/assets/feedback.jpg";
+import altarCallImg from "@/assets/altarcall.jpg";
+import firstTimerImg from "@/assets/firsttimer.jpg";
+import volunteerImg from "@/assets/volunteer.jpg";
+import preMaritalImg from "@/assets/premarital.jpg";
+import eventRegistrationImg from "@/assets/community-1.jpg";
+import counsellingImg from "@/assets/community-1.jpg";
 
 const Forms = () => {
   const [showNewMember, setShowNewMember] = useState(false);
@@ -97,7 +107,23 @@ const Forms = () => {
             ].map((f, idx) => (
               <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="w-full h-40 md:h-44 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
-                  {/* image placeholder */}
+                  <img 
+                    src={
+                      f.title === 'Baby Dedication Form' ? babyDedicationImg :
+                      f.title === 'Baby Naming Form' ? babyNamingImg :
+                      f.title === 'Testimony Form' ? testimonyImg :
+                      f.title === 'Feedback / Suggestion Form' ? feedbackImg :
+                      f.title === 'Altar Call Form' ? altarCallImg :
+                      f.title === 'First Timer Form' ? firstTimerImg :
+                      f.title === 'Volunteer Form' ? volunteerImg :
+                      f.title === 'Pre-Marital Counselling Form' ? preMaritalImg :
+                      f.title === 'Event Registration' ? eventRegistrationImg :
+                      f.title === 'Counselling Request' ? counsellingImg :
+                      'https://via.placeholder.com/150'
+                    } 
+                    alt={`${f.title} image`} 
+                    className="object-cover w-full h-full" 
+                  />
                 </div>
                 <h3 className="font-medium text-black mb-2">{f.title}</h3>
                 <p className="text-sm text-black/70 mb-3">{f.desc}</p>

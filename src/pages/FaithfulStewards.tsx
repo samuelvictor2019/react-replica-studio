@@ -27,17 +27,17 @@ const serveCards = [
   {
     img: communityImg3,
     title: "Build Relationships",
-    text: "Connect with like-minded believers in community.",
+    text: "Build strong relationships within the church community.",
   },
   {
     img: communityImg4,
-    title: "Impact Lives",
-    text: "Make a lasting difference in people's lives through service.",
+    title: "Support the Vision",
+    text: "Support the vision and mission of WaterGate Church.",
   },
   {
     img: communityImg5,
-    title: "Impact Lives",
-    text: "Make a lasting difference in people's lives through service.",
+    title: "Be a Part",
+    text: "Be a part of what God is doing in and through His people.",
   },
 ];
 
@@ -102,8 +102,8 @@ const FaithfulStewards: React.FC = () => {
             </p>
           </div>
 
-          <div className="md:w-[45%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
-            <div className="p-6 md:p-8">
+          <div className="md:w-[40%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
+            <div className="p-4 md:p-6">
               <span className="text-6xl md:text-8xl font-heading text-foreground/10 leading-none select-none">
                 "
               </span>
