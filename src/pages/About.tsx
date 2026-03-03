@@ -111,24 +111,30 @@ const About = () => {
         <div className="flex flex-col md:flex-row items-stretch">
           {/* Text */}
           <div className="flex-1 py-10 px-6 md:py-14 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-6">
+            <h2 className="font-heading text-4xl md:text-5xl font-medium text-foreground mb-6">
               About TWC
             </h2>
-            <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+            <div className="space-y-4 text-xs leading-relaxed text-muted-foreground">
               <p>
-                We are a Christ-centered community of believers (star-seed) who are naturally
-                supernatural and supernaturally natural with the mandate to see the knowledge
-                of the glory of the LORD take over the earth as the waters cover the sea.
+                We are a Christ-centered community of believers <br />
+                (star-seed) who are naturally supernatural and <br />supernaturally natural with
+                the mandate to see the <br /> knowledge
+                of the glory of the LORD take over the <br /> earth as 
+                the waters cover the sea.
               </p>
               <p>
-                We are Oaks of Righteousness planted by the LORD in every institution, every sphere and
-                every nation for the establishment of the dominion of Christ in every domain. The will of
-                God will be done on earth and the earth as it is in heaven.
+                We are Oaks of Righteousness planted by the 
+                LORD <br /> in every institution, every sphere and
+                every nation < br /> for the establishment of the 
+                dominion of Christ in <br /> every domain. The will of
+                God will be done on earth <br />and the earth as it is in heaven.
               </p>
               <p>
-                We are salt of the earth and light of the world with grace to govern and power to prevail in
-                every domain. We are believers with Divine Nature Attitude having determination to
-                accurately represent Jesus our ultimate Role Model across the earth.
+                We are salt of the earth and light of the world 
+                with <br /> grace to govern and power to prevail in
+                every domain. <br />We are believers with Divine 
+                Nature Attitude having <br />determination to
+                accurately represent Jesus our <br /> ultimate Role Model across the earth.
               </p>
             </div>
           </div>
@@ -207,7 +213,7 @@ const About = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {leaders.map((l, idx) => (
-              <div key={l.name} className="bg-sky-200 rounded-2xl p-6 md:p-8 flex flex-col items-center gap-3">
+              <div key={l.name} className="bg-sky-100 rounded-2xl p-6 md:p-8 flex flex-col items-center gap-3">
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden">
                   <img
                     src={l.img}

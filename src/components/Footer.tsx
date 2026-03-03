@@ -1,10 +1,30 @@
 import logo from "@/assets/logo.png";
 
 const footerLinks = {
-  about: ["ABOUT TWC", "DOCTRINAL STATEMENT", "PASTORS PROFILE", "CONTACT US"],
-  getInvolved: ["I'M A NEW MEMBER", "HOUSE GROUPS", "FAITHFUL STEWARDS", "FORMS"],
-  events: ["BOOTCAMP", "CONFERENCE", "WEEKLY SERVICE", "MONTHLY SERVICE"],
-  media: ["SERMON", "MUSIC", "PRESENT TRUTH", "PROCLAMATION"],
+  about: [
+    { name: "ABOUT TWC", route: "/about" },
+    { name: "DOCTRINAL STATEMENT", route: "/doctrinal" },
+    { name: "PASTORS PROFILE", route: "/apostle-profile" },
+    { name: "CONTACT US", route: "#" }, // No page available
+  ],
+  getInvolved: [
+    { name: "I'M A NEW MEMBER", route: "/forms" },
+    { name: "HOUSE GROUPS", route: "#" }, // No page available
+    { name: "FAITHFUL STEWARDS", route: "#" }, // No page available
+    { name: "FORMS", route: "/forms" },
+  ],
+  events: [
+    { name: "BOOTCAMP", route: "#" }, // No page available
+    { name: "CONFERENCE", route: "#" }, // No page available
+    { name: "WEEKLY SERVICE", route: "#" }, // No page available
+    { name: "MONTHLY SERVICE", route: "#" }, // No page available
+  ],
+  media: [
+    { name: "SERMON", route: "#" }, // No page available
+    { name: "MUSIC", route: "#" }, // No page available
+    { name: "PRESENT TRUTH", route: "#" }, // No page available
+    { name: "PROCLAMATION", route: "#" }, // No page available
+  ],
 };
 
 const Footer = () => {
@@ -50,9 +70,9 @@ const Footer = () => {
               </h4>
               <ul className="space-y-2.5">
                 {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-xs text-black hover:text-black transition-colors">
-                      {link}
+                  <li key={link.name}>
+                    <a href={link.route} className="text-xs text-black hover:text-black transition-colors">
+                      {link.name}
                     </a>
                   </li>
                 ))}

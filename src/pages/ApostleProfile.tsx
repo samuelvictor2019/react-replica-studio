@@ -41,7 +41,7 @@ const ApostleProfile = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12 mb-2">
               Apostle.
               <br />
               Shepherd.
@@ -81,6 +81,14 @@ const ApostleProfile = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-8 md:pr-12 mb-2">
+              Discipler.
+              <br />
+              Mentor.
+              <br />
+              Teacher.
+            </h2>
+
             <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
               He is also the Facilitator of Hiddekel Miracle Explosion, Hiddekel 
               School of Leadership and the Supernatural which comprises of 
@@ -90,14 +98,6 @@ const ApostleProfile = () => {
               nation. He is passionate about intimacy with God and expressing the 
               fullness of Christ across the earth.
             </p>
-
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-8 md:pr-12">
-              Discipler.
-              <br />
-              Mentor.
-              <br />
-              Teacher.
-            </h2>
           </div>
         </div>
       </section>
@@ -123,7 +123,7 @@ const ApostleProfile = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12 mb-2">
               Leader.
               <br />
               Builder.

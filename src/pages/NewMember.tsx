@@ -4,16 +4,16 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 import onboardingImg from "@/assets/newmember_hero.jpg";
 import joinImg from "@/assets/newmember_1.jpg";
 import whatImg from "@/assets/newmember2.jpg";
-import slideOne from "@/assets/slide1.jpg";
-import slideTwo from "@/assets/slide2.jpg";
-import slideThree from "@/assets/slide3.jpg";
-import slideFour from "@/assets/slide4.jpg";
+import slideOne from "@/assets/member_slide1.jpg";
+import slideTwo from "@/assets/member_slide2.jpg";
+import slideThree from "@/assets/member_slide3.jpg";
+import slideFour from "@/assets/member_slide4.jpg";
 
 const expectSlides = [
   { img: slideOne, title: "A Warm, Loving Community", desc: "From the moment you arrive, you'll experience a people committed to love, fellowship, and genuine connection. We believe no one should walk alone." },
-  { img: slideTwo, title: "Practical Teaching", desc: "Teaching that applies Jesus' life and love to everyday living, helping you grow in wisdom and faith." },
-  { img: slideThree, title: "Connect & Serve", desc: "Small groups, ministries and opportunities to grow in service and faith alongside others." },
-  { img: slideFour, title: "Spirit-Led Worship", desc: "Experience heartfelt worship that draws you into God's presence and transforms your perspective." },
+  { img: slideTwo, title: "Spirit-Filled Worship", desc: "Our worship gatherings are centered on the presence of God—creating room for heartfelt praise, intimacy with the Holy Spirit, and encounters that transform lives." },
+  { img: slideThree, title: "Sound, Christ-Centered Teaching", desc: "We are devoted to teaching the Word of God with clarity, depth, and accuracy—helping believers grow in truth, maturity, and spiritual understanding." },
+  { img: slideFour, title: "Opportunities to Grow", desc: "At WaterGate Church, growth is intentional. From small groups and discipleship pathways to leadership training and service opportunities, there is room for you to grow spiritually and practically." },
 ];
 
 const NewMember = () => {
@@ -42,11 +42,11 @@ const NewMember = () => {
       <section className="py-16 md:py-24 bg-background">
         <div className="flex flex-col md:flex-row items-center">
           <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-              <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6">We're truly glad you're here</h2>
+              <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6">We're truly <br /> glad you're <br />here</h2>
               <p className="text-sm text-black/70 mb-6 max-w-lg">
-                Welcome to WaterGate Church. If you're new, we want to make your first steps easy and
-                warm — whether you visit online or in person. Below you'll find what to expect, who to
-                meet and how to get connected.
+                Welcome to WaterGate Church. If you're new, <br />we want to make your first steps easy and <br />
+                warm — whether you visit online or in person. <br />Below you'll find what to expect, who to
+                meet <br /> and how to get connected.
               </p>
               <a
                 href="/new-member"
@@ -64,15 +64,15 @@ const NewMember = () => {
 
       {/* What to expect */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-6xl mx-auto px-4">
-          <h3 className="font-heading text-2xl md:text-3xl font-medium text-black mb-8">What to Expect at WaterGate Church</h3>
+        <div className="container max-w-6xl mx-auto px-4 md:pl-[max(2rem,calc((100vw-70rem)/2+2rem))] md:pr-10">
+          <h3 className="font-heading text-2xl md:text-3xl font-medium text-black mb-8">What to Expect at <br />WaterGate Church</h3>
 
           <Carousel opts={{ align: "start", loop: true }} className="w-full">
             <CarouselContent className="-ml-4">
               {expectSlides.map((slide, i) => (
                 <CarouselItem key={i} className="pl-4 basis-[85%] md:basis-[60%] lg:basis-[45%]">
-                  <div className="relative overflow-hidden rounded-2xl h-[320px] md:h-[380px]">
-                    <img src={slide.img} alt={slide.title} className="w-full h-full object-cover" />
+                  <div className="relative overflow-hidden rounded-2xl w-full h-56 md:h-72">
+                    <img src={slide.img} alt={slide.title} className="w-full h-56 md:h-72 object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-6 md:p-8">
                       <h4 className="font-heading text-xl md:text-2xl font-semibold text-white mb-2">{slide.title}</h4>
@@ -83,8 +83,8 @@ const NewMember = () => {
               ))}
             </CarouselContent>
             <div className="flex justify-center gap-3 mt-6">
-              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-black/5" />
-              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-black/5" />
+              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-sky-200 hover:text-black" />
+              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-black/20 bg-white hover:bg-sky-200 hover:text-black" />
             </div>
           </Carousel>
         </div>
@@ -100,7 +100,7 @@ const NewMember = () => {
           </div>
 
           <div className="md:w-[45%] overflow-hidden rounded-l-[12px] mt-8 md:mt-0">
-            <img src={joinImg} alt="Join" className="w-full h-48 object-cover" />
+            <img src={whatImg} alt="Join" className="w-full h-56 md:h-72 object-cover" />
           </div>
         </div>
       </section>
