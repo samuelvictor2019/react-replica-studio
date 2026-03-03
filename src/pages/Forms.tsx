@@ -66,11 +66,12 @@ const Forms = () => {
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="mt-10 pl-4 md:pl-12">
-            <div className="overflow-hidden rounded-2xl">
-              <img src={formsOne} alt="community" className="w-full h-[260px] md:h-[380px] object-cover" />
-            </div>
+        {/* Image bleeding to right edge */}
+        <div className="mt-10 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
+          <div className="overflow-hidden rounded-l-[18px]">
+            <img src={formsOne} alt="community" className="w-full h-[260px] md:h-[380px] object-cover" />
           </div>
         </div>
       </section>
@@ -121,18 +122,14 @@ const Forms = () => {
 
       {/* Form Submission Notice Section */}
       <section className="py-12 md:py-20 bg-white">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="order-2 md:order-1">
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-black mb-4">Form Submission Notice</h2>
-              <p className="text-sm text-black/70 max-w-md">Some forms require pastoral confirmation before approval. Submitting a form does not automatically confirm scheduling or placement.</p>
-            </div>
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="order-2 md:order-1 flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
+            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">Form Submission Notice</h2>
+            <p className="text-sm text-muted-foreground max-w-md">Some forms require pastoral confirmation before approval. Submitting a form does not automatically confirm scheduling or placement.</p>
+          </div>
 
-            <div className="order-1 md:order-2">
-              <div className="overflow-hidden rounded-2xl">
-                <img src={formsTwo} alt="form notice" className="w-full h-40 md:h-56 object-cover" />
-              </div>
-            </div>
+          <div className="order-1 md:order-2 md:w-[45%] overflow-hidden rounded-l-[18px] mb-8 md:mb-0">
+            <img src={formsTwo} alt="form notice" className="w-full h-40 md:h-56 object-cover" />
           </div>
         </div>
       </section>
