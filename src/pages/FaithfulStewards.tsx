@@ -102,7 +102,7 @@ const FaithfulStewards: React.FC = () => {
             </p>
           </div>
 
-          <div className="md:w-[40%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
+          <div className="md:w-[35%] lg:w-[30%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
             <div className="p-4 md:p-6">
               <span className="text-6xl md:text-8xl font-heading text-foreground/10 leading-none select-none">
                 "
@@ -130,7 +130,7 @@ const FaithfulStewards: React.FC = () => {
       </section>
 
       {/* ── Why Serve? ── */}
-      <section className="bg-muted/40 py-16 md:py-24">
+      <section className="bg-muted/40 py-16 md:py-24 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
             {/* Left – heading, text, arrows */}
@@ -172,7 +172,7 @@ const FaithfulStewards: React.FC = () => {
                 {serveCards.map((card) => (
                   <div
                     key={card.title}
-                    className="min-w-[260px] w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
+                    className="min-w-[220px] w-[75vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
                   >
                     <div className="overflow-hidden">
                       <img
