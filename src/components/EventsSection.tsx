@@ -155,7 +155,8 @@ const EventCard = ({ event }: { event: EventData }) => {
       </div>
 
       {/* Right info – separated by dotted vertical line */}
-      <div className="flex flex-col items-start md:items-center justify-between md:min-w-[180px] md:border-l md:border-dashed md:border-black/20 md:pl-6">
+      <div className="flex flex-col items-start md:items-center justify-between md:min-w-[180px] md:pl-6 relative">
+        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-px" style={{ backgroundImage: 'repeating-linear-gradient(to bottom, transparent, transparent 8px, hsl(0 0% 0% / 0.2) 8px, hsl(0 0% 0% / 0.2) 20px)' }} />
         <div className="md:text-center">
           <p className="text-sm font-semibold text-black">
             {event.attendees}
