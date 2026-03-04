@@ -6,22 +6,34 @@ import joinImg from "@/assets/housegroup1.jpg";
 import slideOne from "@/assets/housegroup_slide1.jpg";
 import slideTwo from "@/assets/housegroup_slide2.jpg";
 import slideThree from "@/assets/housegroup_slide3.jpg";
+import slideFour from "@/assets/housegroup_slide4.jpg";
+import slideFive from "@/assets/housegroup_slide5.jpg";
 
 const whyCards = [
   {
     image: slideOne,
     title: "Grow Spiritually",
-    desc: "Study the Word together and strengthen your faith.",
+    desc: "Study the Word together and strengthen your faith",
   },
   {
     image: slideTwo,
     title: "Build Relationships",
-    desc: "Form genuine, lasting connections with others.",
+    desc: "Form genuine, lasting connections with others",
   },
   {
     image: slideThree,
     title: "Pray Together",
-    desc: "Share burdens, lift one another up, and experience God's power in community.",
+    desc: "Share burdens, victories and testimonies",
+  },
+  {
+    image: slideFour,
+    title: "Receive Care",
+    desc: "Be known, supporteds and encouraged",
+  },
+  {
+    image: slideFive,
+    title: "Serve Together",
+    desc: "Live out the gospel in practical ways",
   },
 ];
 
@@ -112,12 +124,12 @@ const HouseGroups = () => {
               <div className="md:w-[65%]">
                 <CarouselContent className="-ml-4">
                   {whyCards.map((card, i) => (
-                    <CarouselItem key={i} className="pl-4 basis-[75%] md:basis-[45%]">
-                      <div className="bg-sky-50 rounded-2xl p-6 h-full">
-                        <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
+                    <CarouselItem key={i} className="pl-4 basis-[70%] md:basis-[40%]">
+                      <div className="bg-sky-50 rounded-2xl p-6 h-full md:h-[280px] lg:h-[300px] flex flex-col justify-center">
+                        <div className="w-16 h-16 rounded-full overflow-hidden mb-6 mt-2">
                           <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
                         </div>
-                        <h3 className="font-heading text-lg font-semibold text-foreground mb-2">{card.title}</h3>
+                        <h3 className="font-heading text-lg font-semibold text-foreground mb-3">{card.title}</h3>
                         <p className="text-sm text-foreground/70">{card.desc}</p>
                       </div>
                     </CarouselItem>

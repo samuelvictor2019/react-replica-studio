@@ -102,7 +102,7 @@ const FaithfulStewards: React.FC = () => {
             </p>
           </div>
 
-          <div className="md:w-[35%] lg:w-[30%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
+          <div className="md:w-[30%] lg:w-[25%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
             <div className="p-4 md:p-6">
               <span className="text-6xl md:text-8xl font-heading text-foreground/10 leading-none select-none">
                 "

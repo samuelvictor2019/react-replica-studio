@@ -14,7 +14,7 @@ import firstTimerImg from "@/assets/firsttimer.jpg";
 import volunteerImg from "@/assets/volunteer.jpg";
 import preMaritalImg from "@/assets/premarital.jpg";
 import eventRegistrationImg from "@/assets/community-1.jpg";
-import counsellingImg from "@/assets/community-1.jpg";
+import counsellingImg from "@/assets/counselingform.jpg";
 
 const Forms = () => {
   const [showNewMember, setShowNewMember] = useState(false);
@@ -94,15 +94,16 @@ const Forms = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {[
-              { title: 'Baby Dedication Form', desc: "Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." , action: 'FILL FORM →'},
-              { title: 'Baby Naming Form', desc: "We rejoice with your family. Please share the needed details so we can support you and properly document this joyful milestone.", action: 'FILL FORM →'},
-              { title: 'Testimony Form', desc: "Has God done something beautiful in your life? Share your testimony so it can encourage others and glorify God among His people.", action: 'SHARE YOUR TESTIMONY →'},
+            //   { title: 'Baby Dedication Form', desc: "Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." , action: 'FILL FORM →'},
+            //   { title: 'Baby Naming Form', desc: "We rejoice with your family. Please share the needed details so we can support you and properly document this joyful milestone.", action: 'FILL FORM →'},
               { title: 'Feedback / Suggestion Form', desc: "Your voice matters to us. Help us grow and serve better by sharing your feedback, thoughts, or suggestions.", action: 'SEND FEEDBACK →'},
               { title: 'Altar Call Form', desc: "If you gave your life to Christ or need pastoral support, fill this form so we can follow up and walk with you.", action: 'ALTAR CALL FORM →'},
-              { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
+              { title: 'Testimony Form', desc: "Has God done something beautiful in your life? Share your testimony so it can encourage others and glorify God among His people.", action: 'SHARE YOUR TESTIMONY →'},
+              
               { title: 'Volunteer Form', desc: "Ready to serve? Tell us where you feel led and we'll help you find a place to serve.", action: 'BECOME A VOLUNTEER →'},
               { title: 'Pre-Marital Counselling Form', desc: "Preparing for marriage is a sacred journey. This form helps us connect you with premarital counselling and guidance.", action: 'REQUEST COUNSELLING →'},
-              { title: 'Event Registration', desc: "Register to attend our events. Please provide contact details and attendance days so we can plan accordingly.", action: 'REGISTER →'},
+              { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
+            //   { title: 'Event Registration', desc: "Register to attend our events. Please provide contact details and attendance days so we can plan accordingly.", action: 'REGISTER →'},
               { title: 'Counselling Request', desc: "If you need pastoral guidance, counselling, or spiritual support, tell us here so we can reach out pastorally and biblically.", action: 'REQUEST COUNSELLING →'},
             ].map((f, idx) => (
               <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm">
