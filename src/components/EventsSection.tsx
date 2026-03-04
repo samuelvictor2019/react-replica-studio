@@ -154,9 +154,9 @@ const EventCard = ({ event }: { event: EventData }) => {
         </div>
       </div>
 
-      {/* Right info */}
-      <div className="flex flex-col items-start md:items-end justify-between md:min-w-[180px]">
-        <div className="text-right">
+      {/* Right info – separated by dotted vertical line */}
+      <div className="flex flex-col items-start md:items-center justify-between md:min-w-[180px] md:border-l md:border-dashed md:border-black/20 md:pl-6">
+        <div className="md:text-center">
           <p className="text-sm font-semibold text-black">
             {event.attendees}
           </p>
@@ -165,12 +165,22 @@ const EventCard = ({ event }: { event: EventData }) => {
           </p>
         </div>
         <div className="flex flex-col items-start md:items-center gap-3 mt-4">
-          <img
-            src={event.image}
-            alt="Church logo"
-            className="w-20 h-10 object-contain rounded"
-          />
-          <p className="text-[10px] text-black/70">
+          {/* Overlapping participant initials */}
+          <div className="flex -space-x-2">
+            {["C", "T", "N", "A", "W"].map((initial, i) => (
+              <div
+                key={i}
+                className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
+                style={{
+                  backgroundColor: ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"][i],
+                  zIndex: 5 - i,
+                }}
+              >
+                {initial}
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-black/70 italic">
             {event.registration}
           </p>
           <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-200 hover:text-black transition-colors">
