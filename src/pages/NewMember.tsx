@@ -74,9 +74,9 @@ const NewMember = () => {
                   <div className="relative overflow-hidden rounded-2xl w-full h-56 md:h-72">
                     <img src={slide.img} alt={slide.title} className="w-full h-56 md:h-72 object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                    <div className="absolute bottom-0 left-0 p-6 md:p-8">
-                      <h4 className="font-heading text-xl md:text-2xl font-semibold text-white mb-2">{slide.title}</h4>
-                      <p className="text-sm text-white/80 max-w-sm">{slide.desc}</p>
+                    <div className="absolute bottom-0 left-0 p-4 md:p-8">
+                      <h4 className="font-heading text-base md:text-2xl font-semibold text-white mb-1 md:mb-2">{slide.title}</h4>
+                      <p className="text-xs md:text-sm text-white/80 max-w-sm line-clamp-3 md:line-clamp-none">{slide.desc}</p>
                     </div>
                   </div>
                 </CarouselItem>
