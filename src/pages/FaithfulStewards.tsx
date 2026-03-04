@@ -130,7 +130,7 @@ const FaithfulStewards: React.FC = () => {
       </section>
 
       {/* ── Why Serve? ── */}
-      <section className="bg-muted/40 py-16 md:py-24 overflow-hidden">
+      <section className="bg-muted/40 py-16 md:py-24 overflow-x-clip">
         <div className="max-w-[1400px] mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
             {/* Left – heading, text, arrows */}
