@@ -1,23 +1,25 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import heroImg from "@/assets/housegroup_hero.jpg";
 import joinImg from "@/assets/housegroup1.jpg";
-import { BookOpen, Users, HandHeart } from "lucide-react";
+import slideOne from "@/assets/housegroup_slide1.jpg";
+import slideTwo from "@/assets/housegroup_slide2.jpg";
+import slideThree from "@/assets/housegroup_slide3.jpg";
 
 const whyCards = [
   {
-    icon: BookOpen,
+    image: slideOne,
     title: "Grow Spiritually",
     desc: "Study the Word together and strengthen your faith.",
   },
   {
-    icon: Users,
+    image: slideTwo,
     title: "Build Relationships",
     desc: "Form genuine, lasting connections with others.",
   },
   {
-    icon: HandHeart,
+    image: slideThree,
     title: "Pray Together",
     desc: "Share burdens, lift one another up, and experience God's power in community.",
   },
@@ -88,36 +90,32 @@ const HouseGroups = () => {
       {/* Why Join a House Group? */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-6xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row md:items-start gap-10">
-            {/* Left heading */}
-            <div className="md:w-[35%]">
-              <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-4">
-                Why Join
-                <br />
-                a House Group?
-              </h2>
-              <p className="text-sm text-foreground/70 mb-4 max-w-sm">
-                No matter your age, background, or stage of life, a House Group is where you belong.
-              </p>
-              <a
-                href="/new-member-registration"
-                className="inline-flex items-center gap-2 text-foreground hover:text-foreground/70 text-xs font-semibold tracking-widest transition-colors"
-              >
-                <span className="w-8 h-8 rounded-full border border-foreground/20 flex items-center justify-center">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-                </span>
-              </a>
-            </div>
+          <Carousel opts={{ align: "start", loop: true }} className="w-full">
+            <div className="flex flex-col md:flex-row md:items-start gap-10">
+              {/* Left heading */}
+              <div className="md:w-[35%]">
+                <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-4">
+                  Why Join
+                  <br />
+                  a House Group?
+                </h2>
+                <p className="text-sm text-foreground/70 mb-6 max-w-sm">
+                  No matter your age, background, or stage of life, there's a House Group where you belong.
+                </p>
+                <div className="flex gap-3">
+                  <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-200 hover:text-foreground" />
+                  <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-200 hover:text-foreground" />
+                </div>
+              </div>
 
-            {/* Right cards - horizontal scroll on mobile, grid on desktop */}
-            <div className="md:w-[65%]">
-              <Carousel opts={{ align: "start", loop: true }} className="w-full md:hidden">
+              {/* Right cards - carousel */}
+              <div className="md:w-[65%]">
                 <CarouselContent className="-ml-4">
                   {whyCards.map((card, i) => (
-                    <CarouselItem key={i} className="pl-4 basis-[75%]">
+                    <CarouselItem key={i} className="pl-4 basis-[75%] md:basis-[45%]">
                       <div className="bg-sky-50 rounded-2xl p-6 h-full">
-                        <div className="w-12 h-12 rounded-full bg-foreground/10 flex items-center justify-center mb-4">
-                          <card.icon className="w-5 h-5 text-foreground" />
+                        <div className="w-20 h-20 rounded-full overflow-hidden mb-4">
+                          <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
                         </div>
                         <h3 className="font-heading text-lg font-semibold text-foreground mb-2">{card.title}</h3>
                         <p className="text-sm text-foreground/70">{card.desc}</p>
@@ -125,21 +123,9 @@ const HouseGroups = () => {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-              </Carousel>
-
-              <div className="hidden md:grid md:grid-cols-3 gap-5">
-                {whyCards.map((card, i) => (
-                  <div key={i} className="bg-sky-50 rounded-2xl p-6">
-                    <div className="w-12 h-12 rounded-full bg-foreground/10 flex items-center justify-center mb-4">
-                      <card.icon className="w-5 h-5 text-foreground" />
-                    </div>
-                    <h3 className="font-heading text-lg font-semibold text-foreground mb-2">{card.title}</h3>
-                    <p className="text-sm text-foreground/70">{card.desc}</p>
-                  </div>
-                ))}
               </div>
             </div>
-          </div>
+          </Carousel>
         </div>
       </section>
 
