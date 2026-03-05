@@ -16,14 +16,14 @@ interface MediaItem {
 }
 
 const mediaItems: MediaItem[] = [
-  { id: 1, date: "AUG 2025", title: "Partakers Of The HolyGhost (PART ONE)", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "1:19:00", createdAt: "2025-08-01T10:00:00Z", views: 1200 },
-  { id: 2, date: "JUL 2025", title: "Walking in the Spirit", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "0:45:00", createdAt: "2025-07-18T10:00:00Z", views: 900 },
-  { id: 3, date: "JUN 2025", title: "Kingdom Living", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "1:02:00", createdAt: "2025-06-10T10:00:00Z", views: 1500 },
-  { id: 4, date: "MAY 2025", title: "Faith That Moves", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "0:58:00", createdAt: "2025-05-05T10:00:00Z", views: 700 },
-  { id: 5, date: "APR 2025", title: "Prayer & Fasting", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "1:12:00", createdAt: "2025-04-12T10:00:00Z", views: 640 },
-  { id: 6, date: "MAR 2025", title: "The Lord's Provision", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "0:50:00", createdAt: "2025-03-22T10:00:00Z", views: 430 },
-  { id: 7, date: "FEB 2025", title: "Called to Serve", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "0:39:00", createdAt: "2025-02-14T10:00:00Z", views: 270 },
-  { id: 8, date: "JAN 2025", title: "New Beginnings", speaker: "APOSTLE ADEDIWALE ADEKOLA", duration: "1:05:00", createdAt: "2025-01-06T10:00:00Z", views: 1900 },
+  { id: 1, date: "AUG 2025", title: "Partakers Of The HolyGhost (PART ONE)", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:19:00", createdAt: "2025-08-01T10:00:00Z", views: 1200 },
+  { id: 2, date: "JUL 2025", title: "Walking in the Spirit", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:45:00", createdAt: "2025-07-18T10:00:00Z", views: 900 },
+  { id: 3, date: "JUN 2025", title: "Kingdom Living", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:02:00", createdAt: "2025-06-10T10:00:00Z", views: 1500 },
+  { id: 4, date: "MAY 2025", title: "Faith That Moves", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:58:00", createdAt: "2025-05-05T10:00:00Z", views: 700 },
+  { id: 5, date: "APR 2025", title: "Prayer & Fasting", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:12:00", createdAt: "2025-04-12T10:00:00Z", views: 640 },
+  { id: 6, date: "MAR 2025", title: "The Lord's Provision", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:50:00", createdAt: "2025-03-22T10:00:00Z", views: 430 },
+  { id: 7, date: "FEB 2025", title: "Called to Serve", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:39:00", createdAt: "2025-02-14T10:00:00Z", views: 270 },
+  { id: 8, date: "JAN 2025", title: "New Beginnings", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:05:00", createdAt: "2025-01-06T10:00:00Z", views: 1900 },
 ];
 
 const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => (
