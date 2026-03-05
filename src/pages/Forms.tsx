@@ -5,6 +5,10 @@ import formsHero from "@/assets/forms_hero.jpg";
 import formsOne from "@/assets/form1.jpg";
 import formsTwo from "@/assets/form2.jpg";
 import NewMemberRegistration from "./NewMemberRegistration";
+import AltarCall from "./AltarCall";
+import Testimony from "./Testimony";
+import PreMaritalCounseling from "./PreMaritalCounseling";
+import Counselling from "./Counselling";
 import babyDedicationImg from "@/assets/community-1.jpg";
 import babyNamingImg from "@/assets/community-1.jpg";
 import testimonyImg from "@/assets/testimony.jpg";
@@ -16,8 +20,20 @@ import preMaritalImg from "@/assets/premarital.jpg";
 import eventRegistrationImg from "@/assets/community-1.jpg";
 import counsellingImg from "@/assets/counselingform.jpg";
 
+type ModalKey = 'newMember' | 'altarCall' | 'testimony' | 'preMarital' | 'counselling' | null;
+
 const Forms = () => {
-  const [showNewMember, setShowNewMember] = useState(false);
+  const [activeModal, setActiveModal] = useState<ModalKey>(null);
+
+  const closeModal = () => setActiveModal(null);
+
+  const formModalMap: Record<string, ModalKey> = {
+    'First Timer Form': 'newMember',
+    'Altar Call Form': 'altarCall',
+    'Testimony Form': 'testimony',
+    'Pre-Marital Counselling Form': 'preMarital',
+    'Counselling Request': 'counselling',
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,12 +53,16 @@ const Forms = () => {
         </div>
       </section>
 
-      {/* New Member modal overlay */}
-      {showNewMember && (
+      {/* Modal overlay */}
+      {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setShowNewMember(false)} />
-          <div className="relative z-50 mx-4 w-full max-w-3xl">
-            <NewMemberRegistration modal onClose={() => setShowNewMember(false)} />
+          <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
+          <div className="relative z-50 mx-4 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            {activeModal === 'newMember' && <NewMemberRegistration modal onClose={closeModal} />}
+            {activeModal === 'altarCall' && <AltarCall modal onClose={closeModal} />}
+            {activeModal === 'testimony' && <Testimony modal onClose={closeModal} />}
+            {activeModal === 'preMarital' && <PreMaritalCounseling modal onClose={closeModal} />}
+            {activeModal === 'counselling' && <Counselling modal onClose={closeModal} />}
           </div>
         </div>
       )}
@@ -94,18 +114,14 @@ const Forms = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {[
-            //   { title: 'Baby Dedication Form', desc: "Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." , action: 'FILL FORM →'},
-            //   { title: 'Baby Naming Form', desc: "We rejoice with your family. Please share the needed details so we can support you and properly document this joyful milestone.", action: 'FILL FORM →'},
               { title: 'Feedback / Suggestion Form', desc: "Your voice matters to us. Help us grow and serve better by sharing your feedback, thoughts, or suggestions.", action: 'SEND FEEDBACK →'},
               { title: 'Altar Call Form', desc: "If you gave your life to Christ or need pastoral support, fill this form so we can follow up and walk with you.", action: 'ALTAR CALL FORM →'},
               { title: 'Testimony Form', desc: "Has God done something beautiful in your life? Share your testimony so it can encourage others and glorify God among His people.", action: 'SHARE YOUR TESTIMONY →'},
-              
               { title: 'Volunteer Form', desc: "Ready to serve? Tell us where you feel led and we'll help you find a place to serve.", action: 'BECOME A VOLUNTEER →'},
               { title: 'Pre-Marital Counselling Form', desc: "Preparing for marriage is a sacred journey. This form helps us connect you with premarital counselling and guidance.", action: 'REQUEST COUNSELLING →'},
               { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
-            //   { title: 'Event Registration', desc: "Register to attend our events. Please provide contact details and attendance days so we can plan accordingly.", action: 'REGISTER →'},
               { title: 'Counselling Request', desc: "If you need pastoral guidance, counselling, or spiritual support, tell us here so we can reach out pastorally and biblically.", action: 'REQUEST COUNSELLING →'},
-            ].map((f, idx) => (
+            ].map((f) => (
               <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="w-full h-40 md:h-44 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
                   <img 
@@ -128,18 +144,10 @@ const Forms = () => {
                 </div>
                 <h3 className="font-medium text-black mb-2">{f.title}</h3>
                 <p className="text-sm text-black/70 mb-3">{f.desc}</p>
-                {f.title === 'First Timer Form' ? (
-                  <button onClick={() => setShowNewMember(true)} className="text-sm text-sky-500 font-semibold">{f.action}</button>
+                {formModalMap[f.title] ? (
+                  <button onClick={() => setActiveModal(formModalMap[f.title])} className="text-sm text-sky-500 font-semibold">{f.action}</button>
                 ) : (
-                  <a href={
-                    f.title === 'Altar Call Form' ? '/altar-call' :
-                    f.title === 'Baby Dedication Form' ? '/baby-dedication' :
-                    f.title === 'Testimony Form' ? '/testimony' :
-                    f.title === 'Pre-Marital Counselling Form' ? '/pre-marital-counseling' :
-                    f.title === 'Event Registration' ? '/event-registration' :
-                    f.title === 'Counselling Request' ? '/counselling' :
-                    '#'
-                  } className="text-sm text-sky-500 font-semibold">{f.action}</a>
+                  <a href="#" className="text-sm text-sky-500 font-semibold">{f.action}</a>
                 )}
               </div>
             ))}

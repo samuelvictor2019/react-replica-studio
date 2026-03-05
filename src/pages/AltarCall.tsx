@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/select";
 import altarImg from "@/assets/community-21.jpg";
 
-const AltarCall = () => {
+type Props = { modal?: boolean; onClose?: () => void };
+
+const AltarCall = ({ modal = false, onClose }: Props) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -48,29 +50,22 @@ const AltarCall = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
-      <div className="relative w-full max-w-3xl bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[2fr_3fr] min-h-[520px]">
-        {/* Left image — hidden on mobile, shown on md+ */}
+  const Inner = (
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[2fr_3fr] max-h-[90vh]`}>
         <div className="hidden md:block relative">
-          <img
-            src={altarImg}
-            alt="Person at altar"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <img src={altarImg} alt="Person at altar" className="absolute inset-0 w-full h-full object-cover" />
         </div>
 
-        {/* Close button */}
-        <a
-          href="/"
+        <button
+          onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))}
           className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"
           aria-label="Close"
         >
           <X className="w-5 h-5" />
-        </a>
+        </button>
 
         {/* Right form area */}
-        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10">
+        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
           {/* Header */}
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-2">
@@ -263,6 +258,13 @@ const AltarCall = () => {
           )}
         </div>
       </div>
+  );
+
+  if (modal) return Inner;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
+      {Inner}
     </div>
   );
 };

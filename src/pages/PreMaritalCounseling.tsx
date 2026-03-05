@@ -9,7 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import coupleImg from "@/assets/community-4.jpg";
 
-const PreMaritalCounseling = () => {
+type Props = { modal?: boolean; onClose?: () => void };
+
+const PreMaritalCounseling = ({ modal = false, onClose }: Props) => {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     brideName: "",
@@ -30,17 +32,15 @@ const PreMaritalCounseling = () => {
   const canProceed = form.brideName.trim() && form.groomName.trim() && form.phone.trim() && form.email.trim();
   const canSubmit = form.consent;
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
-      <div className="relative w-full max-w-4xl bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] min-h-[640px]">
-        {/* Left image */}
+  const Inner = (
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] max-h-[90vh]`}>
         <div className="hidden md:block relative">
           <img src={coupleImg} alt="couple" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
-        <a href="/forms" className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"><X className="w-5 h-5" /></a>
+        <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"><X className="w-5 h-5" /></button>
 
-        <div className="p-6 md:p-8 flex flex-col">
+        <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
           <div className="mb-4">
             <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Pre-Marital Counseling</h1>
             <p className="text-xs text-muted-foreground mt-2 max-w-lg">Marriage is a sacred covenant. Our pastoral team is ready to walk with you through biblical foundations for a godly and lasting union.</p>
@@ -164,6 +164,13 @@ const PreMaritalCounseling = () => {
           )}
         </div>
       </div>
+  );
+
+  if (modal) return Inner;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
+      {Inner}
     </div>
   );
 };
