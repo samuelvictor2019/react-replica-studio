@@ -10,6 +10,7 @@ import Testimony from "./Testimony";
 import PreMaritalCounseling from "./PreMaritalCounseling";
 import Counselling from "./Counselling";
 import Volunteer from "./Volunteer";
+import Feedback from "./Feedback";
 import babyDedicationImg from "@/assets/community-1.jpg";
 import babyNamingImg from "@/assets/community-1.jpg";
 import testimonyImg from "@/assets/testimony.jpg";
@@ -21,7 +22,7 @@ import preMaritalImg from "@/assets/premarital.jpg";
 import eventRegistrationImg from "@/assets/community-1.jpg";
 import counsellingImg from "@/assets/counselingform.jpg";
 
-type ModalKey = 'newMember' | 'altarCall' | 'testimony' | 'preMarital' | 'counselling' | 'volunteer' | null;
+type ModalKey = 'newMember' | 'altarCall' | 'testimony' | 'preMarital' | 'counselling' | 'volunteer' | 'feedback' | null;
 
 const Forms = () => {
   const [activeModal, setActiveModal] = useState<ModalKey>(null);
@@ -35,6 +36,7 @@ const Forms = () => {
     'Pre-Marital Counselling Form': 'preMarital',
     'Counselling Request': 'counselling',
     'Volunteer Form': 'volunteer',
+    'Feedback / Suggestion Form': 'feedback',
   };
 
   return (
@@ -66,6 +68,7 @@ const Forms = () => {
             {activeModal === 'preMarital' && <PreMaritalCounseling modal onClose={closeModal} />}
             {activeModal === 'counselling' && <Counselling modal onClose={closeModal} />}
             {activeModal === 'volunteer' && <Volunteer modal onClose={closeModal} />}
+            {activeModal === 'feedback' && <Feedback modal onClose={closeModal} />}
           </div>
         </div>
       )}
