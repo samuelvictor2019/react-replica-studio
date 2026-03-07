@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import eventImg from "@/assets/community-4.jpg";
+import eventImg from "@/assets/event_form.jpg";
 
 const EventRegistration = () => {
   const [step, setStep] = useState(1);

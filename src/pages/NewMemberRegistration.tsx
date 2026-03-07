@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import memberImg from "@/assets/newmember_hero.jpg";
+import memberImg from "@/assets/newmember_form.jpg";
 
 type Props = {
   modal?: boolean;

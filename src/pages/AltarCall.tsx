@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import altarImg from "@/assets/community-21.jpg";
+import altarImg from "@/assets/altarcall_form.jpg";
 
 type Props = { modal?: boolean; onClose?: () => void };
 

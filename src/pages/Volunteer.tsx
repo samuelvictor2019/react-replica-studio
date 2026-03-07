@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import volunteerImg from "@/assets/volunteer.jpg";
+import volunteerImg from "@/assets/volunteer_form.jpg";
 
 type Props = { modal?: boolean; onClose?: () => void };
 

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import feedbackImg from "@/assets/feedback.jpg";
+import feedbackImg from "@/assets/feedback_form.jpg";
 
 type Props = { modal?: boolean; onClose?: () => void };
 

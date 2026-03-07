@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import babyImg from "@/assets/community-21.jpg";
+import babyImg from "@/assets/babydedication_form.jpg";
 
 const BabyDedication = () => {
   const [step, setStep] = useState(1);
