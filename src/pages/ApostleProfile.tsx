@@ -11,6 +11,18 @@ import gallery7 from "@/assets/apostle7.jpg";
 import gallery8 from "@/assets/apostle8.jpg";
 import gallery9 from "@/assets/apostle9.jpg";
 
+const edgeBleed = "max(1rem, calc((100vw - 72rem) / 2 + 1rem))";
+
+const leftBleedStyle = {
+  width: `calc(100% + ${edgeBleed})`,
+  marginLeft: `calc(-1 * ${edgeBleed})`,
+};
+
+const rightBleedStyle = {
+  width: `calc(100% + ${edgeBleed})`,
+  marginRight: `calc(-1 * ${edgeBleed})`,
+};
+
 const ApostleProfile = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -61,10 +73,10 @@ const ApostleProfile = () => {
       </section>
 
       {/* Gallery 1 */}
-      <section className="pb-16 md:pb-24 bg-background">
+      <section className="pb-16 md:pb-24 bg-background overflow-x-hidden">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
-            <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-hidden rounded-r-2xl" style={leftBleedStyle}>
               <img src={gallery1} alt="Ministry moment" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
@@ -103,7 +115,7 @@ const ApostleProfile = () => {
       </section>
 
       {/* Gallery 2 */}
-      <section className="pb-16 md:pb-24 bg-background">
+      <section className="pb-16 md:pb-24 bg-background overflow-x-hidden">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '0.6fr 1fr 1.6fr' }}>
             <div className="overflow-hidden rounded-2xl">
@@ -112,7 +124,7 @@ const ApostleProfile = () => {
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
-            <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-hidden rounded-l-2xl" style={rightBleedStyle}>
               <img src={gallery6} alt="Discipleship" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
           </div>
@@ -149,10 +161,10 @@ const ApostleProfile = () => {
       </section>
 
       {/* Gallery 3 */}
-      <section className="pb-16 md:pb-24 bg-background">
+      <section className="pb-16 md:pb-24 bg-background overflow-x-hidden">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
-            <div className="overflow-hidden rounded-2xl">
+            <div className="overflow-hidden rounded-r-2xl" style={leftBleedStyle}>
               <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">

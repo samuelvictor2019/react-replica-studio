@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroImg from "@/assets/faithfulsteward_hero.jpg";
-import communityImg1 from "@/assets/stewardslide1.jpg";
-import communityImg2 from "@/assets/stewardslide2.jpg";
-import communityImg3 from "@/assets/stewardslide4.jpg";
+import communityImg1 from "@/assets/wt_icon.jpg";
+import communityImg2 from "@/assets/mm_icon.jpg";
+import communityImg3 from "@/assets/sanitation_icon.jpg";
 import communityImg4 from "@/assets/stewardslide5.jpg";
 import communityImg5 from "@/assets/stewardslide6.jpg";
 import leaderImg1 from "@/assets/steward1.jpg";
@@ -103,7 +103,7 @@ const FaithfulStewards: React.FC = () => {
 
       {/* ── Every Gift Matters ── */}
       <section className="bg-background pt-16 md:pt-24 pb-0">
-        <div className="container max-w-6xl mx-auto px-4">
+        <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
             {/* Left – heading + body */}
             <div>
@@ -138,18 +138,20 @@ const FaithfulStewards: React.FC = () => {
         </div>
 
         {/* Full-width image band – no gap */}
-        <div className="w-full mt-10 md:mt-14">
+        <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
+          {/* <div className="w-full mt-10 md:mt-14"></div> */}
           <img
             src={leaderImg1}
             alt="Worship and service"
-            className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
+            // className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
+            className="w-full h-72 md:h-80 object-cover"
           />
         </div>
       </section>
 
-      {/* ── Why Serve? ── */}
+      {/* ── Why Serve? ──   */}
       <section className="bg-muted/40 py-16 md:py-24 overflow-x-clip">
-        <div className="max-w-[1400px] mx-auto px-4">
+        <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
           <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
             {/* Left – heading, text, arrows */}
             <div className="flex-shrink-0 md:w-[280px] lg:w-[320px] flex flex-col justify-center md:pr-10">
