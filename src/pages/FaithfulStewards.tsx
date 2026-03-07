@@ -86,47 +86,49 @@ const FaithfulStewards: React.FC = () => {
       </section>
 
       {/* ── Every Gift Matters ── */}
-      <section className="bg-background py-16 md:py-24">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-            <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
-              Every Gift
-              <br />
-              Matters
-            </h2>
-            <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
-              At WaterGate Church, we believe that every believer has been
-              entrusted with gifts, abilities, and grace meant to serve God
-              and bless others. Serving is not just about filling a role — it's
-              about stewardship, growth, and partnership in God's work.
-            </p>
-          </div>
+      <section className="bg-background pt-16 md:pt-24 pb-0">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+            {/* Left – heading + body */}
+            <div>
+              <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
+                Every Gift
+                <br />
+                Matters
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
+                At WaterGate Church, we believe that every believer has been
+                entrusted with gifts, abilities, and grace meant to serve God
+                and bless others. Serving is not just about filling a role — it's
+                about stewardship, growth, and partnership in God's work.
+              </p>
+            </div>
 
-          <div className="md:w-[30%] lg:w-[25%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
-            <div className="p-4 md:p-6">
-              <span className="text-6xl md:text-8xl font-heading text-foreground/10 leading-none select-none">
+            {/* Right – decorative quote */}
+            <div className="flex flex-col justify-start pt-0 md:pt-2">
+              <span className="font-heading text-7xl md:text-9xl text-foreground/10 leading-none select-none -mb-6 md:-mb-8">
                 "
               </span>
-              <p className="text-sm md:text-base italic text-foreground/80 max-w-sm -mt-4">
+              <p className="text-sm md:text-base font-medium text-foreground/80 leading-relaxed">
                 "Moreover it is required in stewards,
                 <br />
                 that a man be found faithful."
               </p>
-              <p className="mt-3 text-xs font-semibold tracking-widest text-foreground/60">
-                — 1 Corinthians 4:2
-              </p>
+              <ul className="mt-4 list-disc list-inside">
+                <li className="text-sm font-semibold text-foreground/70">1 Corinthians 4:2</li>
+              </ul>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Full-width dark image band ── */}
-      <section className="w-full">
-        <img
-          src={leaderImg1}
-          alt="Worship and service"
-          className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
-        />
+        {/* Full-width image band – no gap */}
+        <div className="w-full mt-10 md:mt-14">
+          <img
+            src={leaderImg1}
+            alt="Worship and service"
+            className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
+          />
+        </div>
       </section>
 
       {/* ── Why Serve? ── */}
