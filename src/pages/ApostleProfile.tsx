@@ -37,11 +37,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Bio Section 1 — left-aligned (bleeds left) */}
+      {/* Bio Section 1 — Apostle. Shepherd. Father. */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12 mb-2">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15]">
               Apostle.
               <br />
               Shepherd.
@@ -49,7 +49,7 @@ const ApostleProfile = () => {
               Father.
             </h2>
 
-            <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
+            <p className="text-sm leading-relaxed text-foreground/70">
               Apostle Adebowale Adesina is the Serving Overseer of The WaterGate 
               Church and the Lead Facilitator of Present Truth Leadership 
               Forum, a Christ-centered community of saints pressing into 
@@ -60,11 +60,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Gallery 1 — bleeds left */}
+      {/* Gallery 1 */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
+        <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
-            <div className="overflow-hidden rounded-r-2xl">
+            <div className="overflow-hidden rounded-2xl">
               <img src={gallery1} alt="Ministry moment" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
@@ -77,19 +77,11 @@ const ApostleProfile = () => {
         </div>
       </section>
 
-      {/* Bio Section 2 — right-aligned (bleeds right) */}
+      {/* Bio Section 2 — Discipler. Mentor. Teacher (text left, heading right) */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
+        <div className="container max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right pr-8 md:pr-12 mb-2">
-              Discipler.
-              <br />
-              Mentor.
-              <br />
-              Teacher.
-            </h2>
-
-            <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
+            <p className="text-sm leading-relaxed text-foreground/70 md:order-1 order-2">
               He is also the Facilitator of Hiddekel Miracle Explosion, Hiddekel 
               School of Leadership and the Supernatural which comprises of 
               Psalmist Boot Camp, Seers and Scribes Boot Camp, and other modules 
@@ -98,13 +90,21 @@ const ApostleProfile = () => {
               nation. He is passionate about intimacy with God and expressing the 
               fullness of Christ across the earth.
             </p>
+
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right md:order-2 order-1">
+              Discipler.
+              <br />
+              Mentor.
+              <br />
+              Teacher.
+            </h2>
           </div>
         </div>
       </section>
 
-      {/* Gallery 2 — bleeds right */}
+      {/* Gallery 2 */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="mr-0 ml-auto max-w-5xl pr-0 pl-4 md:pl-8">
+        <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '0.6fr 1fr 1.6fr' }}>
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery4} alt="Teaching" className="w-full h-[160px] md:h-[240px] object-cover" />
@@ -112,18 +112,18 @@ const ApostleProfile = () => {
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
-            <div className="overflow-hidden rounded-l-2xl">
+            <div className="overflow-hidden rounded-2xl">
               <img src={gallery6} alt="Discipleship" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Bio Section 3 — Leader. Builder. Husband. (left-aligned like section 1) */}
+      {/* Bio Section 3 — Leader. Builder. Husband. (heading left, text right) */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start pl-0 pr-0">
-            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] pl-8 md:pl-12 mb-2">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15]">
               Leader.
               <br />
               Builder.
@@ -131,30 +131,28 @@ const ApostleProfile = () => {
               Husband.
             </h2>
 
-            <div>
-              <div className="space-y-4">
-                <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
-                  He is a graduate of Agricultural Engineering from the University of Ibadan. 
-                  He also obtained two master degrees; the first in Geographical Information 
-                  Systems and secondly, in Soil and Water Conservation Engineering. 
-                  He was a former University lecturer at the Olabisi Onabanjo University before 
-                  he resigned to pioneer The WaterGate Church.
-                </p>
-                <p className="text-sm leading-relaxed text-foreground/70 px-4 md:px-0">
-                  He resides in Sango-Ota, Ogun state, Nigeria. He is married to
-                  Oluwatosin Adesina.
-                </p>
-              </div>
+            <div className="space-y-4">
+              <p className="text-sm leading-relaxed text-foreground/70">
+                He is a graduate of Agricultural Engineering from the University of Ibadan. 
+                He also obtained two master degrees; the first in Geographical Information 
+                Systems and secondly, in Soil and Water Conservation Engineering. 
+                He was a former University lecturer at the Olabisi Onabanjo University before 
+                he resigned to pioneer The WaterGate Church.
+              </p>
+              <p className="text-sm leading-relaxed text-foreground/70">
+                He resides in Sango-Ota, Ogun state, Nigeria. He is married to
+                Oluwatosin Adesina.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Gallery 3 (bleeds left like Gallery 1) */}
+      {/* Gallery 3 */}
       <section className="pb-16 md:pb-24 bg-background">
-        <div className="ml-0 mr-auto max-w-5xl pl-0 pr-4 md:pr-8">
+        <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
-            <div className="overflow-hidden rounded-r-2xl">
+            <div className="overflow-hidden rounded-2xl">
               <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover" />
             </div>
             <div className="overflow-hidden rounded-2xl">
