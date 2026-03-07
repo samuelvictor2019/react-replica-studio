@@ -57,6 +57,7 @@ const serveCards = [
 
 const FaithfulStewards: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [deptPage, setDeptPage] = useState(1);
   const totalPages = Math.ceil(departments.length / ITEMS_PER_PAGE);
   const pagedDepts = departments.slice((deptPage - 1) * ITEMS_PER_PAGE, deptPage * ITEMS_PER_PAGE);
