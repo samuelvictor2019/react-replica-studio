@@ -12,6 +12,20 @@ import leaderImg2 from "@/assets/stewards2.jpg";
 import leaderImg3 from "@/assets/leader-31.jpg";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+/* ── Departments data ── */
+const departments = [
+  { img: communityImg1, title: "Worship Team", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg2, title: "MultiMedia", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: communityImg3, title: "Sanitation", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+  { img: communityImg4, title: "Worship & Music", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg5, title: "Protocol", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: leaderImg3, title: "Ushering", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+  { img: communityImg1, title: "Children & Teens", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg2, title: "Evangelism", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: communityImg3, title: "Welfare", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+];
+const ITEMS_PER_PAGE = 9;
+
 /* ── Why Serve cards ── */
 const serveCards = [
   {
@@ -44,7 +58,9 @@ const serveCards = [
 const FaithfulStewards: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-
+  const [deptPage, setDeptPage] = useState(1);
+  const totalPages = Math.ceil(departments.length / ITEMS_PER_PAGE);
+  const pagedDepts = departments.slice((deptPage - 1) * ITEMS_PER_PAGE, deptPage * ITEMS_PER_PAGE);
   const updateScroll = () => {
     if (!scrollRef.current) return;
     setCanScrollLeft(scrollRef.current.scrollLeft > 0);
@@ -86,47 +102,49 @@ const FaithfulStewards: React.FC = () => {
       </section>
 
       {/* ── Every Gift Matters ── */}
-      <section className="bg-background py-16 md:py-24">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-            <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
-              Every Gift
-              <br />
-              Matters
-            </h2>
-            <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
-              At WaterGate Church, we believe that every believer has been
-              entrusted with gifts, abilities, and grace meant to serve God
-              and bless others. Serving is not just about filling a role — it's
-              about stewardship, growth, and partnership in God's work.
-            </p>
-          </div>
+      <section className="bg-background pt-16 md:pt-24 pb-0">
+        <div className="container max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+            {/* Left – heading + body */}
+            <div>
+              <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
+                Every Gift
+                <br />
+                Matters
+              </h2>
+              <p className="text-sm leading-relaxed text-muted-foreground max-w-md">
+                At WaterGate Church, we believe that every believer has been
+                entrusted with gifts, abilities, and grace meant to serve God
+                and bless others. Serving is not just about filling a role — it's
+                about stewardship, growth, and partnership in God's work.
+              </p>
+            </div>
 
-          <div className="md:w-[30%] lg:w-[25%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
-            <div className="p-4 md:p-6">
-              <span className="text-6xl md:text-8xl font-heading text-foreground/10 leading-none select-none">
+            {/* Right – decorative quote */}
+            <div className="flex flex-col justify-start pt-0 md:pt-2">
+              <span className="font-heading text-7xl md:text-9xl text-foreground/10 leading-none select-none -mb-6 md:-mb-8">
                 "
               </span>
-              <p className="text-sm md:text-base italic text-foreground/80 max-w-sm -mt-4">
+              <p className="text-sm md:text-base font-medium text-foreground/80 leading-relaxed">
                 "Moreover it is required in stewards,
                 <br />
                 that a man be found faithful."
               </p>
-              <p className="mt-3 text-xs font-semibold tracking-widest text-foreground/60">
-                — 1 Corinthians 4:2
-              </p>
+              <ul className="mt-4 list-disc list-inside">
+                <li className="text-sm font-semibold text-foreground/70">1 Corinthians 4:2</li>
+              </ul>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Full-width dark image band ── */}
-      <section className="w-full">
-        <img
-          src={leaderImg1}
-          alt="Worship and service"
-          className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
-        />
+        {/* Full-width image band – no gap */}
+        <div className="w-full mt-10 md:mt-14">
+          <img
+            src={leaderImg1}
+            alt="Worship and service"
+            className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
+          />
+        </div>
       </section>
 
       {/* ── Why Serve? ── */}
@@ -194,6 +212,97 @@ const FaithfulStewards: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── Explore Our Teams ── */}
+      <section className="bg-background py-16 md:py-24">
+        <div className="container max-w-6xl mx-auto px-4">
+          {/* Header */}
+          <div className="text-center max-w-xl mx-auto mb-8">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground leading-tight">
+              Explore Our Teams,
+              <br />
+              Departments &amp; Units
+            </h2>
+            <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+              Our departments are structured to help you serve with clarity,
+              accountability, and grace. Each unit functions as part of one body —
+              working together to create excellent, Spirit-led experiences.
+            </p>
+          </div>
+
+          {/* Join button */}
+          <div className="flex justify-center mb-12">
+            <a
+              href="/stewards/join"
+              className="inline-block px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-foreground/90 transition-colors"
+            >
+              Join a Unit
+            </a>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+            {pagedDepts.map((dept, i) => (
+              <div key={`${dept.title}-${i}`} className="group">
+                <div className="overflow-hidden rounded-xl mb-4">
+                  <img
+                    src={dept.img}
+                    alt={dept.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <h4 className="font-heading text-lg font-semibold text-foreground mb-2">
+                  {dept.title}
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                  {dept.text}
+                </p>
+                <a
+                  href="/stewards/join"
+                  className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-primary hover:underline"
+                >
+                  Join Us <ArrowRight size={12} />
+                </a>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button
+                onClick={() => setDeptPage((p) => Math.max(1, p - 1))}
+                disabled={deptPage === 1}
+                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                aria-label="Previous page"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setDeptPage(p)}
+                  className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                    p === deptPage
+                      ? "bg-foreground text-background"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setDeptPage((p) => Math.min(totalPages, p + 1))}
+                disabled={deptPage === totalPages}
+                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                aria-label="Next page"
+              >
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

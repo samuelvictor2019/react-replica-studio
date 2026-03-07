@@ -63,7 +63,7 @@ const BabyDedication = () => {
         </a>
 
         {/* Right form area */}
-        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10">
+        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-2">
               <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Baby Dedication</h1>
