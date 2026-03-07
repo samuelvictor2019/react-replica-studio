@@ -12,6 +12,20 @@ import leaderImg2 from "@/assets/stewards2.jpg";
 import leaderImg3 from "@/assets/leader-31.jpg";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+/* ── Departments data ── */
+const departments = [
+  { img: communityImg1, title: "Worship Team", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg2, title: "MultiMedia", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: communityImg3, title: "Sanitation", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+  { img: communityImg4, title: "Worship & Music", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg5, title: "Protocol", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: leaderImg3, title: "Ushering", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+  { img: communityImg1, title: "Children & Teens", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
+  { img: communityImg2, title: "Evangelism", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
+  { img: communityImg3, title: "Welfare", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+];
+const ITEMS_PER_PAGE = 9;
+
 /* ── Why Serve cards ── */
 const serveCards = [
   {
