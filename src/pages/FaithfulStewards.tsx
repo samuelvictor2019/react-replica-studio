@@ -215,6 +215,97 @@ const FaithfulStewards: React.FC = () => {
         </div>
       </section>
 
+      {/* ── Explore Our Teams ── */}
+      <section className="bg-background py-16 md:py-24">
+        <div className="container max-w-6xl mx-auto px-4">
+          {/* Header */}
+          <div className="text-center max-w-xl mx-auto mb-8">
+            <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground leading-tight">
+              Explore Our Teams,
+              <br />
+              Departments &amp; Units
+            </h2>
+            <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+              Our departments are structured to help you serve with clarity,
+              accountability, and grace. Each unit functions as part of one body —
+              working together to create excellent, Spirit-led experiences.
+            </p>
+          </div>
+
+          {/* Join button */}
+          <div className="flex justify-center mb-12">
+            <a
+              href="/stewards/join"
+              className="inline-block px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-foreground/90 transition-colors"
+            >
+              Join a Unit
+            </a>
+          </div>
+
+          {/* Cards grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+            {pagedDepts.map((dept, i) => (
+              <div key={`${dept.title}-${i}`} className="group">
+                <div className="overflow-hidden rounded-xl mb-4">
+                  <img
+                    src={dept.img}
+                    alt={dept.title}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <h4 className="font-heading text-lg font-semibold text-foreground mb-2">
+                  {dept.title}
+                </h4>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                  {dept.text}
+                </p>
+                <a
+                  href="/stewards/join"
+                  className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-primary hover:underline"
+                >
+                  Join Us <ArrowRight size={12} />
+                </a>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button
+                onClick={() => setDeptPage((p) => Math.max(1, p - 1))}
+                disabled={deptPage === 1}
+                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                aria-label="Previous page"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setDeptPage(p)}
+                  className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                    p === deptPage
+                      ? "bg-foreground text-background"
+                      : "text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => setDeptPage((p) => Math.min(totalPages, p + 1))}
+                disabled={deptPage === totalPages}
+                className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                aria-label="Next page"
+              >
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* ── Find Where You Fit ── */}
       <section className="bg-background py-16 md:py-24">
         <div className="flex flex-col md:flex-row items-center">
