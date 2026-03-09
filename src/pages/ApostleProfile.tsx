@@ -165,7 +165,7 @@ const ApostleProfile = () => {
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid gap-3 md:gap-5" style={{ gridTemplateColumns: '1.6fr 1fr 0.6fr' }}>
             <div className="overflow-hidden rounded-r-2xl" style={leftBleedStyle}>
-              <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover" />
+              <img src={gallery7} alt="Leadership" className="w-full h-[160px] md:h-[240px] object-cover object-center" />
             </div>
             <div className="overflow-hidden rounded-2xl">
               <img src={gallery8} alt="Family" className="w-full h-[160px] md:h-[240px] object-cover" />
