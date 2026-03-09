@@ -102,13 +102,13 @@ const LatestMediaSection = () => {
         </div>
 
         {/* Tabs + controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div className="flex gap-6 border-b border-border pb-3">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex gap-4 sm:gap-6 border-b border-border pb-3">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
+                className={`pb-3 text-[10px] sm:text-xs font-semibold tracking-widest transition-colors ${
                   activeTab === tab
                     ? "text-sky-600 border-b-2 border-sky-300"
                     : "text-black/60 hover:text-black"
@@ -121,22 +121,22 @@ const LatestMediaSection = () => {
 
           {/* Controls: hidden on the homepage */}
           {!isHome && (
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1 sm:gap-3 ml-2 flex-shrink-0">
               {/* Search */}
               <div className="flex-shrink-0">
                 {!showSearch ? (
-                  <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-2">
-                    <Search className="text-foreground/60" />
+                  <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-1.5 sm:p-2">
+                    <Search className="text-foreground/60" size={16} />
                   </button>
                 ) : (
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground/40" size={16} />
+                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-foreground/40" size={14} />
                     <input
                       autoFocus
                       value={query}
                       onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-                      placeholder="Search media"
-                      className="pl-9 pr-3 py-2 border-b border-border bg-transparent text-sm w-40 sm:w-48 focus:outline-none"
+                      placeholder="Search"
+                      className="pl-7 pr-2 py-1.5 border-b border-border bg-transparent text-xs w-24 sm:w-48 focus:outline-none"
                     />
                   </div>
                 )}
@@ -145,18 +145,18 @@ const LatestMediaSection = () => {
               {/* Sort */}
               <div className="flex-shrink-0">
                 {!showSort ? (
-                  <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-2">
-                    <List className="text-foreground/60" />
+                  <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-1.5 sm:p-2">
+                    <List className="text-foreground/60" size={16} />
                   </button>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <List className="text-foreground/60 flex-shrink-0" size={16} />
-                    <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-sm border-b border-border bg-transparent px-1 py-2 focus:outline-none">
-                      <option value="recent">Recently Added</option>
-                      <option value="newest">Newest First</option>
-                      <option value="oldest">Oldest First</option>
+                  <div className="flex items-center gap-1">
+                    <List className="text-foreground/60 flex-shrink-0" size={14} />
+                    <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-xs border-b border-border bg-transparent px-1 py-1.5 focus:outline-none">
+                      <option value="recent">Recent</option>
+                      <option value="newest">Newest</option>
+                      <option value="oldest">Oldest</option>
                       <option value="mostviewed">Most Viewed</option>
-                      <option value="atoz">A-Z Title</option>
+                      <option value="atoz">A-Z</option>
                     </select>
                   </div>
                 )}
