@@ -151,7 +151,7 @@ const FaithfulStewards: React.FC = () => {
 
       {/* ── Why Serve? ──   */}
       <section className="bg-muted/40 py-16 md:py-24 overflow-x-clip">
-        <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
+        <div className="mt-6 px-4 md:px-0 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
           <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
             {/* Left – heading, text, arrows */}
             <div className="flex-shrink-0 md:w-[280px] lg:w-[320px] flex flex-col justify-center md:pr-10">
