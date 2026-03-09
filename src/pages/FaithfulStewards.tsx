@@ -182,17 +182,17 @@ const FaithfulStewards: React.FC = () => {
             </div>
 
             {/* Right – scrollable cards */}
-            <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="flex-1 min-w-0 w-full overflow-hidden">
               <div
                 ref={scrollRef}
                 onScroll={updateScroll}
-                className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 -ml-0"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
               >
                 {serveCards.map((card) => (
                   <div
                     key={card.title}
-                    className="min-w-[220px] w-[75vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
+                    className="min-w-[240px] w-[70vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
                   >
                     <div className="overflow-hidden">
                       <img
