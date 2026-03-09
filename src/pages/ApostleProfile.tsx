@@ -122,7 +122,7 @@ const ApostleProfile = () => {
               <img src={gallery4} alt="Teaching" className="w-full h-[160px] md:h-[240px] object-cover object-top" />
             </div>
             <div className="overflow-hidden rounded-2xl">
-              <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover" />
+              <img src={gallery5} alt="Mentoring" className="w-full h-[160px] md:h-[240px] object-cover object-top" />
             </div>
             <div className="overflow-hidden rounded-l-2xl" style={rightBleedStyle}>
               <img src={gallery6} alt="Discipleship" className="w-full h-[160px] md:h-[240px] object-cover" />
