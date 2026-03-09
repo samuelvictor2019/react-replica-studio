@@ -134,3 +134,33 @@
     font-family: var(--font-heading);
   }
 }
+
+@layer utilities {
+  .dark [class*="text-black"] {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark [class*="text-black/90"] {
+    color: hsl(var(--foreground) / 0.9) !important;
+  }
+
+  .dark [class*="text-black/80"] {
+    color: hsl(var(--foreground) / 0.8) !important;
+  }
+
+  .dark [class*="text-black/70"] {
+    color: hsl(var(--foreground) / 0.7) !important;
+  }
+
+  .dark [class*="text-black/60"] {
+    color: hsl(var(--foreground) / 0.6) !important;
+  }
+
+  .dark [class*="text-black/50"] {
+    color: hsl(var(--foreground) / 0.5) !important;
+  }
+
+  .dark [class*="text-black/40"] {
+    color: hsl(var(--foreground) / 0.4) !important;
+  }
+}

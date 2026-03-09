@@ -35,13 +35,13 @@ const FloatingActions = () => {
       </button>
 
       {/* Theme toggle */}
-      <button
+      {/* <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         aria-label="Toggle theme"
         className="p-2.5 rounded-full bg-card border border-border shadow-lg text-foreground transition-all duration-200 hover:scale-110"
       >
         {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
+      </button> */}
     </div>
   );
 };
