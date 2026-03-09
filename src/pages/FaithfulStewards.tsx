@@ -151,7 +151,7 @@ const FaithfulStewards: React.FC = () => {
 
       {/* ── Why Serve? ──   */}
       <section className="bg-muted/40 py-16 md:py-24 overflow-x-clip">
-        <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
+        <div className="mt-6 px-4 md:px-0 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
           <div className="flex flex-col md:flex-row gap-8 md:gap-0 items-start">
             {/* Left – heading, text, arrows */}
             <div className="flex-shrink-0 md:w-[280px] lg:w-[320px] flex flex-col justify-center md:pr-10">
@@ -182,17 +182,17 @@ const FaithfulStewards: React.FC = () => {
             </div>
 
             {/* Right – scrollable cards */}
-            <div className="flex-1 min-w-0 overflow-hidden">
+            <div className="flex-1 min-w-0 w-full overflow-hidden">
               <div
                 ref={scrollRef}
                 onScroll={updateScroll}
-                className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 -ml-0"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
               >
                 {serveCards.map((card) => (
                   <div
                     key={card.title}
-                    className="min-w-[220px] w-[75vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
+                    className="min-w-[240px] w-[70vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
                   >
                     <div className="overflow-hidden">
                       <img
@@ -263,7 +263,7 @@ const FaithfulStewards: React.FC = () => {
                 </p>
                 <a
                   href="/stewards/join"
-                  className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-primary hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-sky-400 hover:text-sky-500 hover:underline"
                 >
                   Join Us <ArrowRight size={12} />
                 </a>
