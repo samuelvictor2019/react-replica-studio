@@ -102,7 +102,7 @@ const LatestMediaSection = () => {
         </div>
 
         {/* Tabs + controls */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div className="flex gap-6 border-b border-border pb-3">
             {tabs.map((tab) => (
               <button
@@ -121,37 +121,37 @@ const LatestMediaSection = () => {
 
           {/* Controls: hidden on the homepage */}
           {!isHome && (
-            <div className="flex items-center gap-3">
-              {/* Search icon button (toggles input) */}
-              <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Search */}
+              <div className="flex-shrink-0">
                 {!showSearch ? (
-                  <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-2 rounded bg-background border border-border">
-                    <Search />
+                  <button onClick={() => setShowSearch(true)} aria-label="Open search" className="p-2">
+                    <Search className="text-foreground/60" />
                   </button>
                 ) : (
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black/40" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground/40" size={16} />
                     <input
                       autoFocus
                       value={query}
                       onChange={(e) => { setQuery(e.target.value); setPage(1); }}
                       placeholder="Search media"
-                      className="pl-10 pr-3 py-2 border border-border rounded text-sm w-48"
+                      className="pl-9 pr-3 py-2 border-b border-border bg-transparent text-sm w-40 sm:w-48 focus:outline-none"
                     />
                   </div>
                 )}
               </div>
 
-              {/* Sort icon button (toggles select) */}
-              <div>
+              {/* Sort */}
+              <div className="flex-shrink-0">
                 {!showSort ? (
-                  <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-2 rounded bg-background border border-border">
-                    <List />
+                  <button onClick={() => setShowSort(true)} aria-label="Open sort" className="p-2">
+                    <List className="text-foreground/60" />
                   </button>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <List className="text-black/60" />
-                    <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-sm border border-border rounded px-3 py-2">
+                    <List className="text-foreground/60 flex-shrink-0" size={16} />
+                    <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="text-sm border-b border-border bg-transparent px-1 py-2 focus:outline-none">
                       <option value="recent">Recently Added</option>
                       <option value="newest">Newest First</option>
                       <option value="oldest">Oldest First</option>
