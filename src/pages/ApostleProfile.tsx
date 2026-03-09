@@ -171,7 +171,7 @@ const ApostleProfile = () => {
               <img src={gallery8} alt="Family" className="w-full h-[160px] md:h-[240px] object-cover object-top" />
             </div>
             <div className="overflow-hidden rounded-2xl">
-              <img src={gallery9} alt="Building" className="w-full h-[160px] md:h-[240px] object-cover" />
+              <img src={gallery9} alt="Building" className="w-full h-[160px] md:h-[240px] object-cover object-top" />
             </div>
           </div>
         </div>
