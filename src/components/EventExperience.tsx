@@ -1,7 +1,7 @@
 import eventImg from "@/assets/event-experience.png";
 
 const EventExperience = () => {
-  return (
+  return ( 
     <section className="py-16 md:py-24 bg-background">
       <div className="container max-w-4xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-6 items-start">

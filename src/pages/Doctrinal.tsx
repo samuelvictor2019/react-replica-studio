@@ -45,7 +45,7 @@ const Doctrinal = () => {
 
 			{/* Posture preview (below hero) */}
 			<section className="py-12 md:py-16 bg-white">
-				<div className="container max-w-6xl mx-auto px-4">
+				<div className="container max-w-4xl mx-auto px-4">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
 						<div>
 							<h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-4">Our Posture</h2>
@@ -73,7 +73,7 @@ const Doctrinal = () => {
 			</section>
 
 			{/* Full-bleed posture image (flows to right edge) */}
-			<div className="ml-4 md:ml-[calc((100vw-64rem)/2+296px+2rem)]">
+			<div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
 				<div className="overflow-hidden rounded-l-[18px] md:rounded-l-[20px]">
 					<img
 						src={postureHero}
