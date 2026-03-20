@@ -182,7 +182,7 @@ const LatestMediaSection = () => {
         {/* Pagination + mobile view all */}
         <div className="mt-8">
           <div className="flex items-center justify-center gap-4">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="p-3 bg-background rounded-full border border-border">
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="p-3 bg-background rounded-full border border-border hover:bg-sky-100 hover:text-black transition-colors">
               <ChevronLeft />
             </button>
 
@@ -194,7 +194,7 @@ const LatestMediaSection = () => {
                 ))}
             </div>
 
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="p-3 bg-background rounded-full border border-border">
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="p-3 bg-background rounded-full border border-border hover:bg-sky-100 hover:text-black transition-colors">
               <ChevronRight />
             </button>
           </div>

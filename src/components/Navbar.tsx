@@ -15,19 +15,19 @@ const navItems = [
   {
     label: "ABOUT",
     submenu: [
-      { label: "About TWC", href: "/about", icon: aboutTwc },
-      { label: "Doctrinal Statement", href: "/doctrine", icon: doctrinal },
-      { label: "Apostle's Profile", href: "/apostle", icon: pastor },
-      { label: "Contact US", href: "/contact", icon: contactImg },
+      { label: "About TWC", href: "/about" },
+      { label: "Doctrinal Statement", href: "/doctrine" },
+      { label: "Apostle's Profile", href: "/apostle" },
+      { label: "Contact US", href: "/contact" },
     ],
   },
   {
     label: "GET INVOLVED",
     submenu: [
-      { label: "I'm a New Member", href: "/new-member", icon: newMember },
-      { label: "House Groups", href: "/house-groups", icon: houseGroups },
-      { label: "Faithful Stewards", href: "/stewards", icon: stewards },
-      { label: "Forms", href: "/forms", icon: formsImg },
+      { label: "I'm a New Member", href: "/new-member" },
+      { label: "House Groups", href: "/house-groups" },
+      { label: "Faithful Stewards", href: "/stewards" },
+      { label: "Forms", href: "/forms" },
     ],
   },
   { label: "EVENTS", href: "/events" },
@@ -59,8 +59,8 @@ const Navbar = () => {
 
                 <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity absolute left-0 top-full mt-0 w-56 bg-background border border-foreground/10 shadow-md rounded-md p-2 z-50">
                   {item.submenu.map((s) => (
-                    <a key={s.label} href={s.href} className="flex items-center gap-3 px-3 py-2 hover:bg-foreground/5 rounded">
-                      <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" />
+                    <a key={s.label} href={s.href} className="flex items-center gap-3 px-3 py-2 hover:bg-sky-100 rounded">
+                      {/* <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" /> */}
                       <span className="text-sm font-medium text-black">{s.label}</span>
                     </a>
                   ))}
@@ -81,7 +81,7 @@ const Navbar = () => {
         {/* CTA */}
         <a
           href="/events"
-          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-sm hover:bg-sky-200 hover:text-black transition-colors"
+          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-sm hover:bg-sky-100 hover:text-black transition-colors"
         >
           UPCOMING EVENTS
         </a>
@@ -116,7 +116,7 @@ const Navbar = () => {
                 <div className={`${item.label === "ABOUT" ? (mobileAboutOpen ? "block" : "hidden") : mobileGetOpen ? "block" : "hidden"} pl-3` }>
                   {item.submenu.map((s) => (
                     <a key={s.label} href={s.href} className="flex items-center gap-3 py-2 text-sm">
-                      <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" />
+                      {/* <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" /> */}
                       <span className="font-medium text-black">{s.label}</span>
                     </a>
                   ))}
@@ -135,7 +135,7 @@ const Navbar = () => {
 
           <a
             href="/events"
-            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-sm text-center hover:bg-sky-200 hover:text-black transition-colors"
+            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-sm text-center hover:bg-sky-100 hover:text-black transition-colors"
           >
             UPCOMING EVENTS
           </a>

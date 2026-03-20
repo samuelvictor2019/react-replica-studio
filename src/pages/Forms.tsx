@@ -74,8 +74,8 @@ const Forms = () => {
       )}
 
       <section className="py-12 md:py-20 bg-white">
-        <div className="container max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+        <div className="container max-w-4xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-6 items-start">
             <div>
               <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-5">
                 We're here to
@@ -90,15 +90,17 @@ const Forms = () => {
               </p>
             </div>
 
-            <div className="flex items-start gap-3 pt-2">
-              <span className="text-6xl md:text-7xl font-heading text-muted-foreground/30 leading-none -mt-4">"</span>
-              <div>
-                <p className="text-sm font-semibold text-foreground mb-2">Support for every season</p>
-                <p className="text-sm font-semibold text-foreground leading-relaxed">
-                  Simple steps that help us walk with you
-                  <br />
-                  through every season.
-                </p>
+            <div>
+              <div className="relative mb-6">
+                <div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
+                <div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
+                  <p className="text-sm text-foreground/80 font-medium mb-2">Support for every season</p>
+                  <p className="text-sm text-foreground/80 font-medium leading-relaxed">
+                    Simple steps that help us walk with you
+                    <br />
+                    through every season.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

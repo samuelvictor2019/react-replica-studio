@@ -83,7 +83,7 @@ const HouseGroups = () => {
             </p>
             <a
               href="/new-member-registration"
-              className="inline-flex items-center gap-3 bg-foreground text-background px-6 py-3 rounded-md font-semibold hover:bg-sky-200 hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-3 bg-foreground text-background px-6 py-3 rounded-md font-semibold hover:bg-sky-100 hover:text-black transition-colors"
             >
               JOIN A HOUSE GROUP
             </a>
@@ -115,8 +115,8 @@ const HouseGroups = () => {
                   No matter your age, background, or stage of life, there's a House Group where you belong.
                 </p>
                 <div className="flex gap-3">
-                  <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-200 hover:text-foreground" />
-                  <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-200 hover:text-foreground" />
+                  <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-100 hover:text-black" />
+                  <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border border-foreground/20 bg-background hover:bg-sky-100 hover:text-black" />
                 </div>
               </div>
 
@@ -154,7 +154,7 @@ const HouseGroups = () => {
           </p>
           <a
             href="/new-member-registration"
-            className="inline-flex items-center gap-3 bg-foreground text-background px-8 py-3 rounded-md font-semibold hover:bg-sky-200 hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-3 bg-foreground text-background px-8 py-3 rounded-md font-semibold hover:bg-sky-100 hover:text-black transition-colors"
           >
             JOIN A HOUSE GROUP
           </a>

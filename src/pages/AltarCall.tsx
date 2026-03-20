@@ -58,7 +58,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
 
         <button
           onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))}
-          className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"
+          className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"
           aria-label="Close"
         >
           <X className="w-5 h-5" />

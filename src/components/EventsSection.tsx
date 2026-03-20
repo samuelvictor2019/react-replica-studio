@@ -184,7 +184,7 @@ const EventCard = ({ event }: { event: EventData }) => {
           <p className="text-[10px] text-black/70 italic">
             {event.registration}
           </p>
-          <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-200 hover:text-black transition-colors">
+          <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
             REGISTER
           </button>
         </div>
@@ -233,7 +233,7 @@ const EventsSection = () => {
 
         {/* View All */}
         <div className="flex justify-center mt-10">
-          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-200 hover:text-black transition-colors">
+          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
             VIEW ALL EVENTS
           </button>
         </div>

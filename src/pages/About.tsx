@@ -140,7 +140,7 @@ const About = () => {
           </div>
 
           {/* Image — bleeds to right edge */}
-          <div className="md:w-[45%] overflow-hidden">
+          <div className="md:w-[45%] overflow-hidden rounded-l-2xl">
             <img
               src={aboutTwc}
               alt="Church community"
@@ -188,17 +188,17 @@ const About = () => {
           <div className="flex justify-center gap-4 mt-10">
             <button
               onClick={() => goTo("prev")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
+              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors"
               aria-label="Previous scripture"
             >
-              <ArrowLeft className="w-4 h-4 text-foreground" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => goTo("next")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:bg-sky-200 transition-colors"
+              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors"
               aria-label="Next scripture"
             >
-              <ArrowRight className="w-4 h-4 text-foreground" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

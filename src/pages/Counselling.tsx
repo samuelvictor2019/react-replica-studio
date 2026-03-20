@@ -36,7 +36,7 @@ const Counselling = ({ modal = false, onClose }: Props) => {
           <img src={counsellingImg} alt="counselling" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
-        <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"><X className="w-5 h-5" /></button>
+        <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></button>
 
         <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
           <div className="mb-4 flex items-start justify-between">

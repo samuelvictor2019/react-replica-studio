@@ -19,7 +19,7 @@ const WelcomeSection = () => {
             </p>
             <a
               href="#"
-              className="inline-block bg-black text-white text-[11px] font-semibold tracking-widest px-7 py-3 rounded-full hover:bg-sky-200 hover:text-black transition-colors"
+              className="inline-block bg-black text-white text-[11px] font-semibold tracking-widest px-7 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               LEARN ABOUT TWC
             </a>

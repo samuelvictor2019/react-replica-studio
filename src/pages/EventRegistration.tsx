@@ -36,7 +36,7 @@ const EventRegistration = () => {
           <img src={eventImg} alt="event" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
-        <a href="/forms" className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10"><X className="w-5 h-5" /></a>
+        <a href="/forms" className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></a>
 
         <div className="p-6 md:p-8 flex flex-col">
           <div className="mb-4">

@@ -31,7 +31,7 @@ const Feedback = ({ modal = false, onClose }: Props) => {
         <img src={feedbackImg} alt="feedback" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
 
-      <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:text-foreground z-10">
+      <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10">
         <X className="w-5 h-5" />
       </button>
 

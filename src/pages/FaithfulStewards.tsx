@@ -2,9 +2,9 @@ import React, { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroImg from "@/assets/faithfulsteward_hero.jpg";
-import communityImg1 from "@/assets/wt_icon.jpg";
-import communityImg2 from "@/assets/mm_icon.jpg";
-import communityImg3 from "@/assets/sanitation_icon.jpg";
+import communityImg1 from "@/assets/stewardslide1.jpg";
+import communityImg2 from "@/assets/stewardslide2.jpg";
+import communityImg3 from "@/assets/stewardslide4.jpg";
 import communityImg4 from "@/assets/stewardslide5.jpg";
 import communityImg5 from "@/assets/stewardslide6.jpg";
 import leaderImg1 from "@/assets/steward1.jpg";
@@ -121,31 +121,31 @@ const FaithfulStewards: React.FC = () => {
             </div>
 
             {/* Right – decorative quote */}
-            <div className="flex flex-col justify-start pt-0 md:pt-2">
-              <span className="font-heading text-7xl md:text-9xl text-foreground/10 leading-none select-none -mb-6 md:-mb-8">
-                "
-              </span>
-              <p className="text-sm md:text-base font-medium text-foreground/80 leading-relaxed">
-                "Moreover it is required in stewards,
-                <br />
-                that a man be found faithful."
-              </p>
-              <ul className="mt-4 list-disc list-inside">
-                <li className="text-sm font-semibold text-foreground/70">1 Corinthians 4:2</li>
-              </ul>
+            <div>
+              <div className="relative mb-6">
+                <div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
+                <div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
+                  <p className="text-sm text-foreground/80 font-medium">
+                    Moreover it is required in stewards,
+                    <br />
+                    that a man be found faithful.
+                  </p>
+                  <p className="mt-4 text-sm font-semibold text-foreground/70">1 Corinthians 4:2</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Full-width image band – no gap */}
         <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
-          {/* <div className="w-full mt-10 md:mt-14"></div> */}
-          <img
-            src={leaderImg1}
-            alt="Worship and service"
-            // className="w-full h-[300px] md:h-[420px] lg:h-[500px] object-cover"
-            className="w-full h-72 md:h-80 object-cover"
-          />
+          <div className="overflow-hidden rounded-l-[18px]">
+            <img
+              src={leaderImg1}
+              alt="Worship and service"
+              className="w-full h-72 md:h-80 object-cover"
+            />
+          </div>
         </div>
       </section>
 
@@ -166,14 +166,14 @@ const FaithfulStewards: React.FC = () => {
                 <button
                   onClick={() => scroll("left")}
                   disabled={!canScrollLeft}
-                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors disabled:opacity-30"
+                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors disabled:opacity-30"
                   aria-label="Scroll left"
                 >
                   <ArrowLeft size={18} />
                 </button>
                 <button
                   onClick={() => scroll("right")}
-                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
+                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors"
                   aria-label="Scroll right"
                 >
                   <ArrowRight size={18} />
@@ -201,7 +201,7 @@ const FaithfulStewards: React.FC = () => {
                         className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
-                    <div className="p-5">
+                    <div className="p-5 bg-sky-100">
                       <h4 className="font-heading text-lg font-semibold text-foreground mb-1">
                         {card.title}
                       </h4>
@@ -238,7 +238,7 @@ const FaithfulStewards: React.FC = () => {
           <div className="flex justify-center mb-12">
             <a
               href="/stewards/join"
-              className="inline-block px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-foreground/90 transition-colors"
+              className="inline-block px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit
             </a>
@@ -289,7 +289,7 @@ const FaithfulStewards: React.FC = () => {
                   className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
                     p === deptPage
                       ? "bg-foreground text-background"
-                      : "text-foreground hover:bg-muted"
+                      : "text-foreground hover:bg-sky-100 hover:text-black"
                   }`}
                 >
                   {p}
@@ -334,7 +334,7 @@ const FaithfulStewards: React.FC = () => {
             </div>
             <a
               href="/stewards/join"
-              className="inline-block mt-8 px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-foreground/90 transition-colors"
+              className="inline-block mt-8 px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit
             </a>

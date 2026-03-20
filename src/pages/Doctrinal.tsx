@@ -60,11 +60,11 @@ const Doctrinal = () => {
 						</div>
 
 						<div>
-							<div className="mt-2 md:mt-0 bg-white rounded-lg p-6 inline-block">
-								<div className="relative">
-														<div className="text-7xl text-sky-100 absolute -left-6 -top-8 select-none">“</div>
-									<p className="text-sm italic text-black/80 relative z-10">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
-									<p className="text-xs text-black/70 mt-4 relative z-10">1 Timothy 1:5</p>
+							<div className="relative mb-6">
+								<div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
+								<div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
+									<p className="text-sm text-black/80 font-medium">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
+									<p className="text-xs text-black/70 mt-4">1 Timothy 1:5</p>
 								</div>
 							</div>
 						</div>
@@ -74,11 +74,11 @@ const Doctrinal = () => {
 
 			{/* Full-bleed posture image (flows to right edge) */}
 			<div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
-				<div className="overflow-hidden rounded-l-[18px] md:rounded-l-[20px]">
+				<div className="overflow-hidden rounded-l-[18px]">
 					<img
 						src={postureHero}
 						alt="Doctrinal posture"
-						className="block w-full h-56 md:h-64 lg:h-72 object-cover hero-kenburns"
+						className="block w-full h-72 md:h-80 object-cover hero-kenburns"
 					/>
 				</div>
 			</div>
@@ -153,7 +153,7 @@ const Doctrinal = () => {
 										) : (
 											<details className="bg-background/50 rounded-lg p-4" open={i === activeIndex} onToggle={(e) => e.currentTarget.open && setActiveIndex(i)}>
 												<summary className="details-summary">
-													<span className="font-heading text-lg font-semibold text-sky-400">{s.title}</span>
+												<span className={`font-heading text-lg font-semibold ${i === activeIndex ? 'text-sky-400' : 'text-black'}`}>{s.title}</span>
 													<span className="icon transition-transform duration-200 text-black/60">
 														<span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-sky-100 text-black/80">
 															<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
