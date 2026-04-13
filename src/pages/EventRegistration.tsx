@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { postForm } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { getEventById, postForm } from "@/lib/api";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +9,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import eventImg from "@/assets/event_form.jpg";
 
+const LOCAL_EVENT_REGISTRATIONS_KEY = 'wgc_event_registrations';
+
 const EventRegistration = () => {
+  const navigate = useNavigate();
+  const { eventId: eventIdParam } = useParams();
+  const [searchParams] = useSearchParams();
+  const eventId = eventIdParam || searchParams.get('eventId') || '';
+
   const [step, setStep] = useState(1);
+  const [eventDetails, setEventDetails] = useState<{
+    id: string;
+    title: string;
+    type?: string;
+    location?: string;
+    startDate?: string;
+    endDate?: string;
+  } | null>(null);
+  const [eventLoading, setEventLoading] = useState(false);
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
     email: "",
     gender: "",
-    days: { thu: false, fri: false, sat: false, sun: false, all: false },
+    selectedDays: [] as string[],
+    allDays: false,
     member: "",
     accommodation: "",
     consent: false,
@@ -25,9 +43,171 @@ const EventRegistration = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
-  const toggleDay = (d: string) => setForm((s) => ({ ...s, days: { ...s.days, [d]: !s.days[d as keyof typeof s.days] } }));
   const canProceed = form.fullName.trim() && form.phone.trim() && form.email.trim();
   const canSubmit = form.contactConsent;
+
+  const persistLocalRegistration = () => {
+    try {
+      const existingRaw = localStorage.getItem(LOCAL_EVENT_REGISTRATIONS_KEY);
+      const existing = existingRaw ? JSON.parse(existingRaw) : [];
+      const list = Array.isArray(existing) ? existing : [];
+      const record = {
+        id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        data: {
+          gender: form.gender,
+          selectedDays: form.selectedDays,
+          allDays: form.allDays,
+          member: form.member,
+          accommodation: form.accommodation,
+          eventId,
+          eventTitle: eventDetails?.title,
+          eventType: eventDetails?.type,
+          eventLocation: eventDetails?.location,
+          eventStartDate: eventDetails?.startDate,
+          eventEndDate: eventDetails?.endDate,
+        },
+      };
+      localStorage.setItem(LOCAL_EVENT_REGISTRATIONS_KEY, JSON.stringify([record, ...list].slice(0, 500)));
+    } catch (error) {
+      console.warn('Failed to persist local event registration:', error);
+    }
+  };
+
+  useEffect(() => {
+    const queryFallback = {
+      id: eventId || 'custom',
+      title: searchParams.get('title') || 'Event Registration',
+      type: searchParams.get('type') || undefined,
+      location: searchParams.get('location') || undefined,
+      startDate: searchParams.get('startDate') || undefined,
+      endDate: searchParams.get('endDate') || undefined,
+    };
+
+    if (!eventId) {
+      if (queryFallback.title !== 'Event Registration') {
+        setEventDetails(queryFallback);
+      }
+      return;
+    }
+
+    const loadEvent = async () => {
+      try {
+        setEventLoading(true);
+        const event = await getEventById(eventId);
+        if (event) {
+          setEventDetails({
+            id: event.id,
+            title: event.title || queryFallback.title,
+            type: event.type || queryFallback.type,
+            location: event.location || queryFallback.location,
+            startDate: event.startDate || queryFallback.startDate,
+            endDate: event.endDate || queryFallback.endDate,
+          });
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to load event for registration:', error);
+      } finally {
+        setEventLoading(false);
+      }
+
+      setEventDetails(queryFallback.title !== 'Event Registration' ? queryFallback : null);
+    };
+
+    loadEvent();
+  }, [eventId, searchParams]);
+
+  const formatEventDate = (startDate?: string, endDate?: string) => {
+    if (!startDate) return '';
+    const start = new Date(startDate);
+    if (Number.isNaN(start.getTime())) return '';
+
+    if (!endDate) {
+      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    const end = new Date(endDate);
+    if (Number.isNaN(end.getTime())) {
+      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    const startText = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endText = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${startText} - ${endText}`;
+  };
+
+  const eventDayOptions = useMemo(() => {
+    if (!eventDetails?.startDate) {
+      return [
+        { key: 'thu', label: 'Thursday' },
+        { key: 'fri', label: 'Friday' },
+        { key: 'sat', label: 'Saturday' },
+        { key: 'sun', label: 'Sunday' },
+      ];
+    }
+
+    const start = new Date(eventDetails.startDate);
+    const end = new Date(eventDetails.endDate || eventDetails.startDate);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return [
+        { key: 'thu', label: 'Thursday' },
+        { key: 'fri', label: 'Friday' },
+        { key: 'sat', label: 'Saturday' },
+        { key: 'sun', label: 'Sunday' },
+      ];
+    }
+
+    const options: Array<{ key: string; label: string }> = [];
+    const cursor = new Date(start);
+
+    while (cursor <= end) {
+      const key = cursor.toISOString().slice(0, 10);
+      const dayLabel = cursor.toLocaleDateString('en-US', { weekday: 'long' });
+      const dateLabel = cursor.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+      options.push({ key, label: `${dayLabel} (${dateLabel})` });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return options;
+  }, [eventDetails?.startDate, eventDetails?.endDate]);
+
+  const toggleDay = (dayKey: string) => {
+    if (dayKey === 'all') {
+      setForm((prev) => {
+        const nextAll = !prev.allDays;
+        return {
+          ...prev,
+          allDays: nextAll,
+          selectedDays: nextAll ? eventDayOptions.map((option) => option.key) : [],
+        };
+      });
+      return;
+    }
+
+    setForm((prev) => {
+      const isSelected = prev.selectedDays.includes(dayKey);
+      const selectedDays = isSelected
+        ? prev.selectedDays.filter((key) => key !== dayKey)
+        : [...prev.selectedDays, dayKey];
+
+      const allDays = eventDayOptions.length > 0 && selectedDays.length === eventDayOptions.length;
+      return { ...prev, selectedDays, allDays };
+    });
+  };
+
+  const handleClose = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
@@ -36,12 +216,35 @@ const EventRegistration = () => {
           <img src={eventImg} alt="event" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
-        <a href="/forms" className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></a>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"
+          aria-label="Close registration form"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
         <div className="p-6 md:p-8 flex flex-col">
           <div className="mb-4">
             <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Event Registration</h1>
-            <p className="text-xs text-muted-foreground mt-2 max-w-lg">Register to attend KDG 2026. Registration helps us prepare adequately and ensure a smooth experience for everyone.</p>
+            <p className="text-xs text-muted-foreground mt-2 max-w-lg">
+              {eventDetails?.title
+                ? `Register to attend ${eventDetails.title}.`
+                : 'Register to attend this event.'}{' '}
+              Registration helps us prepare adequately and ensure a smooth experience for everyone.
+            </p>
+            {eventLoading && <p className="text-[11px] text-muted-foreground mt-2">Loading event details...</p>}
+            {eventDetails && (
+              <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 space-y-1">
+                <p className="text-xs font-semibold text-foreground">{eventDetails.title}</p>
+                {eventDetails.type && <p className="text-[11px] text-muted-foreground">Type: {eventDetails.type}</p>}
+                {eventDetails.location && <p className="text-[11px] text-muted-foreground">Venue: {eventDetails.location}</p>}
+                {formatEventDate(eventDetails.startDate, eventDetails.endDate) && (
+                  <p className="text-[11px] text-muted-foreground">Date: {formatEventDate(eventDetails.startDate, eventDetails.endDate)}</p>
+                )}
+              </div>
+            )}
           </div>
 
           {submitted ? (
@@ -93,11 +296,19 @@ const EventRegistration = () => {
                 <div>
                   <Label className="text-xs font-semibold">Which days will you be attending?</Label>
                   <div className="grid grid-cols-1 gap-2 mt-2">
-                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.days.thu} onCheckedChange={() => toggleDay('thu')} /> Thursday (19th Dec)</label>
-                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.days.fri} onCheckedChange={() => toggleDay('fri')} /> Friday (20th Dec)</label>
-                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.days.sat} onCheckedChange={() => toggleDay('sat')} /> Saturday (21st Dec)</label>
-                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.days.sun} onCheckedChange={() => toggleDay('sun')} /> Sunday (22nd Dec)</label>
-                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={form.days.all} onCheckedChange={() => toggleDay('all')} /> All Days</label>
+                    {eventDayOptions.map((option) => (
+                      <label key={option.key} className="flex items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={form.selectedDays.includes(option.key)}
+                          onCheckedChange={() => toggleDay(option.key)}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                    <label className="flex items-center gap-2 text-sm">
+                      <Checkbox checked={form.allDays} onCheckedChange={() => toggleDay('all')} />
+                      All Days
+                    </label>
                   </div>
                 </div>
 
@@ -146,7 +357,16 @@ const EventRegistration = () => {
                     onClick={async () => {
                       setSubmitting(true);
                       try {
-                        await postForm('event-registration', form);
+                        await postForm('event-registration', {
+                          ...form,
+                          eventId,
+                          eventTitle: eventDetails?.title,
+                          eventType: eventDetails?.type,
+                          eventLocation: eventDetails?.location,
+                          eventStartDate: eventDetails?.startDate,
+                          eventEndDate: eventDetails?.endDate,
+                        });
+                        persistLocalRegistration();
                         setSubmitted(true);
                       } catch (err: any) {
                         alert(err?.message || 'Submission failed');

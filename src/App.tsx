@@ -23,6 +23,19 @@ import NewMemberRegistration from "./pages/NewMemberRegistration";
 import Counselling from "./pages/Counselling";
 import FaithfulStewards from "./pages/FaithfulStewards";
 import HouseGroups from "./pages/HouseGroups";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminEventsPage from "./pages/admin/AdminEventsPage";
+import AdminMediaPage from "./pages/admin/AdminMediaPage";
+import AdminMembersPage from "./pages/admin/AdminMembersPage";
+import AdminTestimoniesPage from "./pages/admin/AdminTestimoniesPage";
+import AdminPagesPage from "./pages/admin/AdminPagesPage";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
+import AdminCollectionPage from "./pages/admin/AdminCollectionPage";
+import AdminFormsPage from "./pages/admin/AdminFormsPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +64,9 @@ const TitleUpdater = () => {
       "/altar-call": "Altar Call",
     };
 
-    const title = titles[location.pathname] ?? (() => {
+    const title = (location.pathname.startsWith('/event-registration/')
+      ? 'Event Registration'
+      : titles[location.pathname]) ?? (() => {
       const seg = location.pathname.split("/").filter(Boolean).pop() ?? "Page";
       return seg.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
     })();
@@ -81,12 +96,27 @@ const App = () => (
           <Route path="/counselling" element={<Counselling />} />
           <Route path="/baby-dedication" element={<BabyDedication />} />
           <Route path="/event-registration" element={<EventRegistration />} />
+          <Route path="/event-registration/:eventId" element={<EventRegistration />} />
             <Route path="/pre-marital-counseling" element={<PreMaritalCounseling />} />
           <Route path="/testimony" element={<Testimony />} />
            <Route path="/apostle" element={<ApostleProfile />} />
            <Route path="/stewards" element={<FaithfulStewards />} />
            <Route path="/altar-call" element={<AltarCall />} />
            <Route path="/house-groups" element={<HouseGroups />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="events" element={<AdminEventsPage />} />
+            <Route path="media" element={<AdminMediaPage />} />
+            <Route path="members" element={<AdminMembersPage />} />
+            <Route path="testimonies" element={<AdminTestimoniesPage />} />
+            <Route path="pages" element={<AdminPagesPage />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="forms" element={<AdminFormsPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="collection/:collection" element={<AdminCollectionPage />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

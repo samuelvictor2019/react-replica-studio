@@ -18,7 +18,7 @@ const navItems = [
       { label: "About TWC", href: "/about" },
       { label: "Doctrinal Statement", href: "/doctrine" },
       { label: "Apostle's Profile", href: "/apostle" },
-      { label: "Contact US", href: "/contact" },
+      { label: "Contact US", href: "#" },
     ],
   },
   {
@@ -76,6 +76,14 @@ const Navbar = () => {
               </a>
             )
           )}
+
+          {/* Admin Link */}
+          <a
+            href="/admin/login"
+            className="text-[11px] font-semibold tracking-widest text-black/80 hover:text-black transition-colors"
+          >
+            ADMIN
+          </a>
         </div>
 
         {/* CTA */}
@@ -132,6 +140,14 @@ const Navbar = () => {
               </a>
             )
           )}
+
+          {/* Admin Link */}
+          <a
+            href="/admin/login"
+            className="text-xs font-semibold tracking-widest text-black/80 hover:text-black py-2"
+          >
+            ADMIN
+          </a>
 
           <a
             href="/events"

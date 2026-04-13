@@ -1,45 +1,86 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ArrowRight, Search, ChevronLeft, ChevronRight, List } from "lucide-react";
 import mediaIcon from "@/assets/media_icon.png";
+import { getMedia } from "@/lib/api";
 
 const tabs = ["SERMON", "WORSHIP", "RESOURCES"] as const;
 
 interface MediaItem {
-  id: number;
-  date: string;
+  id: string;
   title: string;
-  speaker: string;
-  duration: string;
-  createdAt: string; // ISO date
-  views?: number;
+  type: 'youtube' | 'image' | 'video';
+  url: string;
+  thumbnail?: string;
+  category: 'sermons' | 'worship' | 'announcements' | 'other';
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const mediaItems: MediaItem[] = [
-  { id: 1, date: "AUG 2025", title: "Partakers Of The HolyGhost (PART ONE)", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:19:00", createdAt: "2025-08-01T10:00:00Z", views: 1200 },
-  { id: 2, date: "JUL 2025", title: "Walking in the Spirit", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:45:00", createdAt: "2025-07-18T10:00:00Z", views: 900 },
-  { id: 3, date: "JUN 2025", title: "Kingdom Living", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:02:00", createdAt: "2025-06-10T10:00:00Z", views: 1500 },
-  { id: 4, date: "MAY 2025", title: "Faith That Moves", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:58:00", createdAt: "2025-05-05T10:00:00Z", views: 700 },
-  { id: 5, date: "APR 2025", title: "Prayer & Fasting", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:12:00", createdAt: "2025-04-12T10:00:00Z", views: 640 },
-  { id: 6, date: "MAR 2025", title: "The Lord's Provision", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:50:00", createdAt: "2025-03-22T10:00:00Z", views: 430 },
-  { id: 7, date: "FEB 2025", title: "Called to Serve", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:39:00", createdAt: "2025-02-14T10:00:00Z", views: 270 },
-  { id: 8, date: "JAN 2025", title: "New Beginnings", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:05:00", createdAt: "2025-01-06T10:00:00Z", views: 1900 },
+interface ApiMediaItem {
+  id: string;
+  title: string;
+  type: 'youtube' | 'image' | 'video';
+  url: string;
+  thumbnail?: string;
+  category: 'sermons' | 'worship' | 'announcements' | 'other';
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const hardcodedMediaItems: MediaItem[] = [
+  { id: 'hardcoded-1', date: "AUG 2025", title: "Partakers Of The HolyGhost (PART ONE)", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:19:00", createdAt: "2025-08-01T10:00:00Z", views: 1200 },
+  { id: 'hardcoded-2', date: "JUL 2025", title: "Walking in the Spirit", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:45:00", createdAt: "2025-07-18T10:00:00Z", views: 900 },
+  { id: 'hardcoded-3', date: "JUN 2025", title: "Kingdom Living", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:02:00", createdAt: "2025-06-10T10:00:00Z", views: 1500 },
+  { id: 'hardcoded-4', date: "MAY 2025", title: "Faith That Moves", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:58:00", createdAt: "2025-05-05T10:00:00Z", views: 700 },
+  { id: 'hardcoded-5', date: "APR 2025", title: "Prayer & Fasting", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:12:00", createdAt: "2025-04-12T10:00:00Z", views: 640 },
+  { id: 'hardcoded-6', date: "MAR 2025", title: "The Lord's Provision", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:50:00", createdAt: "2025-03-22T10:00:00Z", views: 430 },
+  { id: 'hardcoded-7', date: "FEB 2025", title: "Called to Serve", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:39:00", createdAt: "2025-02-14T10:00:00Z", views: 270 },
+  { id: 'hardcoded-8', date: "JAN 2025", title: "New Beginnings", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:05:00", createdAt: "2025-01-06T10:00:00Z", views: 1900 },
 ];
 
-const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => (
-  <div className="flex items-center gap-4 py-3 border-b border-border last:border-b-0">
-    <span className="text-sm font-semibold text-black w-5">{index}</span>
-    <img src={mediaIcon} alt="media" className="w-10 h-10 rounded object-cover flex-shrink-0" />
-    <div className="flex-1 min-w-0">
-      <p className="text-[10px] uppercase tracking-wider text-black/70">
-        {item.date} · PARTAKERS OF THE HOLYGHOST
-      </p>
-      <p className="text-sm font-semibold text-black truncate">{item.title}</p>
-      <p className="text-[10px] uppercase tracking-wider text-black/70">{item.speaker}</p>
+const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
+  };
+
+  const getCategoryDisplay = (category: string) => {
+    switch (category) {
+      case 'sermons': return 'SERMON';
+      case 'worship': return 'WORSHIP';
+      case 'announcements': return 'ANNOUNCEMENT';
+      case 'other': return 'RESOURCE';
+      default: return 'MEDIA';
+    }
+  };
+
+  // Handle hardcoded data vs API data
+  const isHardcoded = item.id.startsWith('hardcoded-');
+  const displayDate = isHardcoded ? (item as any).date : formatDate(item.createdAt);
+  const displayCategory = isHardcoded ? 'PARTAKERS OF THE HOLYGHOST' : getCategoryDisplay(item.category);
+  const displayTitle = item.title;
+  const displaySpeaker = isHardcoded ? (item as any).speaker : 'APOSTLE ADEBOWALE ADESINA';
+  const displayDuration = isHardcoded ? (item as any).duration : (item.type === 'youtube' ? 'VIDEO' : item.type === 'video' ? 'VIDEO' : 'IMAGE');
+  const displayThumbnail = isHardcoded ? mediaIcon : (item.thumbnail || mediaIcon);
+
+  return (
+    <div className="flex items-center gap-4 py-3 border-b border-border last:border-b-0">
+      <span className="text-sm font-semibold text-black w-5">{index}</span>
+      <img src={displayThumbnail} alt={displayTitle} className="w-10 h-10 rounded object-cover flex-shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-[10px] uppercase tracking-wider text-black/70">
+          {displayDate} · {displayCategory}
+        </p>
+        <p className="text-sm font-semibold text-black truncate">{displayTitle}</p>
+        <p className="text-[10px] uppercase tracking-wider text-black/70">{displaySpeaker}</p>
+      </div>
+      <span className="text-xs text-black/70 flex-shrink-0">{displayDuration}</span>
     </div>
-    <span className="text-xs text-black/70 flex-shrink-0">{item.duration}</span>
-  </div>
-);
+  );
+};
 
 const LatestMediaSection = () => {
   const [activeTab, setActiveTab] = useState<string>("SERMON");
@@ -48,11 +89,83 @@ const LatestMediaSection = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showSort, setShowSort] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const pageSize = 10;
 
+  // Fetch media from API
+  useEffect(() => {
+    const fetchMedia = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const apiMedia = await getMedia();
+
+        // Transform API media to match component's expected format
+        const transformedMedia = apiMedia.map((item: any) => ({
+          id: item.id,
+          date: new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase(),
+          title: item.title,
+          speaker: "APOSTLE ADEBOWALE ADESINA", // Default speaker, could be made dynamic
+          duration: "1:00:00", // Default duration, could be made dynamic
+          createdAt: item.createdAt,
+          views: Math.floor(Math.random() * 2000) + 100, // Random views for demo
+          type: item.type,
+          url: item.url,
+          thumbnail: item.thumbnail,
+          category: item.category,
+          description: item.description
+        }));
+
+        setMediaItems(transformedMedia);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load media');
+        console.error('Error fetching media:', err);
+        // Fallback to hardcoded media
+        setMediaItems(hardcodedMediaItems);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMedia();
+  }, []);
+
   const filtered = useMemo(() => {
+    if (loading) return [];
+
+    // Determine which data to use
+    let dataToUse: MediaItem[] = [];
+
+    if (mediaItems.length >= 3) {
+      // Show only API data when 3 or more items
+      dataToUse = mediaItems;
+    } else {
+      // Show API data + hardcoded data when 2 or fewer items
+      dataToUse = [...mediaItems, ...hardcodedMediaItems];
+    }
+
     const q = query.trim().toLowerCase();
-    let list = mediaItems.filter((m) => m.title.toLowerCase().includes(q) || m.speaker.toLowerCase().includes(q));
+    let list = dataToUse.filter((m) =>
+      m.title.toLowerCase().includes(q) ||
+      m.description?.toLowerCase().includes(q) ||
+      String(m.category).toLowerCase().includes(q) ||
+      (m as any).speaker?.toLowerCase().includes(q)
+    );
+
+    // Filter by active tab
+    if (activeTab !== "ALL") {
+      const categoryMap: Record<string, string[]> = {
+        "SERMON": ["sermons"],
+        "WORSHIP": ["worship"],
+        "RESOURCES": ["announcements", "other"]
+      };
+      const targetCategories = categoryMap[activeTab];
+      if (targetCategories) {
+        list = list.filter(m => targetCategories.includes(String(m.category).toLowerCase()));
+      }
+    }
 
     switch (sort) {
       case "newest":
@@ -60,9 +173,6 @@ const LatestMediaSection = () => {
         break;
       case "oldest":
         list = list.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
-        break;
-      case "mostviewed":
-        list = list.sort((a, b) => (b.views || 0) - (a.views || 0));
         break;
       case "atoz":
         list = list.sort((a, b) => a.title.localeCompare(b.title));
@@ -73,7 +183,7 @@ const LatestMediaSection = () => {
     }
 
     return list;
-  }, [query, sort]);
+  }, [query, sort, activeTab, mediaItems, loading]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(Math.max(1, page), totalPages);
@@ -166,18 +276,41 @@ const LatestMediaSection = () => {
         </div>
 
         {/* Media Grid - two columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
-          <div>
-            {leftColumn.map((item, i) => (
-              <MediaRow key={item.id} item={item} index={i + 1} />
-            ))}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mx-auto mb-4"></div>
+              <p className="text-sm text-black/60">Loading media...</p>
+            </div>
           </div>
-          <div>
-            {rightColumn.map((item, i) => (
-              <MediaRow key={item.id} item={item} index={i + 5} />
-            ))}
+        ) : error ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <p className="text-sm text-red-600 mb-2">Failed to load media</p>
+              <p className="text-xs text-black/60">{error}</p>
+            </div>
           </div>
-        </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <p className="text-sm text-black/60">No media found</p>
+              {query && <p className="text-xs text-black/40 mt-1">Try adjusting your search or filters</p>}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10">
+            <div>
+              {leftColumn.map((item, i) => (
+                <MediaRow key={item.id} item={item} index={start + i + 1} />
+              ))}
+            </div>
+            <div>
+              {rightColumn.map((item, i) => (
+                <MediaRow key={item.id} item={item} index={start + leftColumn.length + i + 1} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Pagination + mobile view all */}
         <div className="mt-8">

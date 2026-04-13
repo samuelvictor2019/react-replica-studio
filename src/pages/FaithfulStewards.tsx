@@ -262,7 +262,7 @@ const FaithfulStewards: React.FC = () => {
                   {dept.text}
                 </p>
                 <a
-                  href="/stewards/join"
+                  href="#"
                   className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-sky-400 hover:text-sky-500 hover:underline"
                 >
                   Join Us <ArrowRight size={12} />
