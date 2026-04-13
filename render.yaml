@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: wgc
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist   # or build (React)
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
