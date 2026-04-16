@@ -319,7 +319,7 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" className="bg-green-600 hover:bg-green-700">
+              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black">
                 <Save className="w-4 h-4 mr-2" />
                 Save Settings
               </Button>

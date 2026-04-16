@@ -398,7 +398,7 @@ const AdminTestimoniesPage = () => {
           <p className="text-sm text-black/70 mt-1">Review and manage member testimony submissions</p>
         </div>
         {can('testimonies.create') && (
-          <Button onClick={openCreateDialog} className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Testimony
           </Button>
@@ -727,7 +727,7 @@ const AdminTestimoniesPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
                 {editingTestimony ? 'Update Testimony' : 'Add Testimony'}
               </Button>
             </div>

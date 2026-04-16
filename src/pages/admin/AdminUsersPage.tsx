@@ -398,7 +398,7 @@ const AdminUsersPage = () => {
               </Select>
             </div>
             {canManageUsers && (
-              <Button onClick={openUserCreateDialog} className="bg-green-600 hover:bg-green-700">
+              <Button onClick={openUserCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add User
               </Button>
@@ -637,7 +637,7 @@ const AdminUsersPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsUserDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
                 {editingUser ? 'Update User' : 'Add User'}
               </Button>
             </div>

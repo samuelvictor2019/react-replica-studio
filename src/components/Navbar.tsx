@@ -57,13 +57,15 @@ const Navbar = () => {
                   <ChevronDown className="w-3 h-3" />
                 </button>
 
-                <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity absolute left-0 top-full mt-0 w-56 bg-background border border-foreground/10 shadow-md rounded-md p-2 z-50">
-                  {item.submenu.map((s) => (
+                <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity absolute left-0 top-full mt-0 w-[28rem] bg-background border border-foreground/10 shadow-md rounded-3xl p-6 z-50">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    {item.submenu.map((s) => (
                     <a key={s.label} href={s.href} className="flex items-center gap-3 px-3 py-2 hover:bg-sky-100 rounded">
                       {/* <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" /> */}
                       <span className="text-sm font-medium text-black">{s.label}</span>
                     </a>
                   ))}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -121,7 +123,7 @@ const Navbar = () => {
                   <span aria-hidden>{(item.label === "ABOUT" ? mobileAboutOpen : mobileGetOpen) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</span>
                 </button>
 
-                <div className={`${item.label === "ABOUT" ? (mobileAboutOpen ? "block" : "hidden") : mobileGetOpen ? "block" : "hidden"} pl-3` }>
+                <div className={`${item.label === "ABOUT" ? (mobileAboutOpen ? "grid" : "hidden") : mobileGetOpen ? "grid" : "hidden"} grid-cols-2 gap-x-3 gap-y-1 pl-3 pr-1`}>
                   {item.submenu.map((s) => (
                     <a key={s.label} href={s.href} className="flex items-center gap-3 py-2 text-sm">
                       {/* <img src={s.icon} alt="" className="w-8 h-8 object-cover rounded" /> */}

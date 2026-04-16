@@ -208,7 +208,7 @@ const EventCard = ({ event }: { event: EventData }) => {
   }, [displayDateRange, displayTime]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 bg-card rounded-lg overflow-hidden border border-border p-4 md:p-6">
+    <div className="flex flex-col md:flex-row gap-6 bg-sky-100/60 rounded-lg overflow-hidden border border-border p-4 md:p-6">
     {/* Image */}
     <div className="w-full md:w-[220px] flex-shrink-0">
       <img
