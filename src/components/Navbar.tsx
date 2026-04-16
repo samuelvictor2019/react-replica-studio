@@ -89,7 +89,7 @@ const Navbar = () => {
         {/* CTA */}
         <a
           href="/events"
-          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-sm hover:bg-sky-100 hover:text-black transition-colors"
+          className="hidden md:inline-flex bg-black text-white text-[11px] font-semibold tracking-widest px-5 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
         >
           UPCOMING EVENTS
         </a>
@@ -151,7 +151,7 @@ const Navbar = () => {
 
           <a
             href="/events"
-            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-sm text-center hover:bg-sky-100 hover:text-black transition-colors"
+            className="bg-black text-white text-xs font-semibold tracking-widest px-5 py-2.5 rounded-full text-center hover:bg-sky-100 hover:text-black transition-colors"
           >
             UPCOMING EVENTS
           </a>

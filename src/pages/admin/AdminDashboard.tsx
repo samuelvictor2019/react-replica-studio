@@ -203,7 +203,7 @@ const AdminDashboard = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-black/40">Dashboard</p>
-          <h1 className="font-heading text-2xl sm:text-3xl text-black mt-1">
+          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">
             Welcome back, {user.firstName} {user.lastName}
           </h1>
           <p className="text-sm text-black/70 mt-1">

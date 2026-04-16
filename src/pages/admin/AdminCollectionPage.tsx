@@ -91,7 +91,7 @@ const AdminCollectionPage = () => {
     <div className="space-y-4">
       <div>
         <p className="text-xs uppercase tracking-[0.16em] text-black/40">Content Management</p>
-        <h1 className="font-heading text-3xl text-black capitalize mt-1">Manage {collection.replace('-', ' ')}</h1>
+        <h1 className="font-body text-3xl text-black capitalize mt-1">Manage {collection.replace('-', ' ')}</h1>
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}

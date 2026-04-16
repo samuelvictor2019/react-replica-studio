@@ -101,7 +101,7 @@ const AdminLayout = () => {
         <div className="p-4 space-y-5 h-full overflow-y-auto">
           <div className="rounded-xl bg-slate-950 text-white p-4">
           <img src="/src/assets/logo.png" alt="Church Logo" className="h-8 w-auto mb-2" />
-          <h1 className='font-heading text-2xl mt-1'>Admin Console</h1>
+          <h1 className='font-body text-2xl mt-1'>Admin Console</h1>
             {isOfflineMode && (
               <div className="mt-2 px-2 py-1 bg-yellow-600 text-yellow-100 text-xs rounded-md flex items-center gap-1">
                 <span className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></span>

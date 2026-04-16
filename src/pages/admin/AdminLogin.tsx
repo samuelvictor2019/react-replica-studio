@@ -54,7 +54,7 @@ const AdminLogin = () => {
       <form onSubmit={onSubmit} className="w-full max-w-md rounded-2xl border border-white/50 bg-white/90 backdrop-blur shadow-[0_20px_60px_rgba(15,23,42,0.15)] p-7 space-y-5">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-[0.18em] text-black/40">Church Management System</p>
-          <h1 className="font-heading text-4xl text-black">Admin Portal</h1>
+          <h1 className="font-body text-4xl text-black">Admin Portal</h1>
           <p className="text-sm text-black/70">Sign in to manage events, media, forms, testimonies, and dynamic pages.</p>
         </div>
 

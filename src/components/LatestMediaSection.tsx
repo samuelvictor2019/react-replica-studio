@@ -13,6 +13,7 @@ interface MediaItem {
   url: string;
   thumbnail?: string;
   category: 'sermons' | 'worship' | 'announcements' | 'other';
+  author?: string;
   description?: string;
   createdAt: string;
   updatedAt: string;
@@ -25,20 +26,21 @@ interface ApiMediaItem {
   url: string;
   thumbnail?: string;
   category: 'sermons' | 'worship' | 'announcements' | 'other';
+  author?: string;
   description?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 const hardcodedMediaItems: MediaItem[] = [
-  { id: 'hardcoded-1', date: "AUG 2025", title: "Partakers Of The HolyGhost (PART ONE)", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:19:00", createdAt: "2025-08-01T10:00:00Z", views: 1200 },
-  { id: 'hardcoded-2', date: "JUL 2025", title: "Walking in the Spirit", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:45:00", createdAt: "2025-07-18T10:00:00Z", views: 900 },
-  { id: 'hardcoded-3', date: "JUN 2025", title: "Kingdom Living", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:02:00", createdAt: "2025-06-10T10:00:00Z", views: 1500 },
-  { id: 'hardcoded-4', date: "MAY 2025", title: "Faith That Moves", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:58:00", createdAt: "2025-05-05T10:00:00Z", views: 700 },
-  { id: 'hardcoded-5', date: "APR 2025", title: "Prayer & Fasting", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:12:00", createdAt: "2025-04-12T10:00:00Z", views: 640 },
-  { id: 'hardcoded-6', date: "MAR 2025", title: "The Lord's Provision", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:50:00", createdAt: "2025-03-22T10:00:00Z", views: 430 },
-  { id: 'hardcoded-7', date: "FEB 2025", title: "Called to Serve", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "0:39:00", createdAt: "2025-02-14T10:00:00Z", views: 270 },
-  { id: 'hardcoded-8', date: "JAN 2025", title: "New Beginnings", speaker: "APOSTLE ADEBOWALE ADESINA", duration: "1:05:00", createdAt: "2025-01-06T10:00:00Z", views: 1900 },
+  { id: 'hardcoded-1', title: 'Partakers Of The HolyGhost (PART ONE)', type: 'youtube', url: 'https://youtube.com/watch?v=example1', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-08-01T10:00:00Z', updatedAt: '2025-08-01T10:00:00Z' },
+  { id: 'hardcoded-2', title: 'Walking in the Spirit', type: 'youtube', url: 'https://youtube.com/watch?v=example2', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-07-18T10:00:00Z', updatedAt: '2025-07-18T10:00:00Z' },
+  { id: 'hardcoded-3', title: 'Kingdom Living', type: 'youtube', url: 'https://youtube.com/watch?v=example3', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-06-10T10:00:00Z', updatedAt: '2025-06-10T10:00:00Z' },
+  { id: 'hardcoded-4', title: 'Faith That Moves', type: 'youtube', url: 'https://youtube.com/watch?v=example4', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-05-05T10:00:00Z', updatedAt: '2025-05-05T10:00:00Z' },
+  { id: 'hardcoded-5', title: 'Prayer & Fasting', type: 'youtube', url: 'https://youtube.com/watch?v=example5', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-04-12T10:00:00Z', updatedAt: '2025-04-12T10:00:00Z' },
+  { id: 'hardcoded-6', title: "The Lord's Provision", type: 'youtube', url: 'https://youtube.com/watch?v=example6', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-03-22T10:00:00Z', updatedAt: '2025-03-22T10:00:00Z' },
+  { id: 'hardcoded-7', title: 'Called to Serve', type: 'youtube', url: 'https://youtube.com/watch?v=example7', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-02-14T10:00:00Z', updatedAt: '2025-02-14T10:00:00Z' },
+  { id: 'hardcoded-8', title: 'New Beginnings', type: 'youtube', url: 'https://youtube.com/watch?v=example8', category: 'sermons', author: 'APOSTLE ADEBOWALE ADESINA', createdAt: '2025-01-06T10:00:00Z', updatedAt: '2025-01-06T10:00:00Z' },
 ];
 
 const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => {
@@ -57,17 +59,20 @@ const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => {
     }
   };
 
-  // Handle hardcoded data vs API data
-  const isHardcoded = item.id.startsWith('hardcoded-');
-  const displayDate = isHardcoded ? (item as any).date : formatDate(item.createdAt);
-  const displayCategory = isHardcoded ? 'PARTAKERS OF THE HOLYGHOST' : getCategoryDisplay(item.category);
+  const displayDate = formatDate(item.createdAt);
+  const displayCategory = getCategoryDisplay(item.category);
   const displayTitle = item.title;
-  const displaySpeaker = isHardcoded ? (item as any).speaker : 'APOSTLE ADEBOWALE ADESINA';
-  const displayDuration = isHardcoded ? (item as any).duration : (item.type === 'youtube' ? 'VIDEO' : item.type === 'video' ? 'VIDEO' : 'IMAGE');
-  const displayThumbnail = isHardcoded ? mediaIcon : (item.thumbnail || mediaIcon);
+  const displaySpeaker = String(item.author || 'UNKNOWN MINISTER').toUpperCase();
+  const displayDuration = item.type === 'youtube' ? 'VIDEO' : item.type === 'video' ? 'VIDEO' : 'IMAGE';
+  const displayThumbnail = item.thumbnail || mediaIcon;
 
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-border last:border-b-0">
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-4 py-3 border-b border-border last:border-b-0 hover:bg-sky-50/40 transition-colors"
+    >
       <span className="text-sm font-semibold text-black w-5">{index}</span>
       <img src={displayThumbnail} alt={displayTitle} className="w-10 h-10 rounded object-cover flex-shrink-0" />
       <div className="flex-1 min-w-0">
@@ -78,7 +83,7 @@ const MediaRow = ({ item, index }: { item: MediaItem; index: number }) => {
         <p className="text-[10px] uppercase tracking-wider text-black/70">{displaySpeaker}</p>
       </div>
       <span className="text-xs text-black/70 flex-shrink-0">{displayDuration}</span>
-    </div>
+    </a>
   );
 };
 
@@ -105,12 +110,10 @@ const LatestMediaSection = () => {
         // Transform API media to match component's expected format
         const transformedMedia = apiMedia.map((item: any) => ({
           id: item.id,
-          date: new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase(),
           title: item.title,
-          speaker: "APOSTLE ADEBOWALE ADESINA", // Default speaker, could be made dynamic
-          duration: "1:00:00", // Default duration, could be made dynamic
+          author: item.author || item.speaker || item.preacher || item.singer || '',
           createdAt: item.createdAt,
-          views: Math.floor(Math.random() * 2000) + 100, // Random views for demo
+          updatedAt: item.updatedAt || item.createdAt,
           type: item.type,
           url: item.url,
           thumbnail: item.thumbnail,
@@ -151,7 +154,7 @@ const LatestMediaSection = () => {
       m.title.toLowerCase().includes(q) ||
       m.description?.toLowerCase().includes(q) ||
       String(m.category).toLowerCase().includes(q) ||
-      (m as any).speaker?.toLowerCase().includes(q)
+      m.author?.toLowerCase().includes(q)
     );
 
     // Filter by active tab

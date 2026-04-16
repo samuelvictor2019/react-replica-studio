@@ -14,6 +14,7 @@ import { adminRequest } from '@/lib/adminApi';
 type MediaItem = {
   id: string;
   title: string;
+  author?: string;
   type: 'youtube' | 'image' | 'video';
   url: string;
   thumbnail?: string;
@@ -32,6 +33,7 @@ const AdminMediaPage = () => {
   const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
+    author: '',
     type: 'youtube' as 'youtube' | 'image' | 'video',
     url: '',
     thumbnail: '',
@@ -63,6 +65,7 @@ const AdminMediaPage = () => {
   const resetForm = () => {
     setFormData({
       title: '',
+      author: '',
       type: 'youtube',
       url: '',
       thumbnail: '',
@@ -80,6 +83,7 @@ const AdminMediaPage = () => {
   const openEditDialog = (item: MediaItem) => {
     setFormData({
       title: item.title,
+      author: item.author || '',
       type: item.type,
       url: item.url,
       thumbnail: item.thumbnail || '',
@@ -154,7 +158,7 @@ const AdminMediaPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-black/40">Media Management</p>
-          <h1 className="font-heading text-2xl sm:text-3xl text-black mt-1">Church Media Library</h1>
+          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Church Media Library</h1>
           <p className="text-sm text-black/70 mt-1">Manage sermons, worship content, and announcements</p>
         </div>
         {can('content.create') && (
@@ -206,6 +210,9 @@ const AdminMediaPage = () => {
                       </div>
                     </div>
                     <h3 className="font-semibold mb-2 line-clamp-2">{item.title}</h3>
+                    {item.author && (
+                      <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">{item.author}</p>
+                    )}
                     {item.description && (
                       <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
                     )}
@@ -252,6 +259,9 @@ const AdminMediaPage = () => {
                         </div>
                       </div>
                       <h3 className="font-semibold mb-2 line-clamp-2">{item.title}</h3>
+                      {item.author && (
+                        <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">{item.author}</p>
+                      )}
                       {item.description && (
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.description}</p>
                       )}
@@ -283,6 +293,17 @@ const AdminMediaPage = () => {
                   required
                 />
               </div>
+              <div>
+                <label className="text-sm font-medium">Author / Preacher / Singer</label>
+                <Input
+                  value={formData.author}
+                  onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                  placeholder="e.g. Apostle Adebowale Adesina"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Type</label>
                 <Select value={formData.type} onValueChange={(value: 'youtube' | 'image' | 'video') => setFormData(prev => ({ ...prev, type: value }))}>

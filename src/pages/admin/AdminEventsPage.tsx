@@ -542,7 +542,7 @@ const AdminEventsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-black/40">Events Management</p>
-          <h1 className="font-heading text-2xl sm:text-3xl text-black mt-1">Church Events</h1>
+          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Church Events</h1>
           <p className="text-sm text-black/70 mt-1">Manage upcoming and past church events</p>
           {error && (
             <div className="mt-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-md">

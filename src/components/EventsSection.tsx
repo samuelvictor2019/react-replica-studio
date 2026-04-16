@@ -226,7 +226,7 @@ const EventCard = ({ event }: { event: EventData }) => {
           <span className="text-xs font-semibold tracking-widest text-black/70 uppercase">
             {displayCategory}
           </span>
-          <h3 className="font-heading text-xl md:text-2xl font-bold text-black mt-1 mb-3">
+          <h3 className="font-body text-xl md:text-2xl font-bold text-black mt-1 mb-3">
             {event.title}
           </h3>
           <p className="text-sm text-black/70 leading-relaxed">
@@ -425,20 +425,22 @@ const EventsSection = () => {
         </h2>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-8 mb-10 border-b border-border">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
-                activeTab === tab
-                  ? "text-sky-600 border-b-2 border-sky-300"
-                  : "text-black/60 hover:text-black"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex gap-8 border-b border-border">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
+                  activeTab === tab
+                    ? "text-sky-600 border-b-2 border-sky-300"
+                    : "text-black/60 hover:text-black"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Event Cards */}
