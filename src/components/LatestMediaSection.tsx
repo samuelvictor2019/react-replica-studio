@@ -216,7 +216,7 @@ const LatestMediaSection = () => {
 
         {/* Tabs + controls */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex gap-4 sm:gap-6 border-b border-border pb-3">
+          <div className="inline-flex gap-4 sm:gap-6 border-b border-border">
             {tabs.map((tab) => (
               <button
                 key={tab}

@@ -3,27 +3,21 @@ import logo from "@/assets/logo.png";
 const footerLinks = {
   about: [
     { name: "ABOUT TWC", route: "/about" },
-    { name: "DOCTRINAL STATEMENT", route: "/doctrinal" },
-    { name: "PASTORS PROFILE", route: "/apostle-profile" },
-    { name: "CONTACT US", route: "#" }, // No page available
+    { name: "DOCTRINAL STATEMENT", route: "/doctrine" },
+    { name: "APOSTLE'S PROFILE", route: "/apostle" },
+    { name: "CONTACT US", route: "#" },
   ],
   getInvolved: [
-    { name: "I'M A NEW MEMBER", route: "/forms" },
-    { name: "HOUSE GROUPS", route: "#" }, // No page available
-    { name: "FAITHFUL STEWARDS", route: "#" }, // No page available
+    { name: "I'M A NEW MEMBER", route: "/new-member" },
+    { name: "HOUSE GROUPS", route: "/house-groups" },
+    { name: "FAITHFUL STEWARDS", route: "/stewards" },
     { name: "FORMS", route: "/forms" },
   ],
   events: [
-    { name: "BOOTCAMP", route: "#" }, // No page available
-    { name: "CONFERENCE", route: "#" }, // No page available
-    { name: "WEEKLY SERVICE", route: "#" }, // No page available
-    { name: "MONTHLY SERVICE", route: "#" }, // No page available
+    { name: "EVENTS", route: "/events" },
   ],
   media: [
-    { name: "SERMON", route: "#" }, // No page available
-    { name: "MUSIC", route: "#" }, // No page available
-    { name: "PRESENT TRUTH", route: "#" }, // No page available
-    { name: "PROCLAMATION", route: "#" }, // No page available
+    { name: "MEDIA", route: "/media" },
   ],
 };
 
