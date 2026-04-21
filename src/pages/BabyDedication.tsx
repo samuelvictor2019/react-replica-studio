@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import babyImg from "@/assets/babydedication_form.jpg";
+import { sanitizePhoneInput } from "@/lib/formValidation";
 
 const BabyDedication = () => {
   const [step, setStep] = useState(1);
@@ -97,7 +98,7 @@ const BabyDedication = () => {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="phone" className="text-xs font-semibold text-foreground">Phone Number <span className="font-normal text-muted-foreground">(Preferred Whatsapp)</span></Label>
-                  <Input id="phone" placeholder="Phone Number" value={formData.phone} onChange={(e) => update('phone', e.target.value)} />
+                  <Input id="phone" type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={formData.phone} onChange={(e) => update('phone', sanitizePhoneInput(e.target.value))} />
                 </div>
 
                 <div className="space-y-1.5">

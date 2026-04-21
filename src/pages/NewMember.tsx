@@ -50,7 +50,7 @@ const NewMember = () => {
               </p>
               <a
                 href="/new-member"
-                className="inline-flex items-center gap-3 bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-sky-100 hover:text-black"
+                className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
               >
                 JOIN THE FAMILY
               </a>
@@ -64,7 +64,7 @@ const NewMember = () => {
 
       {/* What to expect */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-6xl mx-auto px-4 md:pl-[max(2rem,calc((100vw-70rem)/2+2rem))] md:pr-10">
+        <div className="container max-w-6xl mx-auto px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
           <h3 className="font-heading text-2xl md:text-3xl font-medium text-black mb-8">What to Expect at <br />WaterGate Church</h3>
 
           <Carousel opts={{ align: "start", loop: true }} className="w-full">
@@ -96,7 +96,7 @@ const NewMember = () => {
           <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
               <h4 className="font-heading text-xl text-black mb-2">Join the Family</h4>
               <p className="text-sm text-black/70 mb-4 max-w-md">Sign up to receive a welcome packet, service times and details about how to get connected.</p>
-              <a href="#" className="inline-flex items-center gap-3 bg-black text-white px-5 py-2.5 rounded-full font-semibold hover:bg-sky-100 hover:text-black">JOIN THE FAMILY</a>
+              <a href="#" className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">JOIN THE FAMILY</a>
           </div>
 
           <div className="md:w-[45%] overflow-hidden rounded-l-[12px] mt-8 md:mt-0">

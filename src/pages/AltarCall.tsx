@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import altarImg from "@/assets/altarcall_form.jpg";
+import { sanitizePhoneInput } from "@/lib/formValidation";
 
 type Props = { modal?: boolean; onClose?: () => void };
 
@@ -134,9 +135,12 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                   </Label>
                   <Input
                     id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     placeholder="Phone Number"
                     value={formData.phone}
-                    onChange={(e) => update("phone", e.target.value)}
+                    onChange={(e) => update("phone", sanitizePhoneInput(e.target.value))}
                   />
                 </div>
 

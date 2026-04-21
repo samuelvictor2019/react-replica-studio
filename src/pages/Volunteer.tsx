@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import volunteerImg from "@/assets/volunteer_form.jpg";
+import { isValidEmail, sanitizePhoneInput } from "@/lib/formValidation";
 
 type Props = { modal?: boolean; onClose?: () => void };
 
@@ -23,7 +24,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
-  const canSubmit = form.fullName.trim() && form.phone.trim() && form.email.trim() && form.consent;
+  const canSubmit = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email) && form.consent;
 
   const Inner = (
     <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] max-h-[90vh]`}>
@@ -59,12 +60,12 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
 
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-xs font-semibold">Phone Number <span className="font-normal text-muted-foreground">(Preferred Whatsapp)</span></Label>
-              <Input id="phone" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', e.target.value)} />
+              <Input id="phone" type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', sanitizePhoneInput(e.target.value))} />
             </div>
 
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-xs font-semibold">Email Address</Label>
-              <Input id="email" placeholder="Email Address" value={form.email} onChange={(e: any) => update('email', e.target.value)} />
+              <Input id="email" type="email" placeholder="Email Address" value={form.email} onChange={(e: any) => update('email', e.target.value)} />
             </div>
 
             <div className="space-y-1.5">

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import memberImg from "@/assets/newmember_form.jpg";
+import { isValidEmail, sanitizePhoneInput } from "@/lib/formValidation";
 
 type Props = {
   modal?: boolean;
@@ -33,7 +34,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
-  const canProceed = form.fullName.trim() && form.phone.trim() && form.email.trim();
+  const canProceed = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email);
   const canSubmit = form.consent;
 
   // inner container used both for page and modal rendering
@@ -79,12 +80,12 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="phone" className="text-xs font-semibold">Phone Number <span className="font-normal text-muted-foreground">(Preferred Whatsapp)</span></Label>
-                  <Input id="phone" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', e.target.value)} />
+                  <Input id="phone" type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', sanitizePhoneInput(e.target.value))} />
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className="text-xs font-semibold">Email Address</Label>
-                  <Input id="email" placeholder="Email Address" value={form.email} onChange={(e: any) => update('email', e.target.value)} />
+                  <Input id="email" type="email" placeholder="Email Address" value={form.email} onChange={(e: any) => update('email', e.target.value)} />
                 </div>
 
                 <div className="space-y-1.5">

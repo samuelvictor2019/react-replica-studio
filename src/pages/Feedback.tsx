@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import feedbackImg from "@/assets/feedback_form.jpg";
+import { sanitizePhoneInput } from "@/lib/formValidation";
 
 type Props = { modal?: boolean; onClose?: () => void };
 
@@ -59,7 +60,7 @@ const Feedback = ({ modal = false, onClose }: Props) => {
 
             <div className="space-y-1.5">
               <Label htmlFor="phone" className="text-xs font-semibold">Phone Number <span className="font-normal text-muted-foreground">(Preferred Whatsapp)</span></Label>
-              <Input id="phone" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', e.target.value)} />
+              <Input id="phone" type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', sanitizePhoneInput(e.target.value))} />
             </div>
 
             <div className="space-y-1.5">

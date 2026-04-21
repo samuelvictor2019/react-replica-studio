@@ -61,7 +61,6 @@ const Doctrinal = () => {
 
 						<div>
 							<div className="relative mb-6">
-								<div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
 								<div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
 									<p className="text-sm text-black/80 font-medium">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
 									<p className="text-xs text-black/70 mt-4">1 Timothy 1:5</p>
@@ -110,7 +109,7 @@ const Doctrinal = () => {
 							<div className="relative h-full w-1 flex items-center">
 								<div className="absolute left-1/2 transform -translate-x-1/2 h-full w-[2px] bg-border rounded" />
 								<div
-									className="absolute left-1/2 transform -translate-x-1/2 w-3 h-3 rounded-full bg-blue-600 shadow-lg transition-top duration-300"
+									className="absolute left-1/2 transform -translate-x-1/2 w-3 h-3 rounded-full bg-sky-100 shadow-lg transition-top duration-300"
 									style={{ top: `${pct}%`, transform: `translate(-50%, -50%)` }}
 								/>
 							</div>
@@ -134,7 +133,6 @@ const Doctrinal = () => {
 												<p className="text-sm text-black/70 leading-relaxed max-w-2xl">{s.text}</p>
 												<div className="mt-6 bg-white rounded-lg p-6 shadow-md inline-block">
 													<div className="relative">
-														<div className="text-7xl text-sky-100 absolute -left-6 -top-8 select-none">“</div>
 														<p className="text-sm italic text-black/80 relative z-10">The goal of our instruction is love, from a pure heart and a sincere faith.</p>
 														<p className="text-xs text-black/70 mt-4 relative z-10">1 Timothy 1:5</p>
 													</div>

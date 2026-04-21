@@ -83,7 +83,7 @@ const HouseGroups = () => {
             </p>
             <a
               href="/new-member-registration"
-              className="inline-flex items-center gap-3 bg-foreground text-background px-6 py-3 rounded-md font-semibold hover:bg-sky-100 hover:text-black transition-colors"
+              className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               JOIN A HOUSE GROUP
             </a>
@@ -154,7 +154,7 @@ const HouseGroups = () => {
           </p>
           <a
             href="/new-member-registration"
-            className="inline-flex items-center gap-3 bg-foreground text-background px-8 py-3 rounded-md font-semibold hover:bg-sky-100 hover:text-black transition-colors"
+            className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
           >
             JOIN A HOUSE GROUP
           </a>

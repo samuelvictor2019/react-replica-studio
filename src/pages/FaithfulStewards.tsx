@@ -120,10 +120,8 @@ const FaithfulStewards: React.FC = () => {
               </p>
             </div>
 
-            {/* Right – decorative quote */}
             <div>
               <div className="relative mb-6">
-                <div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
                 <div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
                   <p className="text-sm text-foreground/80 font-medium">
                     Moreover it is required in stewards,
@@ -192,16 +190,16 @@ const FaithfulStewards: React.FC = () => {
                 {serveCards.map((card) => (
                   <div
                     key={card.title}
-                    className="min-w-[240px] w-[70vw] sm:w-[calc(50%-10px)] max-w-[320px] snap-start flex-shrink-0 rounded-2xl overflow-hidden shadow-md bg-card group"
+                    className="min-w-[220px] w-[66vw] sm:w-[calc(46%-10px)] max-w-[300px] snap-start flex-shrink-0 rounded-2xl overflow-hidden bg-card group"
                   >
                     <div className="overflow-hidden">
                       <img
                         src={card.img}
                         alt={card.title}
-                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
-                    <div className="p-5 bg-sky-100">
+                    <div className="p-6 bg-sky-100 min-h-[200px]">
                       <h4 className="font-heading text-lg font-semibold text-foreground mb-1">
                         {card.title}
                       </h4>
@@ -238,7 +236,7 @@ const FaithfulStewards: React.FC = () => {
           <div className="flex justify-center mb-12">
             <a
               href="/stewards/join"
-              className="inline-block px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-sky-100 hover:text-black transition-colors"
+              className="inline-block bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit
             </a>
@@ -334,7 +332,7 @@ const FaithfulStewards: React.FC = () => {
             </div>
             <a
               href="/stewards/join"
-              className="inline-block mt-8 px-8 py-3 rounded-full bg-foreground text-background text-sm font-semibold tracking-widest uppercase hover:bg-sky-100 hover:text-black transition-colors"
+              className="inline-block mt-8 bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit
             </a>

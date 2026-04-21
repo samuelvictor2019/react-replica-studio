@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import waveImg from "@/assets/testimony_form.jpg";
+import { sanitizePhoneInput } from "@/lib/formValidation";
 
 type Props = { modal?: boolean; onClose?: () => void };
 
@@ -59,7 +60,7 @@ const Testimony = ({ modal = false, onClose }: Props) => {
 
               <div>
                 <Label className="text-xs font-semibold">Phone Number <span className="font-normal text-muted-foreground">(Preferred Whatsapp)</span></Label>
-                <Input placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', e.target.value)} />
+                <Input type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', sanitizePhoneInput(e.target.value))} />
               </div>
 
               <div>

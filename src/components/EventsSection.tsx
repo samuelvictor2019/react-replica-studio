@@ -221,7 +221,7 @@ const EventCard = ({ event }: { event: EventData }) => {
     {/* Details */}
     <div className="flex flex-col md:flex-row flex-1 gap-6">
       {/* Left info */}
-      <div className="flex-1 flex flex-col justify-between">
+      <div className="flex-1 flex flex-col">
         <div>
           <span className="text-xs font-semibold tracking-widest text-black/70 uppercase">
             {displayCategory}

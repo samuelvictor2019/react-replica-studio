@@ -29,8 +29,8 @@ type SystemSettings = {
 const SETTINGS_STORAGE_KEY = 'wgc_admin_settings';
 
 const getDefaultSettings = (): SystemSettings => ({
-  siteName: 'World Glorious Church',
-  siteDescription: 'A place of worship, fellowship, and spiritual growth',
+  siteName: 'Watergate Church',
+  siteDescription: 'We are a Christ-centered community of Saints',
   contactEmail: 'info@wgc.com',
   maintenanceMode: false,
   allowRegistration: true,
