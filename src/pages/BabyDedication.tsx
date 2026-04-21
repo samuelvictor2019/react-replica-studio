@@ -65,17 +65,19 @@ const BabyDedication = () => {
 
         {/* Right form area */}
         <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Baby Dedication</h1>
-              <span className="text-sm font-medium text-muted-foreground">{step}/2</span>
+          {!submitted && (
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Baby Dedication</h1>
+                <span className="text-sm font-medium text-muted-foreground">{step}/2</span>
+              </div>
+              {step === 1 && (
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                  This helps us schedule and prepare for your baby dedication.
+                </p>
+              )}
             </div>
-            {step === 1 && (
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                This helps us schedule and prepare for your baby dedication.
-              </p>
-            )}
-          </div>
+          )}
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
@@ -150,7 +152,7 @@ const BabyDedication = () => {
                 {step === 1 ? (
                   <Button className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90" disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
                 ) : (
-                  <Button className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90" disabled={!canSubmit || submitting} onClick={handleSubmit}>{submitting ? 'SENDING...' : 'SUBMIT FORM'}</Button>
+                  <Button className="flex-1 h-12 bg-foreground text-background text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90" disabled={!canSubmit || submitting} onClick={handleSubmit}>{submitting ? 'SENDING...' : 'SUBMIT FORM'}</Button>
                 )}
               </div>
             </>

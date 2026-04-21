@@ -126,7 +126,7 @@ const HouseGroups = () => {
                   {whyCards.map((card, i) => (
                     <CarouselItem key={i} className="pl-4 basis-[70%] md:basis-[40%]">
                       <div className="bg-sky-50 rounded-2xl p-6 h-full md:h-[280px] lg:h-[300px] flex flex-col justify-center">
-                        <div className="w-16 h-16 rounded-full overflow-hidden mb-6 mt-2">
+                        <div className="w-20 h-20 rounded-full overflow-hidden mb-6 mt-2">
                           <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
                         </div>
                         <h3 className="font-heading text-lg font-semibold text-foreground mb-3">{card.title}</h3>

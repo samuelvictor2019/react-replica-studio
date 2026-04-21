@@ -16,7 +16,6 @@ const EventExperience = () => {
           {/* Right: quote box */}
           <div>
             <div className="relative mb-6">
-              <div className="absolute right-16 -top-5 font-heading text-[190px] text-sky-100 leading-none select-none pointer-events-none z-0">”</div>
               <div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
                 <p className="text-sm text-foreground/80 font-medium">
                   Through focused teaching, prayer, and <span className="font-bold">impartation, participants are equipped to grow in maturity and live out their faith with clarity and conviction.</span>

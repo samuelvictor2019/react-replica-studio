@@ -116,10 +116,16 @@ const Forms = () => {
       {/* Forms Grid */}
       <section className="py-12 md:py-20 bg-background">
         <div className="container max-w-6xl mx-auto px-4">
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-6 text-center">Connecting You to Care, Celebration, and Community</h2>
-          <p className="text-sm text-black/70 text-center max-w-2xl mx-auto mb-8">Select the form that applies to you, and we'll take it from there. Your submissions are treated with care, prayer, and confidentiality.</p>
+          <h2 className="font-heading text-4xl md:text-6xl font-medium text-black text-center leading-[0.95] max-w-[640px] mx-auto mb-4">
+            Connecting You to
+            <br />
+            Care, Celebration,
+            <br />
+            and Community
+          </h2>
+          <p className="text-sm text-black/70 text-center max-w-md mx-auto leading-snug mb-8">Select the form that applies to you, and we'll take it from there. Your submissions are treated with care, prayer, and confidentiality.</p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10">
             {[
               { title: 'Feedback / Suggestion Form', desc: "Your voice matters to us. Help us grow and serve better by sharing your feedback, thoughts, or suggestions.", action: 'SEND FEEDBACK →'},
               { title: 'Altar Call Form', desc: "If you gave your life to Christ or need pastoral support, fill this form so we can follow up and walk with you.", action: 'ALTAR CALL FORM →'},
@@ -129,8 +135,8 @@ const Forms = () => {
               { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
               { title: 'Counselling Request', desc: "If you need pastoral guidance, counselling, or spiritual support, tell us here so we can reach out pastorally and biblically.", action: 'REQUEST COUNSELLING →'},
             ].map((f) => (
-              <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="w-full h-40 md:h-44 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
+              <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm max-w-[260px] md:max-w-[250px] mx-auto min-h-[410px] md:min-h-[440px]">
+                <div className="w-full h-44 md:h-52 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
                   <img 
                     src={
                       f.title === 'Baby Dedication Form' ? babyDedicationImg :

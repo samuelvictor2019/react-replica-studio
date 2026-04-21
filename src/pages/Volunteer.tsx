@@ -27,7 +27,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
   const canSubmit = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email) && form.consent;
 
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] max-h-[90vh]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
       <div className="hidden md:block relative">
         <img src={volunteerImg} alt="volunteer" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
@@ -37,10 +37,12 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
       </button>
 
       <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
-        <div className="mb-4">
-          <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Volunteer</h1>
-          <p className="text-xs text-muted-foreground mt-1">Thank you for your heart to serve in God's house. Tell us where you feel led, and we'll guide you through the next steps.</p>
-        </div>
+        {!submitted && (
+          <div className="mb-4">
+            <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Volunteer</h1>
+            <p className="text-xs text-muted-foreground mt-1">Thank you for your heart to serve in God's house. Tell us where you feel led, and we'll guide you through the next steps.</p>
+          </div>
+        )}
 
         {submitted ? (
           <div className="flex-1 flex flex-col items-center justify-center">
@@ -107,7 +109,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
 
             <div className="mt-4">
               <Button
-                className="bg-foreground text-background h-11 px-8 text-xs font-semibold tracking-wider rounded-sm"
+                className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                 disabled={!canSubmit || submitting}
                 onClick={async () => {
                   setSubmitting(true);

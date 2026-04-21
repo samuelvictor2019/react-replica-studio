@@ -136,6 +136,13 @@
 }
 
 @layer utilities {
+  button[class*="bg-black"],
+  a[class*="bg-black"],
+  button[class*="bg-foreground"],
+  a[class*="bg-foreground"] {
+    text-transform: uppercase;
+  }
+
   .dark [class*="text-black"] {
     color: hsl(var(--foreground)) !important;
   }

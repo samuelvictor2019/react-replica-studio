@@ -32,21 +32,23 @@ const Counselling = ({ modal = false, onClose }: Props) => {
   const canSubmit = form.consent;
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] max-h-[90vh]`}>
-        <div className="hidden md:block relative">
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
+      <div className="hidden md:block relative">
           <img src={counsellingImg} alt="counselling" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
         <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></button>
 
         <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Counseling Request</h1>
-              <p className="text-xs text-muted-foreground mt-1">You're not alone — we're here to walk with you.</p>
+          {!submitted && (
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Counseling Request</h1>
+                <p className="text-xs text-muted-foreground mt-1">You're not alone — we're here to walk with you.</p>
+              </div>
+              <div className="text-sm text-muted-foreground">{step}/2</div>
             </div>
-            <div className="text-sm text-muted-foreground">{step}/2</div>
-          </div>
+          )}
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -139,7 +141,7 @@ const Counselling = ({ modal = false, onClose }: Props) => {
                 <div className="flex items-center gap-3 mt-4">
                   <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
-                    className="bg-foreground text-background h-11 text-xs font-semibold tracking-wider rounded-sm"
+                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
                       setSubmitting(true);

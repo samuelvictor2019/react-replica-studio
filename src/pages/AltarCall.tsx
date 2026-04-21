@@ -52,7 +52,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
   };
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[2fr_3fr] max-h-[90vh]`}>
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
         <div className="hidden md:block relative">
           <img src={altarImg} alt="Person at altar" className="absolute inset-0 w-full h-full object-cover" />
         </div>
@@ -67,24 +67,25 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
 
         {/* Right form area */}
         <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
-                Altar Call
-              </h1>
-              <span className="text-sm font-medium text-muted-foreground">
-                {step}/2
-              </span>
+          {!submitted && (
+            <div className="text-center mb-6">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
+                  Altar Call
+                </h1>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {step}/2
+                </span>
+              </div>
+              {step === 1 && (
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                  If you gave your life to Christ or rededicated your walk, please
+                  fill this form so we can pray with you, support you, and guide
+                  you in your next steps.
+                </p>
+              )}
             </div>
-            {step === 1 && (
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                If you gave your life to Christ or rededicated your walk, please
-                fill this form so we can pray with you, support you, and guide
-                you in your next steps.
-              </p>
-            )}
-          </div>
+          )}
 
           {/* Submitted state */}
           {submitted ? (
@@ -250,7 +251,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                   </Button>
                 ) : (
                   <Button
-                    className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90"
+                    className="flex-1 h-12 bg-foreground text-background text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                     disabled={!canSubmit || submitting}
                     onClick={handleSubmit}
                   >

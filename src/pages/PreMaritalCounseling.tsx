@@ -34,7 +34,7 @@ const PreMaritalCounseling = ({ modal = false, onClose }: Props) => {
   const canSubmit = form.consent;
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] max-h-[90vh]`}>
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
         <div className="hidden md:block relative">
           <img src={coupleImg} alt="couple" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
@@ -42,10 +42,12 @@ const PreMaritalCounseling = ({ modal = false, onClose }: Props) => {
         <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></button>
 
         <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
-          <div className="mb-4">
-            <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Pre-Marital Counseling</h1>
-            <p className="text-xs text-muted-foreground mt-2 max-w-lg">Marriage is a sacred covenant. Our pastoral team is ready to walk with you through biblical foundations for a godly and lasting union.</p>
-          </div>
+          {!submitted && (
+            <div className="mb-4">
+              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Pre-Marital Counseling</h1>
+              <p className="text-xs text-muted-foreground mt-2 max-w-lg">Marriage is a sacred covenant. Our pastoral team is ready to walk with you through biblical foundations for a godly and lasting union.</p>
+            </div>
+          )}
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -112,16 +114,8 @@ const PreMaritalCounseling = ({ modal = false, onClose }: Props) => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">Proposed Wedding Location</Label>
-                  <Select value={form.proposedLocation} onValueChange={(v) => update('proposedLocation', v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Your Option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="watergate">WaterGate Church</SelectItem>
-                      <SelectItem value="other">Other (Please Specify)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="proposedLocation" className="text-xs font-semibold">Proposed Wedding Location</Label>
+                  <Input id="proposedLocation" placeholder="Proposed Wedding Location" value={form.proposedLocation} onChange={(e: any) => update('proposedLocation', e.target.value)} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -145,7 +139,7 @@ const PreMaritalCounseling = ({ modal = false, onClose }: Props) => {
                 <div className="flex items-center gap-3 mt-4">
                   <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
-                    className="bg-foreground text-background h-11 text-xs font-semibold tracking-wider rounded-sm"
+                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
                       setSubmitting(true);

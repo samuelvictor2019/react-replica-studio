@@ -39,7 +39,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
 
   // inner container used both for page and modal rendering
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] min-h-[640px]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] min-h-[640px]`}>
       <div className="hidden md:block relative">
         <img src={memberImg} alt="new member" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
@@ -53,13 +53,15 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
       </button>
 
       <div className="p-6 md:p-8 flex flex-col">
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">New Member</h1>
-              <span className="text-sm font-medium text-muted-foreground">{step}/2</span>
+          {!submitted && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">New Member</h1>
+                <span className="text-sm font-medium text-muted-foreground">{step}/2</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 max-w-lg">We would love to know you better. Please complete this form so we can walk with you intentionally, pray with you, and help you find your place in the church.</p>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 max-w-lg">We would love to know you better. Please complete this form so we can walk with you intentionally, pray with you, and help you find your place in the church.</p>
-          </div>
+          )}
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -174,7 +176,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
                 <div className="flex items-center gap-3 mt-4">
                   <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
-                    className="bg-foreground text-background h-11 text-xs font-semibold tracking-wider rounded-sm"
+                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
                       setSubmitting(true);

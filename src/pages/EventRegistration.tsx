@@ -227,26 +227,28 @@ const EventRegistration = () => {
         </button>
 
         <div className="p-6 md:p-8 flex flex-col">
-          <div className="mb-4">
-            <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Event Registration</h1>
-            <p className="text-xs text-muted-foreground mt-2 max-w-lg">
-              {eventDetails?.title
-                ? `Register to attend ${eventDetails.title}.`
-                : 'Register to attend this event.'}{' '}
-              Registration helps us prepare adequately and ensure a smooth experience for everyone.
-            </p>
-            {eventLoading && <p className="text-[11px] text-muted-foreground mt-2">Loading event details...</p>}
-            {eventDetails && (
-              <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 space-y-1">
-                <p className="text-xs font-semibold text-foreground">{eventDetails.title}</p>
-                {eventDetails.type && <p className="text-[11px] text-muted-foreground">Type: {eventDetails.type}</p>}
-                {eventDetails.location && <p className="text-[11px] text-muted-foreground">Venue: {eventDetails.location}</p>}
-                {formatEventDate(eventDetails.startDate, eventDetails.endDate) && (
-                  <p className="text-[11px] text-muted-foreground">Date: {formatEventDate(eventDetails.startDate, eventDetails.endDate)}</p>
-                )}
-              </div>
-            )}
-          </div>
+          {!submitted && (
+            <div className="mb-4">
+              <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Event Registration</h1>
+              <p className="text-xs text-muted-foreground mt-2 max-w-lg">
+                {eventDetails?.title
+                  ? `Register to attend ${eventDetails.title}.`
+                  : 'Register to attend this event.'}{' '}
+                Registration helps us prepare adequately and ensure a smooth experience for everyone.
+              </p>
+              {eventLoading && <p className="text-[11px] text-muted-foreground mt-2">Loading event details...</p>}
+              {eventDetails && (
+                <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 space-y-1">
+                  <p className="text-xs font-semibold text-foreground">{eventDetails.title}</p>
+                  {eventDetails.type && <p className="text-[11px] text-muted-foreground">Type: {eventDetails.type}</p>}
+                  {eventDetails.location && <p className="text-[11px] text-muted-foreground">Venue: {eventDetails.location}</p>}
+                  {formatEventDate(eventDetails.startDate, eventDetails.endDate) && (
+                    <p className="text-[11px] text-muted-foreground">Date: {formatEventDate(eventDetails.startDate, eventDetails.endDate)}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center">
@@ -353,7 +355,7 @@ const EventRegistration = () => {
                 <div className="flex items-center gap-3 mt-4">
                   <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
-                    className="bg-foreground text-background h-11 text-xs font-semibold tracking-wider rounded-sm"
+                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
                       setSubmitting(true);

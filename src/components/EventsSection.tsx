@@ -233,28 +233,30 @@ const EventCard = ({ event }: { event: EventData }) => {
             {event.description || 'Join us for this special event at WaterGate Church.'}
           </p>
         </div>
-        <div ref={chipsRef} className="flex items-center gap-2 mt-3">
-          <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
-            <Calendar size={12} />
-            {displayDateRange}
-          </span>
-          {displayTime && (
-            <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
-              <Clock size={12} />
-              {displayTime}
+        <div className="mt-5">
+          <div ref={chipsRef} className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
+              <Calendar size={12} />
+              {displayDateRange}
             </span>
+            {displayTime && (
+              <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
+                <Clock size={12} />
+                {displayTime}
+              </span>
+            )}
+          </div>
+          {displayLocation && (
+            <div
+              ref={venueRef}
+              className="inline-flex items-center gap-1.5 mt-1 text-[10px] text-black/70 border border-black px-2 py-1 rounded-full overflow-hidden whitespace-nowrap"
+              style={{ width: "auto" }}
+            >
+              <MapPin size={16} className="flex-shrink-0 text-black/70" aria-hidden />
+              <span className="leading-tight">{displayLocation}</span>
+            </div>
           )}
         </div>
-        {displayLocation && (
-          <div
-            ref={venueRef}
-            className="inline-flex items-center gap-1.5 mt-1 text-[10px] text-black/70 border border-black px-2 py-1 rounded-full overflow-hidden whitespace-nowrap"
-            style={{ width: "auto" }}
-          >
-            <MapPin size={16} className="flex-shrink-0 text-black/70" aria-hidden />
-            <span className="leading-tight">{displayLocation}</span>
-          </div>
-        )}
       </div>
 
       {/* Right info – separated by dotted vertical line */}
