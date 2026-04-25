@@ -26,7 +26,7 @@ const Footer = () => {
     <footer className="bg-[hsl(220,60%,96%)] text-black">
       <div className="container max-w-6xl mx-auto px-4 py-12 md:py-16">
         {/* Top row */}
-        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_1fr_1fr] gap-10 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-10 md:gap-6">
           {/* Brand column */}
           <div className="flex flex-col gap-4">
             <div>
@@ -61,22 +61,26 @@ const Footer = () => {
           </div>
 
           {/* Link columns */}
-          {Object.entries(footerLinks).map(([key, links]) => (
-            <div key={key}>
-              <h4 className="text-xs font-bold tracking-[0.15em] text-black mb-4 uppercase">
-                {key === "getInvolved" ? "GET INVOLVED" : key.toUpperCase()}
-              </h4>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.name}>
-                    <a href={link.route} className="text-xs text-black hover:text-black transition-colors">
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+          <div className="md:pl-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-x-10 md:gap-y-0">
+              {Object.entries(footerLinks).map(([key, links]) => (
+                <div key={key}>
+                  <h4 className="text-xs font-bold tracking-[0.15em] text-black mb-4 uppercase">
+                    {key === "getInvolved" ? "GET INVOLVED" : key.toUpperCase()}
+                  </h4>
+                  <ul className="space-y-2.5">
+                    {links.map((link) => (
+                      <li key={link.name}>
+                        <a href={link.route} className="text-xs text-black hover:text-black transition-colors">
+                          {link.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
 

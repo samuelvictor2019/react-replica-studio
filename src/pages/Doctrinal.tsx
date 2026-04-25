@@ -85,11 +85,32 @@ const Doctrinal = () => {
 			{/* Doctrinal Statements: left nav + progress track + content */}
 			<section className="py-16 md:py-20 bg-white">
 				<div className="container max-w-6xl mx-auto px-4">
-				
+					<div className="md:hidden mb-10">
+						<h2 className="font-heading text-5xl font-medium leading-[0.95] text-black mb-10">Doctrinal Statements</h2>
+						<ul className="space-y-8 text-xl text-black/80">
+							{sections.map((s, i) => (
+								<li key={`mobile-${s.id}`}>
+									<a
+										href={`#${s.id}`}
+										className={`block ${i === activeIndex ? 'text-sky-400 font-medium' : 'text-black/80'}`}
+										onClick={(e) => {
+											e.preventDefault();
+											setActiveIndex(i);
+											document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+										}}
+									>
+										{i + 1}. {s.title}
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
+
 					<div className="grid grid-cols-1 md:grid-cols-[260px_36px_1fr] gap-8">
 						{/* Left nav (sticky on desktop) */}
 						<nav className="hidden md:block md:sticky md:top-28 md:self-start">
-							<ul className="space-y-3 text-sm text-black/70 md:max-h-[calc(100vh-7rem)] md:overflow-auto md:pr-2">
+							<h2 className="font-heading text-4xl font-medium leading-none text-black mb-8">Doctrinal Statements</h2>
+							<ul className="space-y-6 text-sm text-black/70 md:max-h-[calc(100vh-7rem)] md:overflow-auto md:pr-2">
 								{sections.map((s, i) => (
 									<li key={s.id}>
 										<a

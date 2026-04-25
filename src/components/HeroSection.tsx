@@ -20,7 +20,7 @@ const HeroSection = () => {
               We are Christ-centered community of believers (star-seed) who are naturally supernatural and supernaturally natural with the mandate to see the knowledge of the glory of the LORD take over the earth as the waters cover the sea.
             </p>
             <a
-              href="#about"
+              href="/about#about-twc-ph"
               className="inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 text-xs font-semibold tracking-widest hover:gap-3 transition-all hero-fade delay-3"
             >
               LEARN MORE <ArrowRight size={14} />

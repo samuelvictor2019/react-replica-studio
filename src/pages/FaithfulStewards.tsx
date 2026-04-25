@@ -83,7 +83,7 @@ const FaithfulStewards: React.FC = () => {
       {/* ── Hero ── */}
       <section className="bg-background">
         <div className="container max-w-6xl mx-auto px-4 pt-24 pb-8">
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-2xl text-foreground hero-fade delay-1">
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[0.95] tracking-tight max-w-2xl text-foreground hero-fade delay-1">
             Stewardship, Growth,
             <br />
             and Partnership
@@ -104,7 +104,7 @@ const FaithfulStewards: React.FC = () => {
       {/* ── Every Gift Matters ── */}
       <section className="bg-background pt-16 md:pt-24 pb-0">
         <div className="mt-6 ml-4 md:ml-[max(3rem,calc((100vw-64rem)/2+3rem))]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-start">
             {/* Left – heading + body */}
             <div>
               <h2 className="font-heading text-3xl md:text-5xl font-medium text-foreground leading-tight mb-6">
@@ -122,7 +122,7 @@ const FaithfulStewards: React.FC = () => {
 
             <div>
               <div className="relative mb-6">
-                <div className="p-6 rounded-md max-w-[360px] ml-auto mt-0 relative z-10">
+                <div className="p-6 rounded-md max-w-[360px] mt-0 relative z-10">
                   <p className="text-sm text-foreground/80 font-medium">
                     Moreover it is required in stewards,
                     <br />

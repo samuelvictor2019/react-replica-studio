@@ -64,13 +64,15 @@ const NewMember = () => {
 
       {/* What to expect */}
       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-6xl mx-auto px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
+        <div className="px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
           <h3 className="font-heading text-2xl md:text-3xl font-medium text-black mb-8">What to Expect at <br />WaterGate Church</h3>
+        </div>
 
+        <div className="ml-4 md:ml-[max(2rem,calc((100vw-64rem)/2+2rem))]">
           <Carousel opts={{ align: "start", loop: true }} className="w-full">
             <CarouselContent className="-ml-4">
               {expectSlides.map((slide, i) => (
-                <CarouselItem key={i} className="pl-4 basis-[90%]">
+                <CarouselItem key={i} className="pl-4 basis-[98%] md:basis-[95%]">
                   <div className="relative overflow-hidden rounded-2xl w-full h-56 md:h-72">
                     <img src={slide.img} alt={slide.title} className="w-full h-56 md:h-72 object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
@@ -94,8 +96,16 @@ const NewMember = () => {
       <section className="py-12 bg-white">
         <div className="flex flex-col md:flex-row items-center">
           <div className="flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-              <h4 className="font-heading text-xl text-black mb-2">Join the Family</h4>
-              <p className="text-sm text-black/70 mb-4 max-w-md">Sign up to receive a welcome packet, service times and details about how to get connected.</p>
+              <h4 className="font-heading text-5xl leading-[0.95] text-black mb-6">Join the<br />Family</h4>
+              <div className="text-sm md:text-base text-black/70 max-w-md space-y-4 mb-6 leading-relaxed">
+                <p>We would love to get to know you better and help you take your next step.</p>
+                <p>By registering, you'll receive:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Information about our church community</li>
+                  <li>Guidance on how to get connected</li>
+                  <li>Updates on meetings and events</li>
+                </ul>
+              </div>
               <a href="#" className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">JOIN THE FAMILY</a>
           </div>
 

@@ -135,7 +135,7 @@ const Forms = () => {
               { title: 'First Timer Form', desc: "Thank you for worshipping with us! Let us know you're connected and help us welcome you.", action: "I'M A FIRST TIMER →"},
               { title: 'Counselling Request', desc: "If you need pastoral guidance, counselling, or spiritual support, tell us here so we can reach out pastorally and biblically.", action: 'REQUEST COUNSELLING →'},
             ].map((f) => (
-              <div key={f.title} className="bg-white rounded-lg p-4 shadow-sm max-w-[260px] md:max-w-[250px] mx-auto min-h-[410px] md:min-h-[440px]">
+              <div key={f.title} className="rounded-lg p-4 max-w-[260px] md:max-w-[250px] mx-auto min-h-[410px] md:min-h-[440px]">
                 <div className="w-full h-44 md:h-52 bg-slate-100 rounded-md mb-4 flex items-center justify-center overflow-hidden">
                   <img 
                     src={
@@ -172,7 +172,7 @@ const Forms = () => {
       <section className="py-12 md:py-20 bg-white">
         <div className="flex flex-col md:flex-row items-center">
           <div className="order-2 md:order-1 flex-1 px-4 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-4">Form Submission Notice</h2>
+            <h2 className="font-heading text-4xl md:text-5xl font-medium text-foreground mb-4">Form Submission Notice</h2>
             <p className="text-sm text-muted-foreground max-w-md">Some forms require pastoral confirmation before approval. Submitting a form does not automatically confirm scheduling or placement.</p>
           </div>
 
