@@ -61,8 +61,8 @@ const Footer = () => {
           </div>
 
           {/* Link columns */}
-          <div className="md:pl-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-x-10 md:gap-y-0">
+          <div className="md:pl-8">
+            <div className="grid grid-cols-2 md:grid-cols-[repeat(4,max-content)] gap-8 md:gap-y-0 md:justify-between">
               {Object.entries(footerLinks).map(([key, links]) => (
                 <div key={key}>
                   <h4 className="text-xs font-bold tracking-[0.15em] text-black mb-4 uppercase">

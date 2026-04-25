@@ -110,7 +110,7 @@ const Doctrinal = () => {
 						{/* Left nav (sticky on desktop) */}
 						<nav className="hidden md:block md:sticky md:top-28 md:self-start">
 							<h2 className="font-heading text-4xl font-medium leading-none text-black mb-8">Doctrinal Statements</h2>
-							<ul className="space-y-6 text-sm text-black/70 md:max-h-[calc(100vh-7rem)] md:overflow-auto md:pr-2">
+							<ul className="space-y-6 text-sm text-black/70 md:pr-2">
 								{sections.map((s, i) => (
 									<li key={s.id}>
 										<a

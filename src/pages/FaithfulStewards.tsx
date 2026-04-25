@@ -84,7 +84,7 @@ const FaithfulStewards: React.FC = () => {
       <section className="bg-background">
         <div className="container max-w-6xl mx-auto px-4 pt-24 pb-8">
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[0.95] tracking-tight max-w-2xl text-foreground hero-fade delay-1">
-            Stewardship, Growth,
+            <span className="whitespace-nowrap">Stewardship, Growth,</span>
             <br />
             and Partnership
           </h1>
