@@ -3,11 +3,11 @@ import Footer from "@/components/Footer";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import heroImg from "@/assets/housegroup_hero.jpg";
 import joinImg from "@/assets/housegroup1.jpg";
-import slideOne from "@/assets/housegroup_slide1.jpg";
-import slideTwo from "@/assets/housegroup_slide2.jpg";
-import slideThree from "@/assets/housegroup_slide3.jpg";
-import slideFour from "@/assets/housegroup_slide4.jpg";
-import slideFive from "@/assets/housegroup_slide5.jpg";
+import slideOne from "@/assets/growspiritually.jpg";
+import slideTwo from "@/assets/buildrelationships.jpg";
+import slideThree from "@/assets/praytogether.jpg";
+import slideFour from "@/assets/receivecare.jpg";
+import slideFive from "@/assets/servetogether.jpg";
 
 const whyCards = [
   {

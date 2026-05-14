@@ -2,12 +2,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import onboardingImg from "@/assets/newmember_hero.jpg";
-import joinImg from "@/assets/newmember_1.jpg";
+import joinImg from "@/assets/newmember.jpg";
 import whatImg from "@/assets/newmember2.jpg";
-import slideOne from "@/assets/member_slide1.jpg";
-import slideTwo from "@/assets/member_slide2.jpg";
-import slideThree from "@/assets/member_slide3.jpg";
-import slideFour from "@/assets/member_slide4.jpg";
+import slideOne from "@/assets/whattoexpect1.jpg";
+import slideTwo from "@/assets/whattoexpect2.jpg";
+import slideThree from "@/assets/whattoexpect3.jpg";
+import slideFour from "@/assets/whattoexpect4.jpg";
 
 const expectSlides = [
   { img: slideOne, title: "A Warm, Loving Community", desc: "From the moment you arrive, you'll experience a people committed to love, fellowship, and genuine connection. We believe no one should walk alone." },

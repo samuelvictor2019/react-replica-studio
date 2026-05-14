@@ -27,7 +27,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
   const canSubmit = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email) && form.consent;
 
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
       <div className="hidden md:block relative">
         <img src={volunteerImg} alt="volunteer" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>

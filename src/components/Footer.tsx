@@ -2,10 +2,10 @@ import logo from "@/assets/logo.png";
 
 const footerLinks = {
   about: [
-    { name: "ABOUT TWC", route: "/about" },
+    { name: "SERVING OVERSEER PROFILE", route: "/apostle" },
     { name: "DOCTRINAL STATEMENT", route: "/doctrine" },
-    { name: "APOSTLE'S PROFILE", route: "/apostle" },
-    { name: "CONTACT US", route: "#" },
+    { name: "TWC", route: "/about#about-twc-ph" },
+    { name: "CONTACT US", route: "/about#contact-us" },
   ],
   getInvolved: [
     { name: "I'M A NEW MEMBER", route: "/new-member" },
@@ -14,10 +14,16 @@ const footerLinks = {
     { name: "FORMS", route: "/forms" },
   ],
   events: [
-    { name: "EVENTS", route: "/events" },
+    { name: "BOOTCAMP", route: "/events" },
+    { name: "CONFERENCE", route: "/events" },
+    { name: "WEEKLY SERVICE", route: "/events" },
+    { name: "MONTHLY SERVICE", route: "/events" },
   ],
   media: [
-    { name: "MEDIA", route: "/media" },
+    { name: "SERMON", route: "/media" },
+    { name: "MUSIC", route: "/media" },
+    { name: "PRESENT TRUTH", route: "/media" },
+    { name: "PROCLAMATION", route: "/media" },
   ],
 };
 

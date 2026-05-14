@@ -1,55 +1,100 @@
 import React, { useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import heroImg from "@/assets/faithfulsteward_hero.jpg";
-import communityImg1 from "@/assets/stewardslide1.jpg";
-import communityImg2 from "@/assets/stewardslide2.jpg";
-import communityImg3 from "@/assets/stewardslide4.jpg";
-import communityImg4 from "@/assets/stewardslide5.jpg";
-import communityImg5 from "@/assets/stewardslide6.jpg";
-import leaderImg1 from "@/assets/steward1.jpg";
+import heroImg from "@/assets/stewards_hero.jpg";
+import communityImg1 from "@/assets/worshipteam.jpg";
+import communityImg2 from "@/assets/multimedia.jpg";
+import communityImg3 from "@/assets/sanitationandushering.jpg";
+import protocolImg from "@/assets/protocol.jpg";
+import childrenImg from "@/assets/childrenunit.jpg";
+import teenageImg from "@/assets/teenagers.jpg";
+import publicityImg from "@/assets/publicity.jpg";
+import welfareImg from "@/assets/welfare.jpg";
+import transportImg from "@/assets/transport.jpg";
+import stewardSlide1 from "@/assets/stewardslide1.jpg";
+import stewardSlide2 from "@/assets/stewardslide2.jpg";
+import stewardSlide3 from "@/assets/stewardslide3.jpg";
+import stewardSlide4 from "@/assets/stewardslide4.jpg";
+import stewardSlide5 from "@/assets/stewardslide5.jpg";
+import leaderImg1 from "@/assets/stewards1.jpg";
 import leaderImg2 from "@/assets/stewards2.jpg";
 import leaderImg3 from "@/assets/leader-31.jpg";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 /* ── Departments data ── */
 const departments = [
-  { img: communityImg1, title: "Worship Team", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
-  { img: communityImg2, title: "MultiMedia", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
-  { img: communityImg3, title: "Sanitation", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
-  { img: communityImg4, title: "Worship & Music", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
-  { img: communityImg5, title: "Protocol", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
-  { img: leaderImg3, title: "Ushering", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
-  { img: communityImg1, title: "Children & Teens", text: "Children are a gift from the Lord. Use this form to schedule your baby's dedication and allow us to walk with you in prayer and preparation." },
-  { img: communityImg2, title: "Evangelism", text: "Comprises of the Photography, Videography, Sound and Audio, Design etc." },
-  { img: communityImg3, title: "Welfare", text: "Has God done something beautiful in your life? Share your testimony so it can encourage, strengthen, and glorify God among his people." },
+  {
+    img: communityImg1,
+    title: "Worship Team",
+    text: "Through prayerfully prepared songs ministrations, including praise and worship with the church, the team helps create an atmosphere that draws people into God's presence.",
+  },
+  {
+    img: protocolImg,
+    title: "Protocol",
+    text: "Comprises of the Photography, Videography, Sound and Audio, Design etc.",
+  },
+  {
+    img: communityImg3,
+    title: "Sanitation and Ushering",
+    text: "The Sanitation and Ushering Unit helps create a welcoming and well-organised environment.",
+  },
+  {
+    img: communityImg2,
+    title: "Multimedia",
+    text: "The Multimedia Unit supports church services and events through sound, light, visuals, live streaming, and media coordination.",
+  },
+  {
+    img: childrenImg,
+    title: "Children Unit",
+    text: "The Children Unit is dedicated to nurturing young hearts in the knowledge and love of Christ.",
+  },
+  {
+    img: teenageImg,
+    title: "Teenage Unit",
+    text: "Through age-appropriate teaching, worship, and activities, in a safe and engaging environment.",
+  },
+  {
+    img: publicityImg,
+    title: "Publicity and Registration",
+    text: "The Multimedia Unit supports church services and events through sound, light, visuals, live streaming, and media coordination.",
+  },
+  {
+    img: welfareImg,
+    title: "Welfare",
+    text: "The Children Unit is dedicated to nurturing young hearts in the knowledge and love of Christ.",
+  },
+  {
+    img: transportImg,
+    title: "Transport",
+    text: "Through age-appropriate teaching, worship, and activities, in a safe and engaging environment.",
+  },
 ];
 const ITEMS_PER_PAGE = 9;
 
 /* ── Why Serve cards ── */
 const serveCards = [
   {
-    img: communityImg1,
+    img: stewardSlide1,
     title: "Express your Gifts",
     text: "Express your God-given gifts in meaningful ways.",
   },
   {
-    img: communityImg2,
+    img: stewardSlide2,
     title: "Grow Spiritually",
     text: "Be discipled daily through responsibility and faithfulness.",
   },
   {
-    img: communityImg3,
+    img: stewardSlide3,
     title: "Build Relationships",
     text: "Build strong relationships within the church community.",
   },
   {
-    img: communityImg4,
+    img: stewardSlide4,
     title: "Support the Vision",
     text: "Support the vision and mission of WaterGate Church.",
   },
   {
-    img: communityImg5,
+    img: stewardSlide5,
     title: "Be a Part",
     text: "Be a part of what God is doing in and through His people.",
   },
@@ -84,7 +129,7 @@ const FaithfulStewards: React.FC = () => {
       <section className="bg-background">
         <div className="container max-w-6xl mx-auto px-4 pt-24 pb-8">
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[0.95] tracking-tight max-w-2xl text-foreground hero-fade delay-1">
-            <span className="whitespace-nowrap">Stewardship, Growth,</span>
+            <span className="sm:whitespace-nowrap">Stewardship, Growth,</span>
             <br />
             and Partnership
           </h1>
@@ -243,20 +288,20 @@ const FaithfulStewards: React.FC = () => {
           </div>
 
           {/* Cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 justify-items-center">
             {pagedDepts.map((dept, i) => (
-              <div key={`${dept.title}-${i}`} className="group">
+              <div key={`${dept.title}-${i}`} className="group w-full max-w-[320px]">
                 <div className="overflow-hidden rounded-xl mb-4">
                   <img
                     src={dept.img}
                     alt={dept.title}
-                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-56 md:h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
                 <h4 className="font-heading text-lg font-semibold text-foreground mb-2">
                   {dept.title}
                 </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3 min-h-[66px]">
                   {dept.text}
                 </p>
                 <a

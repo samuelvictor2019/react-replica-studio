@@ -30,9 +30,9 @@ const ApostleProfile = () => {
       <section className="bg-background text-foreground">
         <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-10">
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.08] hero-fade delay-1">
-            Shepherd. Father.
+            Apostle. Father.
             <br />
-            Mentor. Apostle.
+            Discipler.
           </h1>
         </div>
 
@@ -52,11 +52,11 @@ const ApostleProfile = () => {
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15]">
+              Serving Overseer.
+              <br />
               Apostle.
               <br />
-              Shepherd.
-              <br />
-              Father.
+              Servant.
             </h2>
 
             <p className="text-sm leading-relaxed text-foreground/70">
@@ -102,7 +102,7 @@ const ApostleProfile = () => {
             </p>
 
             <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-medium text-foreground leading-[1.15] md:text-right md:order-2 order-1">
-              Discipler.
+              Father.
               <br />
               Mentor.
               <br />

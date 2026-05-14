@@ -2,7 +2,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import formsHero from "@/assets/forms_hero.jpg";
-import formsOne from "@/assets/form1.jpg";
+import formsOne from "@/assets/forms1.jpg";
 import formsTwo from "@/assets/form2.jpg";
 import NewMemberRegistration from "./NewMemberRegistration";
 import AltarCall from "./AltarCall";
@@ -20,7 +20,7 @@ import firstTimerImg from "@/assets/firsttimer.jpg";
 import volunteerImg from "@/assets/volunteer.jpg";
 import preMaritalImg from "@/assets/premarital.jpg";
 import eventRegistrationImg from "@/assets/community-1.jpg";
-import counsellingImg from "@/assets/counselingform.jpg";
+import counsellingImg from "@/assets/counseling.jpg";
 
 type ModalKey = 'newMember' | 'altarCall' | 'testimony' | 'preMarital' | 'counselling' | 'volunteer' | 'feedback' | null;
 
@@ -61,7 +61,7 @@ const Forms = () => {
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
-          <div className="relative z-50 mx-4 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="relative z-50 mx-4 w-full max-w-3xl h-[calc(100dvh-2rem)] sm:h-auto sm:max-h-[90vh] overflow-hidden">
             {activeModal === 'newMember' && <NewMemberRegistration modal onClose={closeModal} />}
             {activeModal === 'altarCall' && <AltarCall modal onClose={closeModal} />}
             {activeModal === 'testimony' && <Testimony modal onClose={closeModal} />}

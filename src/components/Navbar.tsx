@@ -1,24 +1,16 @@
 import { useState } from "react";
 import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import logo from "@/assets/logo.png";
-import aboutTwc from "@/assets/about_nav.jpg";
-import doctrinal from "@/assets/doctrinal_nav.jpg";
-import pastor from "@/assets/pastor_nav.jpg";
-import contactImg from "@/assets/contact_nav.jpg";
-import newMember from "@/assets/newmember_nav.jpg";
-import houseGroups from "@/assets/housegroup_nav.jpg";
-import stewards from "@/assets/stewards_nav.jpg";
-import formsImg from "@/assets/forms_nav.jpg";
 
 const navItems = [
   { label: "HOME", href: "/" },
   {
     label: "ABOUT",
     submenu: [
-      { label: "About TWC", href: "/about" },
+      { label: "Serving Overseer Profile", href: "/apostle" },
       { label: "Doctrinal Statement", href: "/doctrine" },
-      { label: "Apostle's Profile", href: "/apostle" },
-      { label: "Contact US", href: "#" },
+      { label: "TWC", href: "/about#about-twc-ph" },
+      { label: "Contact Us", href: "/about#contact-us" },
     ],
   },
   {

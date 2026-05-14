@@ -1,87 +1,38 @@
-import { useState, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import aboutHeroImg from "@/assets/about-hero.jpg";
-import aboutWaterImg from "@/assets/about-water.jpg";
-import aboutMission from "@/assets/about-mission.jpg";
-import aboutVision from "@/assets/about-vision.jpg";
-import aboutTwc from "@/assets/about-twc.png";
-import leader1 from "@/assets/leader-1.jpg";
-import leader2 from "@/assets/leader-2.jpg";
-import leader3 from "@/assets/leader-3.jpg";
-import leader4 from "@/assets/leader-4.jpg";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import aboutMission from "@/assets/themission.jpg";
+import aboutVision from "@/assets/thevision.jpg";
+import strategy1 from "@/assets/strategy1.jpg";
+import strategy2 from "@/assets/strategy2.jpg";
+import strategy3 from "@/assets/strategy3.jpg";
+import strategy4 from "@/assets/strategy4.jpg";
 
 const leaders = [
   {
-    name: "Pastor John",
-    role: "Lead Pastor",
-    img: leader1,
+    name: "Leader One",
+    img: strategy1,
     desc: "To disciple every institution, every sphere and every nation through the transfer of the ministry of the word and the spirit without mixture.",
   },
   {
-    name: "Sister Grace",
-    role: "Worship Lead",
-    img: leader2,
+    name: "Leader Two",
+    img: strategy2,
     desc: "To engage our communities as Rebuilders of Ancient Ruins, Repairers of the Breach and Restorers of Streets to dwell in.",
   },
   {
-    name: "Pastor David",
-    role: "Associate Pastor",
-    img: leader3,
+    name: "Leader Three",
+    img: strategy3,
     desc: "To daily walk in the LOVE OF GOD through the expression of the ministry of Jesus; this encompasses teaching, preaching and healing in our diverse spheres of influence.",
   },
   {
-    name: "Sister Faith",
-    role: "Ministry Lead",
-    img: leader4,
+    name: "Leader Four",
+    img: strategy4,
     desc: "To stand as priests, prophets and kings after the order of Melchizedek in our society, city and nation.",
   },
 ];
 
-const scriptureCards = [
-  {
-    img: aboutWaterImg,
-    title: "Ephesians 4:13",
-    text: "Till we all come in the unity of the faith, and of the knowledge of the Son of God, unto a perfect man, unto the measure of the stature of the fulness of Christ.",
-  },
-  {
-    img: aboutMission,
-    title: "The Mission",
-    text: "To raise a people that will stand as true and faithful witnesses, leaders and commanders across their spheres of influence by preaching Christ without distortion.",
-  },
-  {
-    img: aboutVision, 
-    title: "The Vision",
-    text: "To build a people that will demonstrate the nature and attain stature of Jesus Christ until the knowledge of the glory of the LORD takes over the earth as the waters cover the sea.",
-  },
-];
-
 const About = () => {
-  const [currentCard, setCurrentCard] = useState(0);
-  const [slideDir, setSlideDir] = useState<"left" | "right">("right");
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const goTo = useCallback(
-    (dir: "prev" | "next") => {
-      if (isAnimating) return;
-      setSlideDir(dir === "next" ? "right" : "left");
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentCard((prev) =>
-          dir === "next"
-            ? (prev + 1) % scriptureCards.length
-            : (prev - 1 + scriptureCards.length) % scriptureCards.length
-        );
-        setIsAnimating(false);
-      }, 300);
-    },
-    [isAnimating]
-  );
-
-  const card = scriptureCards[currentCard];
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -89,10 +40,9 @@ const About = () => {
       {/* Hero */}
       <section className="bg-background text-black">
         <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-2xl hero-fade delay-1">
-            Worship. Word.
-            <br />
-            Community. Purpose.
+          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-4xl hero-fade delay-1">
+            <span className="block">Worship. Word. Wonders.</span>
+            <span className="block">Community. Destiny</span>
           </h1>
         </div>
         <div className="w-full">
@@ -106,124 +56,55 @@ const About = () => {
         </div>
       </section>
 
-      {/* About TWC — text left, image right */}
-      <section id="about-twc-ph" className="py-16 md:py-24 bg-background">
+      {/* Mission + Vision */}
+      <section id="about-twc-ph" className="py-12 md:py-16 bg-background space-y-5 md:space-y-6">
         <div className="flex flex-col md:flex-row items-stretch">
-          {/* Text */}
-          <div className="flex-1 py-10 px-6 md:py-14 md:pl-[max(2rem,calc((100vw-64rem)/2+2rem))] md:pr-10">
-            <h2 className="font-heading text-4xl md:text-5xl font-medium text-foreground mb-6">
-              About TWC
-            </h2>
-            <div className="space-y-4 text-xs leading-relaxed text-muted-foreground">
-              <p>
-                We are a Christ-centered community of believers <br />
-                (star-seed) who are naturally supernatural and <br />supernaturally natural with
-                the mandate to see the <br /> knowledge
-                of the glory of the LORD take over the <br /> earth as 
-                the waters cover the sea.
-              </p>
-              <p>
-                We are Oaks of Righteousness planted by the 
-                LORD <br /> in every institution, every sphere and
-                every nation < br /> for the establishment of the 
-                dominion of Christ in <br /> every domain. The will of
-                God will be done on earth <br />and the earth as it is in heaven.
-              </p>
-              <p>
-                We are salt of the earth and light of the world 
-                with <br /> grace to govern and power to prevail in
-                every domain. <br />We are believers with Divine 
-                Nature Attitude having <br />determination to
-                accurately represent Jesus our <br /> ultimate Role Model across the earth.
+          <div className="container max-w-6xl mx-auto px-4 md:px-0 md:mr-0 md:ml-auto md:w-[55%]">
+            <div className="bg-background p-6 md:p-8 h-full flex flex-col justify-center">
+              <h2 className="font-heading text-4xl md:text-5xl font-medium text-black mb-4">The Mission</h2>
+              <p className="text-sm text-black/70 leading-relaxed max-w-md">
+                To raise a people that will stand as true and faithful witnesses, leaders,
+                and commanders across their spheres of influence by preaching Christ without distortion.
               </p>
             </div>
           </div>
-
-          {/* Image — bleeds to right edge */}
-          <div className="md:w-[45%] overflow-hidden rounded-l-2xl">
-            <img
-              src={aboutTwc}
-              alt="Church community"
-              className="w-full h-[320px] md:h-full object-cover"
-            />
+          <div className="md:w-[45%] overflow-hidden">
+            <img src={aboutMission} alt="The Mission" className="w-full h-[220px] md:h-full object-cover" />
           </div>
         </div>
-      </section>
 
-      {/* Scripture Carousel */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl mx-auto px-4">
-          <div className="overflow-hidden relative rounded-3xl">
-            <div
-              className={`flex flex-col md:flex-row items-stretch transition-all duration-300 ease-in-out ${
-                isAnimating
-                  ? slideDir === "right"
-                    ? "opacity-0 translate-x-8"
-                    : "opacity-0 -translate-x-8"
-                  : "opacity-100 translate-x-0"
-              }`}
-            >
-              {/* Image */}
-              <div className="md:w-[45%] overflow-hidden">
-                <img
-                  src={card.img}
-                  alt={card.title}
-                  className="w-full h-[280px] md:h-[350px] object-cover"
-                />
-              </div>
-
-              {/* Scripture text */}
-              <div className="flex-1 bg-sky-100 flex flex-col justify-center px-8 py-10 md:px-12">
-                <h2 className="font-heading text-2xl md:text-3xl font-medium text-foreground mb-4">
-                  {card.title}
-                </h2>
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  "{card.text}"
-                </p>
-              </div>
-            </div>
+        <div className="flex flex-col md:flex-row items-stretch">
+          <div className="md:w-[45%] overflow-hidden order-2 md:order-1">
+            <img src={aboutVision} alt="The Vision" className="w-full h-[220px] md:h-full object-cover" />
           </div>
-
-          {/* Arrows */}
-          <div className="flex justify-center gap-4 mt-10">
-            <button
-              onClick={() => goTo("prev")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors"
-              aria-label="Previous scripture"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => goTo("next")}
-              className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center text-foreground hover:bg-sky-100 hover:text-black transition-colors"
-              aria-label="Next scripture"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
+          <div className="container max-w-6xl mx-auto px-4 md:px-0 md:ml-0 md:mr-auto md:w-[55%] order-1 md:order-2">
+            <div className="bg-background p-6 md:p-8 h-full flex flex-col justify-center">
+              <h2 className="font-heading text-4xl md:text-5xl font-medium text-black mb-4">The Vision</h2>
+              <p className="text-sm text-black/70 leading-relaxed max-w-md">
+                To build a people that will demonstrate the nature and stature of Jesus Christ
+                until the knowledge of the glory of the LORD takes over the earth as the waters cover the sea.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* The Strategy */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="pt-12 pb-16 md:pt-16 md:pb-24 bg-background">
         <div className="container max-w-5xl mx-auto px-4 text-center">
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-14">
+          <h2 className="font-heading text-4xl md:text-5xl font-medium text-black mb-10 md:mb-12">
             The Strategy
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {leaders.map((l, idx) => (
-              <div key={l.name} className="bg-sky-100 rounded-2xl p-6 md:p-8 flex flex-col items-center gap-3">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden">
-                  <img
-                    src={l.img}
-                    alt={l.name}
-                    className={`w-full h-full object-cover shadow-none ${idx === 1 ? "shadow-none" : ""}`}
-                  />
-                </div>
-                <p className="text-xs text-left leading-relaxed text-black/70 max-w-[180px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {leaders.map((l) => (
+              <div key={l.name} className="bg-sky-100 rounded-2xl overflow-hidden text-left">
+                <img src={l.img} alt={l.name} className="w-full h-36 md:h-44 object-cover" />
+                <div className="p-4 md:p-5">
+                  <p className="text-[11px] leading-relaxed text-black/70">
                   {l.desc}
                 </p>
+                </div>
               </div>
             ))}
           </div>

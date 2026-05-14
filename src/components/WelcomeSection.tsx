@@ -1,60 +1,34 @@
 import community1 from "@/assets/community-1.png";
-import community2 from "@/assets/community-2.png";
-import community3 from "@/assets/community-3.png";
-import community4 from "@/assets/community-4.png";
 
 const WelcomeSection = () => {
   return (
     <section id="about" className="py-16 md:py-24 bg-background">
       <div className="container max-w-6xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row gap-12 md:gap-16 items-start">
-          {/* Left: Text */}
-          <div className="flex-1 max-w-md">
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-black mb-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-start">
+          <div className="max-w-[500px]">
+            <h2 className="font-heading text-5xl md:text-6xl font-medium text-black mb-5 leading-[0.95]">
               Who We Are
             </h2>
-            <p className="text-sm text-black/70 leading-relaxed mb-8">
-              WaterGate Church is a thriving community <br />where God's presence, truth, and love shape 
-              <br />everything we do. Here, you'll grow, be equipped, <br />and find a family that walks with you in faith.
-            </p>
+            <div className="space-y-4 text-sm text-black/70 leading-relaxed">
+              <p>We are Christ-centered community of believers (star-seed) who are naturally supernatural and supernaturally natural with the mandate to see the knowledge of the glory of the LORD take over the earth as the waters cover the sea.</p>
+              <p>We are Oaks of Righteousness planted by the LORD in every institution, every sphere, and every nation for the establishment of the dominion of Christ in every domain. The will of God will be done in our earth and in the earth as it is in heaven.</p>
+              <p>We are salt of the earth and light of the world with grace to govern and power to prevail in every community, every sphere, and every nation of the earth.</p>
+              <p>We are believers with divine nature attitude having determination to accurately represent "Jesus our ultimate Role Model" across the earth.</p>
+            </div>
             <a
-              href="#"
-              className="inline-block bg-black text-white text-[11px] font-semibold tracking-widest px-7 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
+              href="/about#about-twc-ph"
+              className="mt-4 inline-flex items-center gap-2 text-sky-500 hover:text-sky-600 text-sm font-semibold tracking-wide transition-all"
             >
-              LEARN ABOUT TWC
+              LEARN MORE <span aria-hidden>→</span>
             </a>
           </div>
 
-          {/* Right: Photo grid — left column lower, right column upper */}
-          <div className="flex-1 w-full">
-            <div className="grid grid-cols-2 gap-3">
-              {/* Left column — pushed down */}
-              <div className="flex flex-col gap-3 mt-8">
-                <img
-                  src={community1}
-                  alt="Church community members"
-                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
-                />
-                <img
-                  src={community3}
-                  alt="Church families"
-                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
-                />
-              </div>
-              {/* Right column — pushed up */}
-              <div className="flex flex-col gap-3">
-                <img
-                  src={community2}
-                  alt="Church youth group"
-                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
-                />
-                <img
-                  src={community4}
-                  alt="Church worship"
-                  className="w-[380px] md:w-[470px] mx-auto h-[240px] md:h-[330px] object-cover rounded-lg"
-                />
-              </div>
-            </div>
+          <div className="w-full md:pt-4">
+            <img
+              src={community1}
+              alt="Church community members"
+              className="w-full max-w-[460px] aspect-square object-cover rounded-md md:ml-auto"
+            />
           </div>
         </div>
       </div>

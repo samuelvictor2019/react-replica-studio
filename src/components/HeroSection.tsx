@@ -17,7 +17,9 @@ const HeroSection = () => {
           {/* Description */}
           <div className="max-w-sm hero-fade delay-2">
             <p className="text-sm leading-relaxed text-black/70 mb-4">
-              We are Christ-centered community of believers (star-seed) who are naturally supernatural and supernaturally natural with the mandate to see the knowledge of the glory of the LORD take over the earth as the waters cover the sea.
+              WaterGate Church is a thriving community where God's presence, 
+              truth, and love shape everything we do. Here, you'll grow, 
+              be equipped, and find a family that walks with you in faith.
             </p>
             <a
               href="/about#about-twc-ph"

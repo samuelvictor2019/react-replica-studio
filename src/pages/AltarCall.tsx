@@ -52,7 +52,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
   };
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] max-h-[90vh]`}>
+      <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
         <div className="hidden md:block relative">
           <img src={altarImg} alt="Person at altar" className="absolute inset-0 w-full h-full object-cover" />
         </div>

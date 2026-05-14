@@ -1,9 +1,9 @@
-import contact1Img from "@/assets/contact-1.png";
+import contact1Img from "@/assets/contact-1.jpg";
 import contact2Img from "@/assets/contact-2.png";
 
 const ContactSection = () => {
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section id="contact-us" className="py-16 md:py-24 bg-background">
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
         <div className="mb-8">

@@ -39,7 +39,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
 
   // inner container used both for page and modal rendering
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] min-h-[640px]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr] md:min-h-[640px]`}>
       <div className="hidden md:block relative">
         <img src={memberImg} alt="new member" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
@@ -52,7 +52,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
         <X className="w-5 h-5" />
       </button>
 
-      <div className="p-6 md:p-8 flex flex-col">
+      <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
           {!submitted && (
             <div className="mb-4">
               <div className="flex items-center justify-between">
