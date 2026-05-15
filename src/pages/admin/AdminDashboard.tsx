@@ -19,8 +19,7 @@ import {
   Activity,
   Clock,
   CheckCircle,
-  AlertCircle,
-  Eye
+  AlertCircle
 } from 'lucide-react';
 
 type DashboardStats = {
@@ -152,6 +151,14 @@ const AdminDashboard = () => {
       path: '/admin/forms',
       permission: 'forms.read',
       color: 'bg-red-50 hover:bg-red-100 border-red-200'
+    },
+    {
+      title: 'Appointments',
+      description: 'Serving Overseer calendar and booking management',
+      icon: Clock,
+      path: '/admin/appointments',
+      permission: 'appointments.read',
+      color: 'bg-indigo-50 hover:bg-indigo-100 border-indigo-200'
     },
     {
       title: 'Analytics',

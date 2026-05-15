@@ -146,6 +146,11 @@ const AdminLayout = () => {
                 Forms
               </NavLink>
             )}
+            {can('appointments.read') && (
+              <NavLink to="/admin/appointments" className={linkClass} onClick={() => setSidebarOpen(false)}>
+                Appointments
+              </NavLink>
+            )}
             {can('users.read') && (
               <NavLink to="/admin/users" className={linkClass} onClick={() => setSidebarOpen(false)}>
                 Users & Roles

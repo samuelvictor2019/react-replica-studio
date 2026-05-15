@@ -37,6 +37,7 @@ import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminCollectionPage from "./pages/admin/AdminCollectionPage";
 import AdminFormsPage from "./pages/admin/AdminFormsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminAppointmentsPage from "./pages/admin/AdminAppointmentsPage";
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,7 @@ const App = () => (
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="forms" element={<AdminFormsPage />} />
+            <Route path="appointments" element={<AdminAppointmentsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="collection/:collection" element={<AdminCollectionPage />} />
           </Route>

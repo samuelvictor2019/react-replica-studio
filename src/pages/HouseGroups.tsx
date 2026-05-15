@@ -13,27 +13,27 @@ const whyCards = [
   {
     image: slideOne,
     title: "Grow Spiritually",
-    desc: "Study the Word together and strengthen your faith",
+    desc: "Study the Word together and strengthen your faith.",
   },
   {
     image: slideTwo,
     title: "Build Relationships",
-    desc: "Form genuine, lasting connections with others",
+    desc: "Form genuine, lasting connections with others.",
   },
   {
     image: slideThree,
     title: "Pray Together",
-    desc: "Share burdens, victories and testimonies",
+    desc: "Share burdens, victories, and testimonies.",
   },
   {
     image: slideFour,
     title: "Receive Care",
-    desc: "Be known, supporteds and encouraged",
+    desc: "Be known, supported, and encouraged.",
   },
   {
     image: slideFive,
     title: "Serve Together",
-    desc: "Live out the gospel in practical ways",
+    desc: "Live out the gospel in practical ways.",
   },
 ];
 
@@ -124,13 +124,15 @@ const HouseGroups = () => {
               <div className="md:w-[65%]">
                 <CarouselContent className="-ml-4">
                   {whyCards.map((card, i) => (
-                    <CarouselItem key={i} className="pl-4 basis-[70%] md:basis-[40%]">
-                      <div className="bg-sky-50 rounded-2xl p-6 h-full md:h-[280px] lg:h-[300px] flex flex-col justify-center">
-                        <div className="w-20 h-20 rounded-full overflow-hidden mb-6 mt-2">
+                    <CarouselItem key={i} className="pl-4 basis-[85%] sm:basis-[65%] md:basis-1/2 lg:basis-[48%]">
+                      <div className="overflow-hidden rounded-2xl bg-sky-50 border border-foreground/10 h-full">
+                        <div className="h-44 md:h-48 lg:h-52 w-full overflow-hidden">
                           <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
                         </div>
-                        <h3 className="font-heading text-lg font-semibold text-foreground mb-3">{card.title}</h3>
-                        <p className="text-sm text-foreground/70">{card.desc}</p>
+                        <div className="p-5 md:p-6 min-h-[150px] md:min-h-[160px] flex flex-col justify-start">
+                          <h3 className="font-heading text-xl font-medium text-foreground mb-2">{card.title}</h3>
+                          <p className="text-sm text-foreground/70 leading-relaxed">{card.desc}</p>
+                        </div>
                       </div>
                     </CarouselItem>
                   ))}
