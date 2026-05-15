@@ -32,6 +32,10 @@ const ROLE_PERMISSIONS = {
     'users.create',
     'users.update',
     'users.delete',
+    'appointments.read',
+    'appointments.create',
+    'appointments.update',
+    'appointments.delete',
   ],
   admin: [
     'dashboard.read',
@@ -43,9 +47,13 @@ const ROLE_PERMISSIONS = {
     'content.update',
     'content.delete',
     'content.publish',
+    'appointments.read',
+    'appointments.create',
+    'appointments.update',
+    'appointments.delete',
   ],
   editor: ['dashboard.read', 'content.read', 'content.create', 'content.update', 'content.publish'],
-  forms_manager: ['dashboard.read', 'forms.read', 'forms.update'],
+  forms_manager: ['dashboard.read', 'forms.read', 'forms.update', 'appointments.read', 'appointments.update'],
   viewer: ['dashboard.read', 'forms.read', 'content.read'],
 };
 
@@ -111,6 +119,15 @@ function guardPublish(req, res, next) {
     return res.status(403).json({ error: 'Forbidden: missing permission content.publish' });
   }
   next();
+}
+
+function toMinutes(hhmm) {
+  const [h, m] = String(hhmm || '00:00').split(':').map((x) => Number(x) || 0);
+  return h * 60 + m;
+}
+
+function overlap(startA, endA, startB, endB) {
+  return startA < endB && startB < endA;
 }
 
 app.get('/api/health', (_req, res) => {
@@ -274,6 +291,195 @@ app.delete('/api/admin/forms/:type/:id', requireAuth, requirePermission('forms.d
   const deleted = db.deleteFormSubmission(type, req.params.id);
   if (!deleted) return res.status(404).json({ error: 'Submission not found' });
   res.json({ ok: true, deleted });
+});
+
+// Admin appointments management (Calendly-style backend)
+app.get('/api/admin/appointments/overview', requireAuth, requirePermission('appointments.read'), (_req, res) => {
+  const stats = db.appointmentStats();
+  const upcoming = db.listAppointments({ page: 1, pageSize: 10, from: new Date().toISOString() });
+  res.json({ stats, upcoming: upcoming.items });
+});
+
+app.get('/api/admin/appointments/types', requireAuth, requirePermission('appointments.read'), (req, res) => {
+  const activeOnly = String(req.query.activeOnly || '') === 'true';
+  res.json(db.listAppointmentTypes({ activeOnly }));
+});
+
+app.post('/api/admin/appointments/types', requireAuth, requirePermission('appointments.create'), (req, res) => {
+  const payload = req.body || {};
+  if (!payload.name) return res.status(400).json({ error: 'name is required' });
+  const created = db.createAppointmentType(payload, req.admin.email);
+  res.status(201).json(created);
+});
+
+app.patch('/api/admin/appointments/types/:id', requireAuth, requirePermission('appointments.update'), (req, res) => {
+  const updated = db.updateAppointmentType(req.params.id, req.body || {});
+  if (!updated) return res.status(404).json({ error: 'Appointment type not found' });
+  res.json(updated);
+});
+
+app.delete('/api/admin/appointments/types/:id', requireAuth, requirePermission('appointments.delete'), (req, res) => {
+  const deleted = db.deleteAppointmentType(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Appointment type not found' });
+  res.json({ ok: true, deleted });
+});
+
+app.get('/api/admin/appointments/availability', requireAuth, requirePermission('appointments.read'), (_req, res) => {
+  res.json(db.listAppointmentAvailability());
+});
+
+app.post('/api/admin/appointments/availability', requireAuth, requirePermission('appointments.create'), (req, res) => {
+  const payload = req.body || {};
+  if (payload.dayOfWeek === undefined || !payload.startTime || !payload.endTime) {
+    return res.status(400).json({ error: 'dayOfWeek, startTime and endTime are required' });
+  }
+  const created = db.createAppointmentAvailability(payload);
+  res.status(201).json(created);
+});
+
+app.patch('/api/admin/appointments/availability/:id', requireAuth, requirePermission('appointments.update'), (req, res) => {
+  const updated = db.updateAppointmentAvailability(req.params.id, req.body || {});
+  if (!updated) return res.status(404).json({ error: 'Availability block not found' });
+  res.json(updated);
+});
+
+app.delete('/api/admin/appointments/availability/:id', requireAuth, requirePermission('appointments.delete'), (req, res) => {
+  const deleted = db.deleteAppointmentAvailability(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Availability block not found' });
+  res.json({ ok: true, deleted });
+});
+
+app.get('/api/admin/appointments/blackouts', requireAuth, requirePermission('appointments.read'), (_req, res) => {
+  res.json(db.listAppointmentBlackouts());
+});
+
+app.post('/api/admin/appointments/blackouts', requireAuth, requirePermission('appointments.create'), (req, res) => {
+  const payload = req.body || {};
+  if (!payload.startAt || !payload.endAt) {
+    return res.status(400).json({ error: 'startAt and endAt are required' });
+  }
+  const created = db.createAppointmentBlackout(payload);
+  res.status(201).json(created);
+});
+
+app.patch('/api/admin/appointments/blackouts/:id', requireAuth, requirePermission('appointments.update'), (req, res) => {
+  const updated = db.updateAppointmentBlackout(req.params.id, req.body || {});
+  if (!updated) return res.status(404).json({ error: 'Blackout window not found' });
+  res.json(updated);
+});
+
+app.delete('/api/admin/appointments/blackouts/:id', requireAuth, requirePermission('appointments.delete'), (req, res) => {
+  const deleted = db.deleteAppointmentBlackout(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Blackout window not found' });
+  res.json({ ok: true, deleted });
+});
+
+app.post('/api/admin/appointments/slots/preview', requireAuth, requirePermission('appointments.read'), (req, res) => {
+  const { typeId, startDate, endDate } = req.body || {};
+  if (!typeId || !startDate || !endDate) {
+    return res.status(400).json({ error: 'typeId, startDate and endDate are required' });
+  }
+
+  const type = db.getAppointmentTypeById(typeId);
+  if (!type || !type.isActive) return res.status(404).json({ error: 'Appointment type not found or inactive' });
+
+  const availability = db.listAppointmentAvailability().filter((x) => x.isActive);
+  const blackouts = db.listAppointmentBlackouts();
+  const existing = db.listAppointments({
+    page: 1,
+    pageSize: 1000,
+    from: `${startDate}T00:00:00.000Z`,
+    to: `${endDate}T23:59:59.999Z`,
+  }).items.filter((item) => !['cancelled', 'completed', 'archived'].includes(String(item.status || '').toLowerCase()));
+
+  const slots = [];
+  const duration = Number(type.durationMinutes) || 30;
+  const minNoticeMs = (Number(type.minNoticeHours) || 0) * 60 * 60 * 1000;
+  const maxAdvanceMs = (Number(type.maxDaysInAdvance) || 60) * 24 * 60 * 60 * 1000;
+  const nowDate = Date.now();
+
+  for (let cursor = new Date(`${startDate}T00:00:00`); cursor <= new Date(`${endDate}T00:00:00`); cursor.setDate(cursor.getDate() + 1)) {
+    const day = cursor.getDay();
+    const rules = availability.filter((r) => Number(r.dayOfWeek) === day);
+    for (const rule of rules) {
+      const startMin = toMinutes(rule.startTime);
+      const endMin = toMinutes(rule.endTime);
+      for (let min = startMin; min + duration <= endMin; min += duration) {
+        const slotStart = new Date(cursor);
+        slotStart.setHours(Math.floor(min / 60), min % 60, 0, 0);
+        const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+
+        if (slotStart.getTime() - nowDate < minNoticeMs) continue;
+        if (slotStart.getTime() - nowDate > maxAdvanceMs) continue;
+
+        const blocked = blackouts.some((b) => overlap(
+          slotStart.getTime(),
+          slotEnd.getTime(),
+          new Date(b.startAt).getTime(),
+          new Date(b.endAt).getTime(),
+        ));
+        if (blocked) continue;
+
+        const occupied = existing.some((appt) => overlap(
+          slotStart.getTime(),
+          slotEnd.getTime(),
+          new Date(appt.startAt).getTime(),
+          new Date(appt.endAt).getTime(),
+        ));
+        if (occupied) continue;
+
+        slots.push({ startAt: slotStart.toISOString(), endAt: slotEnd.toISOString() });
+      }
+    }
+  }
+
+  res.json({ type, slots, total: slots.length });
+});
+
+app.get('/api/admin/appointments', requireAuth, requirePermission('appointments.read'), (req, res) => {
+  const result = db.listAppointments({
+    page: req.query.page,
+    pageSize: req.query.pageSize,
+    status: req.query.status,
+    typeId: req.query.typeId,
+    from: req.query.from,
+    to: req.query.to,
+    search: req.query.search,
+  });
+  res.json(result);
+});
+
+app.post('/api/admin/appointments', requireAuth, requirePermission('appointments.create'), (req, res) => {
+  const payload = req.body || {};
+  if (!payload.guestName || !payload.guestEmail || !payload.startAt || !payload.endAt) {
+    return res.status(400).json({ error: 'guestName, guestEmail, startAt and endAt are required' });
+  }
+  const created = db.createAppointment(payload, req.admin.email);
+  res.status(201).json(created);
+});
+
+app.get('/api/admin/appointments/:id', requireAuth, requirePermission('appointments.read'), (req, res) => {
+  const item = db.getAppointmentById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Appointment not found' });
+  res.json(item);
+});
+
+app.patch('/api/admin/appointments/:id', requireAuth, requirePermission('appointments.update'), (req, res) => {
+  const updated = db.updateAppointment(req.params.id, req.body || {}, req.admin.email);
+  if (!updated) return res.status(404).json({ error: 'Appointment not found' });
+  res.json(updated);
+});
+
+app.delete('/api/admin/appointments/:id', requireAuth, requirePermission('appointments.delete'), (req, res) => {
+  const deleted = db.deleteAppointment(req.params.id);
+  if (!deleted) return res.status(404).json({ error: 'Appointment not found' });
+  res.json({ ok: true, deleted });
+});
+
+app.get('/api/admin/appointments/:id/activity', requireAuth, requirePermission('appointments.read'), (req, res) => {
+  const item = db.getAppointmentById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Appointment not found' });
+  res.json(db.listAppointmentActivity(req.params.id));
 });
 
 function addAdminContentRoutes(basePath, collectionName) {

@@ -85,10 +85,84 @@ function initDb({ dbPath, dataDir, adminEmail, adminPassword, rolePermissions, c
       updated_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS appointment_types (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      description TEXT,
+      duration_minutes INTEGER NOT NULL DEFAULT 30,
+      buffer_before_minutes INTEGER NOT NULL DEFAULT 0,
+      buffer_after_minutes INTEGER NOT NULL DEFAULT 0,
+      location TEXT,
+      color TEXT,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      min_notice_hours INTEGER NOT NULL DEFAULT 2,
+      max_days_in_advance INTEGER NOT NULL DEFAULT 60,
+      created_by TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS appointment_availability (
+      id TEXT PRIMARY KEY,
+      day_of_week INTEGER NOT NULL,
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS appointment_blackouts (
+      id TEXT PRIMARY KEY,
+      start_at TEXT NOT NULL,
+      end_at TEXT NOT NULL,
+      reason TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS appointments (
+      id TEXT PRIMARY KEY,
+      type_id TEXT,
+      title TEXT,
+      guest_name TEXT NOT NULL,
+      guest_email TEXT NOT NULL,
+      guest_phone TEXT,
+      start_at TEXT NOT NULL,
+      end_at TEXT NOT NULL,
+      timezone TEXT,
+      status TEXT NOT NULL DEFAULT 'scheduled',
+      source TEXT NOT NULL DEFAULT 'admin',
+      notes TEXT,
+      internal_notes TEXT,
+      created_by TEXT,
+      data_json TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (type_id) REFERENCES appointment_types(id) ON DELETE SET NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS appointment_activity (
+      id TEXT PRIMARY KEY,
+      appointment_id TEXT NOT NULL,
+      action TEXT NOT NULL,
+      actor TEXT,
+      meta_json TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_content_collection ON content_items(collection);
     CREATE INDEX IF NOT EXISTS idx_content_status ON content_items(status);
     CREATE INDEX IF NOT EXISTS idx_forms_type ON form_submissions(type);
     CREATE INDEX IF NOT EXISTS idx_forms_status ON form_submissions(status);
+    CREATE INDEX IF NOT EXISTS idx_appointment_types_active ON appointment_types(is_active);
+    CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status);
+    CREATE INDEX IF NOT EXISTS idx_appointments_start ON appointments(start_at);
+    CREATE INDEX IF NOT EXISTS idx_appointments_type ON appointments(type_id);
+    CREATE INDEX IF NOT EXISTS idx_appointments_email ON appointments(guest_email);
+    CREATE INDEX IF NOT EXISTS idx_appointments_activity_appointment ON appointment_activity(appointment_id);
   `);
 
   const contentDir = path.join(dataDir, 'content');
@@ -341,6 +415,99 @@ function initDb({ dbPath, dataDir, adminEmail, adminPassword, rolePermissions, c
     };
   }
 
+  function mapAppointmentType(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      description: row.description,
+      durationMinutes: row.duration_minutes,
+      bufferBeforeMinutes: row.buffer_before_minutes,
+      bufferAfterMinutes: row.buffer_after_minutes,
+      location: row.location,
+      color: row.color,
+      isActive: Boolean(row.is_active),
+      minNoticeHours: row.min_notice_hours,
+      maxDaysInAdvance: row.max_days_in_advance,
+      createdBy: row.created_by,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  function mapAvailability(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      dayOfWeek: row.day_of_week,
+      startTime: row.start_time,
+      endTime: row.end_time,
+      isActive: Boolean(row.is_active),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  function mapBlackout(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      startAt: row.start_at,
+      endAt: row.end_at,
+      reason: row.reason,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  function mapAppointment(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      typeId: row.type_id,
+      type: row.type_id ? {
+        id: row.type_id,
+        name: row.type_name || null,
+        slug: row.type_slug || null,
+      } : null,
+      title: row.title,
+      guestName: row.guest_name,
+      guestEmail: row.guest_email,
+      guestPhone: row.guest_phone,
+      startAt: row.start_at,
+      endAt: row.end_at,
+      timezone: row.timezone,
+      status: row.status,
+      source: row.source,
+      notes: row.notes,
+      internalNotes: row.internal_notes,
+      createdBy: row.created_by,
+      data: parsePayload(row.data_json),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  function mapAppointmentActivity(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      appointmentId: row.appointment_id,
+      action: row.action,
+      actor: row.actor,
+      meta: parsePayload(row.meta_json),
+      createdAt: row.created_at,
+    };
+  }
+
+  function addAppointmentActivity({ appointmentId, action, actor, meta }) {
+    db.prepare(`
+      INSERT INTO appointment_activity (id, appointment_id, action, actor, meta_json, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(uuid(), appointmentId, action, actor || null, JSON.stringify(meta || {}), now());
+  }
+
   return {
     hashPassword,
 
@@ -499,6 +666,382 @@ function initDb({ dbPath, dataDir, adminEmail, adminPassword, rolePermissions, c
       if (!row) return null;
       db.prepare('DELETE FROM form_submissions WHERE type = ? AND id = ?').run(type, id);
       return row;
+    },
+
+    listAppointmentTypes({ activeOnly = false } = {}) {
+      let where = '';
+      const params = [];
+      if (activeOnly) {
+        where = 'WHERE is_active = 1';
+      }
+      return db
+        .prepare(`SELECT * FROM appointment_types ${where} ORDER BY name ASC`)
+        .all(...params)
+        .map(mapAppointmentType);
+    },
+
+    getAppointmentTypeById(id) {
+      return mapAppointmentType(db.prepare('SELECT * FROM appointment_types WHERE id = ? LIMIT 1').get(id));
+    },
+
+    createAppointmentType(payload, createdBy) {
+      const id = uuid();
+      const timestamp = now();
+      const slug = sanitizeKey(payload.slug || payload.name || `appointment-type-${id.slice(0, 8)}`);
+      db.prepare(`
+        INSERT INTO appointment_types (
+          id, name, slug, description, duration_minutes,
+          buffer_before_minutes, buffer_after_minutes,
+          location, color, is_active, min_notice_hours,
+          max_days_in_advance, created_by, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        payload.name,
+        slug,
+        payload.description || null,
+        Number(payload.durationMinutes) || 30,
+        Number(payload.bufferBeforeMinutes) || 0,
+        Number(payload.bufferAfterMinutes) || 0,
+        payload.location || null,
+        payload.color || '#0f1b37',
+        payload.isActive === false ? 0 : 1,
+        Number(payload.minNoticeHours) || 2,
+        Number(payload.maxDaysInAdvance) || 60,
+        createdBy || null,
+        timestamp,
+        timestamp,
+      );
+      return this.getAppointmentTypeById(id);
+    },
+
+    updateAppointmentType(id, patch) {
+      const existing = db.prepare('SELECT * FROM appointment_types WHERE id = ? LIMIT 1').get(id);
+      if (!existing) return null;
+      const merged = {
+        ...existing,
+        name: patch.name ?? existing.name,
+        slug: patch.slug ? sanitizeKey(patch.slug) : existing.slug,
+        description: patch.description ?? existing.description,
+        duration_minutes: patch.durationMinutes ?? existing.duration_minutes,
+        buffer_before_minutes: patch.bufferBeforeMinutes ?? existing.buffer_before_minutes,
+        buffer_after_minutes: patch.bufferAfterMinutes ?? existing.buffer_after_minutes,
+        location: patch.location ?? existing.location,
+        color: patch.color ?? existing.color,
+        is_active: patch.isActive === undefined ? existing.is_active : (patch.isActive ? 1 : 0),
+        min_notice_hours: patch.minNoticeHours ?? existing.min_notice_hours,
+        max_days_in_advance: patch.maxDaysInAdvance ?? existing.max_days_in_advance,
+        updated_at: now(),
+      };
+
+      db.prepare(`
+        UPDATE appointment_types
+        SET name = ?, slug = ?, description = ?, duration_minutes = ?,
+            buffer_before_minutes = ?, buffer_after_minutes = ?, location = ?,
+            color = ?, is_active = ?, min_notice_hours = ?, max_days_in_advance = ?, updated_at = ?
+        WHERE id = ?
+      `).run(
+        merged.name,
+        merged.slug,
+        merged.description,
+        merged.duration_minutes,
+        merged.buffer_before_minutes,
+        merged.buffer_after_minutes,
+        merged.location,
+        merged.color,
+        merged.is_active,
+        merged.min_notice_hours,
+        merged.max_days_in_advance,
+        merged.updated_at,
+        id,
+      );
+
+      return this.getAppointmentTypeById(id);
+    },
+
+    deleteAppointmentType(id) {
+      const existing = this.getAppointmentTypeById(id);
+      if (!existing) return null;
+      db.prepare('DELETE FROM appointment_types WHERE id = ?').run(id);
+      return existing;
+    },
+
+    listAppointmentAvailability() {
+      return db
+        .prepare('SELECT * FROM appointment_availability ORDER BY day_of_week ASC, start_time ASC')
+        .all()
+        .map(mapAvailability);
+    },
+
+    createAppointmentAvailability(payload) {
+      const id = uuid();
+      const timestamp = now();
+      db.prepare(`
+        INSERT INTO appointment_availability (id, day_of_week, start_time, end_time, is_active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        Number(payload.dayOfWeek),
+        payload.startTime,
+        payload.endTime,
+        payload.isActive === false ? 0 : 1,
+        timestamp,
+        timestamp,
+      );
+      return mapAvailability(db.prepare('SELECT * FROM appointment_availability WHERE id = ?').get(id));
+    },
+
+    updateAppointmentAvailability(id, patch) {
+      const existing = db.prepare('SELECT * FROM appointment_availability WHERE id = ? LIMIT 1').get(id);
+      if (!existing) return null;
+      const merged = {
+        ...existing,
+        day_of_week: patch.dayOfWeek ?? existing.day_of_week,
+        start_time: patch.startTime ?? existing.start_time,
+        end_time: patch.endTime ?? existing.end_time,
+        is_active: patch.isActive === undefined ? existing.is_active : (patch.isActive ? 1 : 0),
+        updated_at: now(),
+      };
+      db.prepare(`
+        UPDATE appointment_availability
+        SET day_of_week = ?, start_time = ?, end_time = ?, is_active = ?, updated_at = ?
+        WHERE id = ?
+      `).run(merged.day_of_week, merged.start_time, merged.end_time, merged.is_active, merged.updated_at, id);
+      return mapAvailability(db.prepare('SELECT * FROM appointment_availability WHERE id = ?').get(id));
+    },
+
+    deleteAppointmentAvailability(id) {
+      const existing = mapAvailability(db.prepare('SELECT * FROM appointment_availability WHERE id = ? LIMIT 1').get(id));
+      if (!existing) return null;
+      db.prepare('DELETE FROM appointment_availability WHERE id = ?').run(id);
+      return existing;
+    },
+
+    listAppointmentBlackouts() {
+      return db
+        .prepare('SELECT * FROM appointment_blackouts ORDER BY start_at ASC')
+        .all()
+        .map(mapBlackout);
+    },
+
+    createAppointmentBlackout(payload) {
+      const id = uuid();
+      const timestamp = now();
+      db.prepare(`
+        INSERT INTO appointment_blackouts (id, start_at, end_at, reason, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).run(id, payload.startAt, payload.endAt, payload.reason || null, timestamp, timestamp);
+      return mapBlackout(db.prepare('SELECT * FROM appointment_blackouts WHERE id = ? LIMIT 1').get(id));
+    },
+
+    updateAppointmentBlackout(id, patch) {
+      const existing = db.prepare('SELECT * FROM appointment_blackouts WHERE id = ? LIMIT 1').get(id);
+      if (!existing) return null;
+      const merged = {
+        ...existing,
+        start_at: patch.startAt ?? existing.start_at,
+        end_at: patch.endAt ?? existing.end_at,
+        reason: patch.reason ?? existing.reason,
+        updated_at: now(),
+      };
+      db.prepare(`
+        UPDATE appointment_blackouts
+        SET start_at = ?, end_at = ?, reason = ?, updated_at = ?
+        WHERE id = ?
+      `).run(merged.start_at, merged.end_at, merged.reason, merged.updated_at, id);
+      return mapBlackout(db.prepare('SELECT * FROM appointment_blackouts WHERE id = ? LIMIT 1').get(id));
+    },
+
+    deleteAppointmentBlackout(id) {
+      const existing = mapBlackout(db.prepare('SELECT * FROM appointment_blackouts WHERE id = ? LIMIT 1').get(id));
+      if (!existing) return null;
+      db.prepare('DELETE FROM appointment_blackouts WHERE id = ?').run(id);
+      return existing;
+    },
+
+    listAppointments({ page, pageSize, status, typeId, from, to, search }) {
+      const p = Math.max(Number(page) || 1, 1);
+      const size = Math.min(Math.max(Number(pageSize) || 20, 1), 200);
+      const offset = (p - 1) * size;
+
+      let where = 'WHERE 1=1';
+      const params = [];
+
+      if (status) {
+        where += ' AND a.status = ?';
+        params.push(status);
+      }
+      if (typeId) {
+        where += ' AND a.type_id = ?';
+        params.push(typeId);
+      }
+      if (from) {
+        where += ' AND a.start_at >= ?';
+        params.push(from);
+      }
+      if (to) {
+        where += ' AND a.start_at <= ?';
+        params.push(to);
+      }
+      if (search) {
+        where += ' AND (a.guest_name LIKE ? OR a.guest_email LIKE ? OR a.title LIKE ?)';
+        const likeTerm = `%${search}%`;
+        params.push(likeTerm, likeTerm, likeTerm);
+      }
+
+      const items = db
+        .prepare(`
+          SELECT a.*, t.name as type_name, t.slug as type_slug
+          FROM appointments a
+          LEFT JOIN appointment_types t ON t.id = a.type_id
+          ${where}
+          ORDER BY a.start_at ASC
+          LIMIT ? OFFSET ?
+        `)
+        .all(...params, size, offset)
+        .map(mapAppointment);
+
+      const total = db.prepare(`SELECT COUNT(*) as count FROM appointments a ${where}`).get(...params).count;
+      return {
+        items,
+        page: p,
+        pageSize: size,
+        total,
+        totalPages: Math.max(Math.ceil(total / size), 1),
+      };
+    },
+
+    getAppointmentById(id) {
+      const row = db.prepare(`
+        SELECT a.*, t.name as type_name, t.slug as type_slug
+        FROM appointments a
+        LEFT JOIN appointment_types t ON t.id = a.type_id
+        WHERE a.id = ?
+        LIMIT 1
+      `).get(id);
+      return mapAppointment(row);
+    },
+
+    createAppointment(payload, createdBy) {
+      const id = uuid();
+      const timestamp = now();
+      db.prepare(`
+        INSERT INTO appointments (
+          id, type_id, title, guest_name, guest_email, guest_phone,
+          start_at, end_at, timezone, status, source, notes,
+          internal_notes, created_by, data_json, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        payload.typeId || null,
+        payload.title || null,
+        payload.guestName,
+        payload.guestEmail,
+        payload.guestPhone || null,
+        payload.startAt,
+        payload.endAt,
+        payload.timezone || 'Africa/Lagos',
+        payload.status || 'scheduled',
+        payload.source || 'admin',
+        payload.notes || null,
+        payload.internalNotes || null,
+        createdBy || null,
+        JSON.stringify(payload.data || {}),
+        timestamp,
+        timestamp,
+      );
+
+      addAppointmentActivity({
+        appointmentId: id,
+        action: 'created',
+        actor: createdBy || null,
+        meta: { status: payload.status || 'scheduled', source: payload.source || 'admin' },
+      });
+
+      return this.getAppointmentById(id);
+    },
+
+    updateAppointment(id, patch, actor) {
+      const existingRow = db.prepare('SELECT * FROM appointments WHERE id = ? LIMIT 1').get(id);
+      if (!existingRow) return null;
+
+      const existingData = parsePayload(existingRow.data_json);
+      const merged = {
+        ...existingRow,
+        type_id: patch.typeId ?? existingRow.type_id,
+        title: patch.title ?? existingRow.title,
+        guest_name: patch.guestName ?? existingRow.guest_name,
+        guest_email: patch.guestEmail ?? existingRow.guest_email,
+        guest_phone: patch.guestPhone ?? existingRow.guest_phone,
+        start_at: patch.startAt ?? existingRow.start_at,
+        end_at: patch.endAt ?? existingRow.end_at,
+        timezone: patch.timezone ?? existingRow.timezone,
+        status: patch.status ?? existingRow.status,
+        source: patch.source ?? existingRow.source,
+        notes: patch.notes ?? existingRow.notes,
+        internal_notes: patch.internalNotes ?? existingRow.internal_notes,
+        data_json: JSON.stringify({ ...existingData, ...(patch.data || {}) }),
+        updated_at: now(),
+      };
+
+      db.prepare(`
+        UPDATE appointments
+        SET type_id = ?, title = ?, guest_name = ?, guest_email = ?, guest_phone = ?,
+            start_at = ?, end_at = ?, timezone = ?, status = ?, source = ?, notes = ?,
+            internal_notes = ?, data_json = ?, updated_at = ?
+        WHERE id = ?
+      `).run(
+        merged.type_id,
+        merged.title,
+        merged.guest_name,
+        merged.guest_email,
+        merged.guest_phone,
+        merged.start_at,
+        merged.end_at,
+        merged.timezone,
+        merged.status,
+        merged.source,
+        merged.notes,
+        merged.internal_notes,
+        merged.data_json,
+        merged.updated_at,
+        id,
+      );
+
+      addAppointmentActivity({
+        appointmentId: id,
+        action: patch.status && patch.status !== existingRow.status ? 'status_changed' : 'updated',
+        actor: actor || null,
+        meta: {
+          fromStatus: existingRow.status,
+          toStatus: merged.status,
+        },
+      });
+
+      return this.getAppointmentById(id);
+    },
+
+    deleteAppointment(id) {
+      const existing = this.getAppointmentById(id);
+      if (!existing) return null;
+      db.prepare('DELETE FROM appointments WHERE id = ?').run(id);
+      return existing;
+    },
+
+    listAppointmentActivity(appointmentId) {
+      return db
+        .prepare('SELECT * FROM appointment_activity WHERE appointment_id = ? ORDER BY created_at DESC')
+        .all(appointmentId)
+        .map(mapAppointmentActivity);
+    },
+
+    appointmentStats() {
+      const total = db.prepare('SELECT COUNT(*) as count FROM appointments').get().count || 0;
+      const upcoming = db.prepare("SELECT COUNT(*) as count FROM appointments WHERE status IN ('scheduled','confirmed') AND start_at >= ?").get(now()).count || 0;
+      const completed = db.prepare("SELECT COUNT(*) as count FROM appointments WHERE status = 'completed'").get().count || 0;
+      const cancelled = db.prepare("SELECT COUNT(*) as count FROM appointments WHERE status = 'cancelled'").get().count || 0;
+      const noShow = db.prepare("SELECT COUNT(*) as count FROM appointments WHERE status = 'no_show'").get().count || 0;
+      return { total, upcoming, completed, cancelled, noShow };
     },
 
     countForms() {
