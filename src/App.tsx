@@ -23,6 +23,7 @@ import NewMemberRegistration from "./pages/NewMemberRegistration";
 import Counselling from "./pages/Counselling";
 import FaithfulStewards from "./pages/FaithfulStewards";
 import HouseGroups from "./pages/HouseGroups";
+import Contact from "./pages/Contact";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -53,6 +54,7 @@ const TitleUpdater = () => {
       "/new-member": "New Member",
       "/new-member-registration": "New Member Registration",
       "/doctrine": "Doctrine",
+      "/contact": "Contact Us",
       "/forms": "Forms",
       "/counselling": "Counselling",
       "/baby-dedication": "Baby Dedication",
@@ -93,6 +95,7 @@ const App = () => (
           <Route path="/new-member-registration" element={<NewMemberRegistration />} />
           <Route path="/doctrine" element={<Doctrinal />} />
           <Route path="/forms" element={<Forms />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/counselling" element={<Counselling />} />
           <Route path="/baby-dedication" element={<BabyDedication />} />
           <Route path="/event-registration" element={<EventRegistration />} />

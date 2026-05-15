@@ -3,6 +3,7 @@ export async function postForm(formType: string, data: any) {
   // Map frontend form types to backend expected types
   const typeMapping: Record<string, string> = {
     'counselling': 'Counselling',
+    'contact-us': 'Contact Us',
     'event-registration': 'Feedback', // Map to Feedback for now
     'feedback': 'Feedback',
     'new-member': 'New Comers',

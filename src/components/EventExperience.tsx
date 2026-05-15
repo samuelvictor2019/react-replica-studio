@@ -1,4 +1,4 @@
-import eventImg from "@/assets/event-experience.png";
+import eventImg from "@/assets/event1.jpg";
 
 const EventExperience = () => {
   return ( 

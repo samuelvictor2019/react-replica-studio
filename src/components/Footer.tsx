@@ -5,7 +5,7 @@ const footerLinks = {
     { name: "SERVING OVERSEER PROFILE", route: "/apostle" },
     { name: "DOCTRINAL STATEMENT", route: "/doctrine" },
     { name: "TWC", route: "/about#about-twc-ph" },
-    { name: "CONTACT US", route: "/about#contact-us" },
+    { name: "CONTACT US", route: "/contact" },
   ],
   getInvolved: [
     { name: "I'M A NEW MEMBER", route: "/new-member" },

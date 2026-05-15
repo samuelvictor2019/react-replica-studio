@@ -10,7 +10,7 @@ const navItems = [
       { label: "Serving Overseer Profile", href: "/apostle" },
       { label: "Doctrinal Statement", href: "/doctrine" },
       { label: "TWC", href: "/about#about-twc-ph" },
-      { label: "Contact Us", href: "/about#contact-us" },
+      { label: "Contact Us", href: "/contact" },
     ],
   },
   {

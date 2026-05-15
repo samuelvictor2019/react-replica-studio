@@ -1,8 +1,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useState } from "react";
-import doctrinalHero from "@/assets/doctrinal_hero1.jpg";
+import doctrinalHero from "@/assets/doctrinalhero.jpg";
 import postureHero from "@/assets/doctrinal1.jpg";
+import welcomeImg from "@/assets/ourposture.jpg";
 // posture image removed — no longer used
 
 const Doctrinal = () => {
@@ -81,6 +82,40 @@ const Doctrinal = () => {
 					/>
 				</div>
 			</div>
+
+			{/* We're Glad You're Here */}
+			{/* <section className="py-12 md:py-16 bg-white">
+				<div className="container max-w-6xl mx-auto px-4">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
+						<div>
+							<h2 className="font-heading text-4xl md:text-5xl font-medium text-black leading-[0.95] mb-5">
+								We're glad you're
+								<br />
+								here
+							</h2>
+							<div className="space-y-4 text-sm leading-relaxed text-black/70 max-w-md">
+								<p>
+									At WaterGate Church, we believe church is not just a place you attend—it's a family you belong to.
+									Whether you're visiting for the first time, returning, or searching for something deeper, we're honored
+									to walk this journey of faith with you.
+								</p>
+								<p>
+									Our desire is to help you settle in easily, feel genuinely welcome, and discover your place in God's purpose
+									within this house.
+								</p>
+							</div>
+						</div>
+
+						<div className="overflow-hidden">
+							<img
+								src={welcomeImg}
+								alt="Church gathering"
+								className="w-full h-[280px] md:h-[340px] object-cover"
+							/>
+						</div>
+					</div>
+				</div>
+			</section> */}
 
 			{/* Doctrinal Statements: left nav + progress track + content */}
 			<section className="py-16 md:py-20 bg-white">

@@ -1,4 +1,4 @@
-import noticeImg from "@/assets/event-notice.png";
+import noticeImg from "@/assets/event2.jpg";
 
 const EventNotice = () => {
   return (
