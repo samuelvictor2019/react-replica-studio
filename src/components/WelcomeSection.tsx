@@ -1,4 +1,4 @@
-import community1 from "@/assets/community-1.png";
+import community1 from "@/assets/whoweare.png";
 
 const WelcomeSection = () => {
   return (
