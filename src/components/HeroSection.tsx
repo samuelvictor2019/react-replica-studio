@@ -8,7 +8,7 @@ const HeroSection = () => {
       <div className="container max-w-6xl mx-auto px-4 pt-28 pb-8 md:pt-32 md:pb-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
           {/* Heading */}
-          <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-medium leading-[1.1] max-w-lg hero-fade delay-1">
+          <h1 className="font-heading text-[clamp(2.1rem,7.6vw,4.5rem)] font-medium leading-[1.1] max-w-lg hero-fade delay-1">
             Expressing
             <br />
             His Fullness

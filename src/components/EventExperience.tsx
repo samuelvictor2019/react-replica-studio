@@ -7,7 +7,7 @@ const EventExperience = () => {
         <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-6 items-start">
           {/* Left: heading and paragraph */}
           <div className="max-w-[400px] pr-6">
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-foreground mb-3">Experience a Deeper Walk</h2>
+            <h2 className="font-heading text-[clamp(1.8rem,5vw,2.5rem)] font-medium text-foreground mb-3">Experience a Deeper Walk</h2>
             <p className="text-sm text-muted-foreground mb-4">
               At WaterGate Church, our events are moments of alignment, transformation, and community. From intensive trainings to weekly gatherings, each meeting is designed to help you grow deeper in Christ and walk out your faith with purpose.
             </p>

@@ -6,7 +6,7 @@ const WelcomeSection = () => {
       <div className="container max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-start">
           <div className="max-w-[500px]">
-            <h2 className="font-heading text-5xl md:text-6xl font-medium text-black mb-5 leading-[0.95]">
+            <h2 className="font-heading text-[clamp(2rem,8vw,3.75rem)] font-medium text-black mb-5 leading-[0.95]">
               Who We Are
             </h2>
             <div className="space-y-4 text-sm text-black/70 leading-relaxed">

@@ -7,7 +7,7 @@ const ContactSection = () => {
       <div className="container max-w-5xl mx-auto px-4">
         {/* Heading */}
         <div className="mb-8">
-          <h2 className="font-heading text-3xl md:text-4xl font-medium text-center text-black mb-2">
+          <h2 className="font-heading text-[clamp(1.8rem,5vw,2.5rem)] font-medium text-center text-black mb-2">
             We would love to
             <br />
             hear from you!

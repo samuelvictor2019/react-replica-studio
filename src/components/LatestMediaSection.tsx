@@ -205,7 +205,7 @@ const LatestMediaSection = () => {
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-black">Latest Media</h2>
+            <h2 className="font-heading text-[clamp(1.8rem,5vw,2.5rem)] font-medium text-black">Latest Media</h2>
             {/* <p className="text-sm text-black/60">Sermons, worship and resources</p> */}
           </div>
 

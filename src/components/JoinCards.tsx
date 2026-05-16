@@ -24,7 +24,7 @@ const JoinCards = () => {
       <div className="w-full bg-sky-50">
         <div className="container max-w-6xl mx-auto px-4 py-10">
           <div className="mx-auto max-w-4xl text-center mb-8">
-            <h2 className="font-heading text-3xl md:text-4xl font-medium text-black">Welcome to The <br></br> WaterGate Church</h2>
+            <h2 className="font-heading text-[clamp(1.8rem,5vw,2.5rem)] font-medium text-black">Welcome to The <br></br> WaterGate Church</h2>
             <p className="mt-3 text-sm text-black/70">A community of believers pursuing Jesus, revealing <br></br> His kingdom, and transforming lives by the Spirit.</p>
           </div>
 
