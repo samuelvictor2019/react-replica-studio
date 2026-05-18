@@ -280,7 +280,7 @@ const FaithfulStewards: React.FC = () => {
           {/* Join button */}
           <div className="flex justify-center mb-12">
             <a
-              href="/stewards/join"
+              href="/forms?form=volunteer&returnTo=%2Fstewards"
               className="inline-block bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit
@@ -305,7 +305,7 @@ const FaithfulStewards: React.FC = () => {
                   {dept.text}
                 </p>
                 <a
-                  href="#"
+                  href="/forms?form=volunteer&returnTo=%2Fstewards"
                   className="inline-flex items-center gap-1 text-xs font-bold tracking-wider uppercase text-sky-400 hover:text-sky-500 hover:underline"
                 >
                   Join Us <ArrowRight size={12} />
@@ -376,7 +376,7 @@ const FaithfulStewards: React.FC = () => {
               </div>
             </div>
             <a
-              href="/stewards/join"
+              href="/forms?form=volunteer&returnTo=%2Fstewards"
               className="inline-block mt-8 bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               Join a Unit

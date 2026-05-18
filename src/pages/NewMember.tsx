@@ -49,7 +49,7 @@ const NewMember = () => {
                 meet <br /> and how to get connected.
               </p>
               <a
-                href="/new-member"
+                href="/forms?form=first-timer&returnTo=%2Fnew-member"
                 className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
               >
                 JOIN THE FAMILY
@@ -106,7 +106,7 @@ const NewMember = () => {
                   <li>Updates on meetings and events</li>
                 </ul>
               </div>
-              <a href="#" className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">JOIN THE FAMILY</a>
+                  <a href="/forms?form=first-timer&returnTo=%2Fnew-member" className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">JOIN THE FAMILY</a>
           </div>
 
           <div className="md:w-[45%] overflow-hidden rounded-l-[12px] mt-8 md:mt-0">

@@ -81,12 +81,12 @@ const HouseGroups = () => {
               <br />
               meaningful relationships beyond Sunday services.
             </p>
-            <a
-              href="/new-member-registration"
+            {/* <a
+              href="/forms?form=volunteer"
               className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
             >
               JOIN A HOUSE GROUP
-            </a>
+            </a> */}
           </div>
 
           <div className="md:w-[45%] overflow-hidden rounded-l-[18px] mt-8 md:mt-0">
@@ -154,12 +154,12 @@ const HouseGroups = () => {
           <p className="text-sm text-foreground/70 mb-8 max-w-md mx-auto">
             We believe we walk together, support one another, and grow in Christ as a community. Our House Groups meet regularly and serve as a place of belonging, prayer, and encouragement.
           </p>
-          <a
-            href="/new-member-registration"
+          {/* <a
+            href="/forms?form=volunteer"
             className="inline-flex items-center bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors"
           >
             JOIN A HOUSE GROUP
-          </a>
+          </a> */}
         </div>
       </section>
 

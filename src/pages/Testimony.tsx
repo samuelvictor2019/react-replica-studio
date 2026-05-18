@@ -23,6 +23,7 @@ const Testimony = ({ modal = false, onClose }: Props) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const update = (k: string, v: string | boolean) => setForm((s) => ({ ...s, [k]: v }));
 
@@ -96,7 +97,7 @@ const Testimony = ({ modal = false, onClose }: Props) => {
 
               <div className="pt-4">
                 <Button
-                  className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
+                  className={primaryButtonClass}
                   disabled={!canSubmit || submitting}
                   onClick={async (e) => {
                     e.preventDefault();

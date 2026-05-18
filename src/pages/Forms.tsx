@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import formsHero from "@/assets/forms_hero.jpg";
@@ -26,8 +27,15 @@ type ModalKey = 'newMember' | 'altarCall' | 'testimony' | 'preMarital' | 'counse
 
 const Forms = () => {
   const [activeModal, setActiveModal] = useState<ModalKey>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const closeModal = () => setActiveModal(null);
+  const returnTo = useMemo(() => new URLSearchParams(location.search).get('returnTo') || '', [location.search]);
+
+  const closeModal = () => {
+    setActiveModal(null);
+    navigate(returnTo || '/forms', { replace: true });
+  };
 
   const formModalMap: Record<string, ModalKey> = {
     'First Timer Form': 'newMember',
@@ -38,6 +46,17 @@ const Forms = () => {
     'Volunteer Form': 'volunteer',
     'Feedback / Suggestion Form': 'feedback',
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const form = params.get('form');
+
+    if (form === 'first-timer') {
+      setActiveModal('newMember');
+    } else if (form === 'volunteer') {
+      setActiveModal('volunteer');
+    }
+  }, [location.search]);
 
   return (
     <div className="min-h-screen bg-background">

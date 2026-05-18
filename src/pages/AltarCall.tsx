@@ -36,6 +36,8 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
 
   const canProceed = formData.fullName.trim() && formData.phone.trim() && formData.decision;
   const canSubmit = formData.consent;
+  const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
+  const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -235,7 +237,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                 {step === 2 && (
                   <Button
                     variant="outline"
-                    className="flex-1 h-11 text-xs font-semibold tracking-wider rounded-sm"
+                    className={secondaryButtonClass}
                     onClick={() => setStep(1)}
                   >
                     PREVIOUS
@@ -243,7 +245,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                 )}
                 {step === 1 ? (
                   <Button
-                    className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90"
+                    className={primaryButtonClass}
                     disabled={!canProceed}
                     onClick={() => setStep(2)}
                   >
@@ -251,7 +253,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                   </Button>
                 ) : (
                   <Button
-                    className="flex-1 h-12 bg-foreground text-background text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
+                    className={primaryButtonClass}
                     disabled={!canSubmit || submitting}
                     onClick={handleSubmit}
                   >

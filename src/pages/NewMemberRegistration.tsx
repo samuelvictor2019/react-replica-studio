@@ -36,6 +36,8 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
   const canProceed = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email);
   const canSubmit = form.consent;
+  const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
+  const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   // inner container used both for page and modal rendering
   const Inner = (
@@ -101,7 +103,7 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
                 </div>
 
                 <div className="mt-6">
-                  <Button className="bg-foreground text-background px-6 py-3 rounded-full" disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
+                  <Button className={primaryButtonClass} disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
                 </div>
               </div>
 
@@ -174,9 +176,9 @@ const NewMemberRegistration = ({ modal = false, onClose }: Props) => {
                 </div>
 
                 <div className="flex items-center gap-3 mt-4">
-                  <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
+                  <Button variant="outline" className={secondaryButtonClass} onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
-                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
+                    className={primaryButtonClass}
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
                       setSubmitting(true);

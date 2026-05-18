@@ -100,8 +100,8 @@ const About = () => {
             {leaders.map((l) => (
               <div key={l.name} className="bg-sky-100 rounded-2xl overflow-hidden text-left">
                 <img src={l.img} alt={l.name} className="w-full h-36 md:h-44 object-cover" />
-                <div className="p-4 md:p-5">
-                  <p className="text-[11px] leading-relaxed text-black/70">
+                <div className="p-4 md:p-5 lg:p-6 min-h-[150px] md:min-h-[170px] flex items-start">
+                  <p className="text-sm md:text-[15px] leading-relaxed md:leading-7 text-black/70">
                   {l.desc}
                 </p>
                 </div>
