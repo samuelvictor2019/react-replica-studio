@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Search, ChevronLeft, ChevronRight, List } from "lucide-react";
 import mediaIcon from "@/assets/media_icon.png";
 import { getMedia } from "@/lib/api";
@@ -209,9 +209,9 @@ const LatestMediaSection = () => {
             {/* <p className="text-sm text-black/60">Sermons, worship and resources</p> */}
           </div>
 
-          <a href="#" className="hidden md:inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase hover:text-primary transition-colors">
+          <Link to="/media" className="hidden md:inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase hover:text-primary transition-colors">
             VIEW ALL MEDIA <ArrowRight size={14} />
-          </a>
+          </Link>
         </div>
 
         {/* Tabs + controls */}
@@ -336,9 +336,9 @@ const LatestMediaSection = () => {
           </div>
 
           <div className="flex justify-center mt-4 md:hidden">
-            <a href="#" className="inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase">
+            <Link to="/media" className="inline-flex items-center gap-1 text-xs font-semibold tracking-widest text-black uppercase hover:text-primary transition-colors">
               VIEW ALL MEDIA <ArrowRight size={14} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -477,9 +477,9 @@ const EventsSection = () => {
 
         {/* View All */}
         <div className="flex justify-center mt-10">
-          <button className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
+          <Link to="/events" className="bg-black text-white text-xs font-semibold tracking-widest px-8 py-3 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
             VIEW ALL EVENTS
-          </button>
+          </Link>
         </div>
       </div>
     </section>

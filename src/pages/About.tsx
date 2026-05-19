@@ -60,7 +60,7 @@ const About = () => {
       <section id="about-twc-ph" className="py-12 md:py-16 bg-background space-y-5 md:space-y-6">
         <div className="flex flex-col md:flex-row items-stretch">
           <div className="container max-w-6xl mx-auto px-4 md:px-0 md:mr-0 md:ml-auto md:w-[55%]">
-            <div className="bg-background p-6 md:p-8 h-full flex flex-col justify-center">
+            <div className="bg-background p-6 md:p-8 h-full flex flex-col justify-center md:pl-32 md:pr-0">
               <h2 className="font-heading text-4xl md:text-5xl font-medium text-black mb-4">The Mission</h2>
               <p className="text-sm text-black/70 leading-relaxed max-w-md">
                 To raise a people that will stand as true and faithful witnesses, leaders,

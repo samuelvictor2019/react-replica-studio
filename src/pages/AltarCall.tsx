@@ -70,8 +70,8 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
         {/* Right form area */}
         <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
           {!submitted && (
-            <div className="text-center mb-6">
-              <div className="flex items-center justify-center gap-4 mb-2">
+            <div className="mb-6">
+              <div className="flex items-center gap-4 mb-2">
                 <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
                   Altar Call
                 </h1>
@@ -80,7 +80,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                 </span>
               </div>
               {step === 1 && (
-                <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-lg">
                   If you gave your life to Christ or rededicated your walk, please
                   fill this form so we can pray with you, support you, and guide
                   you in your next steps.
