@@ -1,7 +1,7 @@
 services:
   # Existing React/Vite frontend
   - type: web
-    name: wgc
+    name: wgc-frontend
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
@@ -17,7 +17,7 @@ services:
   - type: web
     name: wgc-backend
     runtime: node
-    rootDir: backend
+    rootDir: server
     buildCommand: npm ci && npm run build
     startCommand: npm run start:prod
     healthCheckPath: /api/v1
