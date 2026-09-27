@@ -100,8 +100,28 @@ const AdminTestimoniesPage = () => {
     
     setLoading(true);
     try {
-      const res = await adminRequest<{ data: Testimony[] }>('/forms?page=1&limit=1&type=Testimony');
-      setTestimonies(res.data || []);
+      const res = await adminRequest<any>('/forms?page=1&limit=50&type=Testimony');
+      const formItems = extractFormItems(res);
+      
+      const mappedTestimonies: Testimony[] = formItems.map(item => {
+        const data = item.data || {};
+        return {
+          id: item.id,
+          authorName: item.fullName || data.authorName || 'Anonymous',
+          authorEmail: item.email || data.authorEmail || '',
+          title: data.title || 'Untitled Testimony',
+          content: data.content || '',
+          category: data.category || 'other',
+          status: mapFormStatusToTestimonyStatus(item.status),
+          submittedDate: item.createdAt || new Date().toISOString(),
+          createdAt: item.createdAt || new Date().toISOString(),
+          updatedAt: item.updatedAt || new Date().toISOString(),
+          source: 'form',
+          formSubmissionId: item.id
+        };
+      });
+
+      setTestimonies(mappedTestimonies);
       setError('');
     } catch (error) {
       console.warn('Failed to load testimonies:', error);
@@ -155,15 +175,28 @@ const AdminTestimoniesPage = () => {
     e.preventDefault();
 
     try {
+      const formPayload = {
+        type: 'Testimony',
+        fullName: formData.authorName,
+        email: formData.authorEmail,
+        status: mapTestimonyStatusToFormStatus(formData.status),
+        data: {
+          title: formData.title,
+          content: formData.content,
+          category: formData.category,
+          reviewerNotes: formData.reviewerNotes
+        }
+      };
+
       if (editingTestimony) {
-        await adminRequest(`/testimonies/${editingTestimony.id}`, {
+        await adminRequest(`/forms/${editingTestimony.formSubmissionId || editingTestimony.id}`, {
           method: 'PATCH',
-          body: JSON.stringify(formData)
+          body: JSON.stringify(formPayload)
         });
       } else {
-        await adminRequest('/testimonies', {
+        await adminRequest('/forms', {
           method: 'POST',
-          body: JSON.stringify(formData)
+          body: JSON.stringify(formPayload)
         });
       }
       setIsDialogOpen(false);
@@ -179,7 +212,7 @@ const AdminTestimoniesPage = () => {
     if (!confirm('Are you sure you want to delete this testimony?')) return;
 
     try {
-      await adminRequest(`/testimonies/${id}`, { method: 'DELETE' });
+      await adminRequest(`/forms/${id}`, { method: 'DELETE' });
       loadTestimonies();
     } catch (e: any) {
       console.warn('API delete failed:', e.message);
@@ -189,9 +222,9 @@ const AdminTestimoniesPage = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      await adminRequest(`/testimonies/${id}`, {
+      await adminRequest(`/forms/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'approved' })
+        body: JSON.stringify({ status: mapTestimonyStatusToFormStatus('approved') })
       });
       loadTestimonies();
     } catch (e: any) {
@@ -202,9 +235,9 @@ const AdminTestimoniesPage = () => {
 
   const handleReject = async (id: string) => {
     try {
-      await adminRequest(`/testimonies/${id}`, {
+      await adminRequest(`/forms/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ status: 'rejected' })
+        body: JSON.stringify({ status: mapTestimonyStatusToFormStatus('rejected') })
       });
       loadTestimonies();
     } catch (e: any) {
@@ -346,7 +379,7 @@ const AdminTestimoniesPage = () => {
                         <TableCell>
                           <div>
                             <p className="font-medium line-clamp-1">{testimony.title}</p>
-                            <p className="text-sm text-gray-500 line-clamp-1">{testimony.content.substring(0, 50)}...</p>
+                            <p className="text-sm text-gray-500 line-clamp-1">{(testimony.content || '').substring(0, 50)}...</p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -372,7 +405,7 @@ const AdminTestimoniesPage = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">
-                          {new Date(testimony.submittedDate).toLocaleDateString()}
+                          {testimony.submittedDate ? new Date(testimony.submittedDate).toLocaleDateString() : '-'}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">

@@ -66,11 +66,19 @@ const AdminDashboard = () => {
         ]);
         
         if (statsRes.data) {
+          const apiStats: any = statsRes.data;
           setStats({
-            ...statsRes.data,
+            totalEvents: apiStats.events || 0,
+            totalMedia: apiStats.media || 0,
+            totalMembers: apiStats.members || 0,
+            totalTestimonies: apiStats.testimonies || 0,
+            totalForms: apiStats.forms || 0,
+            totalPages: apiStats.pages || 0,
+            pendingTestimonies: apiStats.pendingTestimonies || 0,
+            pendingForms: apiStats.pendingForms || 0,
             recentActivity: activityRes.data ? activityRes.data.slice(0, 5) : [],
             lastUpdated: new Date().toISOString()
-          } as DashboardStats);
+          });
         }
       } catch (error) {
         console.error('Failed to load dashboard stats:', error);

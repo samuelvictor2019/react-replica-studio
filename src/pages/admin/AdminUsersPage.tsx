@@ -16,7 +16,13 @@ import { adminRequest, getRoleLabel, normalizeRole } from '@/lib/adminApi';
 
 type User = {
   id: string;
-  username: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  profile?: {
+    firstName?: string;
+    lastName?: string;
+  };
   email: string;
   role: 'admin' | 'super_admin' | 'editor' | 'viewer';
   status: 'active' | 'inactive' | 'suspended';
@@ -84,6 +90,13 @@ const AdminUsersPage = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  const getFullName = (user: User) => {
+    const fName = user.profile?.firstName || user.firstName || '';
+    const lName = user.profile?.lastName || user.lastName || '';
+    const fullName = `${fName} ${lName}`.trim();
+    return fullName || user.username || 'Unknown User';
+  };
 
   const resetUserForm = () => {
     setUserFormData({
@@ -333,7 +346,7 @@ const AdminUsersPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Username</TableHead>
+                    <TableHead>Fullname</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Status</TableHead>
@@ -346,7 +359,7 @@ const AdminUsersPage = () => {
                   {filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
-                        <div className="font-medium">{user.username}</div>
+                        <div className="font-medium">{getFullName(user)}</div>
                         {user.passwordResetRequired && (
                           <Badge variant="outline" className="text-xs mt-1">
                             Password Reset Required
@@ -442,7 +455,7 @@ const AdminUsersPage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">{user?.username || 'Unknown User'}</span>
+                          <span className="font-medium text-sm">{user ? getFullName(user) : 'Unknown User'}</span>
                           <Badge variant="outline" className="text-xs">
                             {activity.action.replace('_', ' ')}
                           </Badge>
