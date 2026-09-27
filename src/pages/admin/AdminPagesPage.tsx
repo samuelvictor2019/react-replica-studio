@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FileText, Eye, Edit, Globe, Lock, Plus, Trash2, ExternalLink, Save } from 'lucide-react';
-
+import { adminRequest } from '@/lib/adminApi';
 type Page = {
   id: string;
   title: string;
@@ -28,7 +28,6 @@ type Page = {
   updatedAt: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_pages';
 
 const AdminPagesPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
@@ -47,22 +46,26 @@ const AdminPagesPage = () => {
     author: 'Admin'
   });
 
-  // Load pages from localStorage on component mount
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setPages(JSON.parse(stored));
-      } catch (error) {
-        console.error('Failed to load pages from storage:', error);
-      }
-    }
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Save pages to localStorage whenever it changes
+  const loadPages = async () => {
+    setLoading(true);
+    try {
+      const res = await adminRequest<{ data: Page[] }>('/pages');
+      setPages(res.data || []);
+      setError('');
+    } catch (e: any) {
+      console.warn('Failed to load pages:', e.message);
+      setError('Failed to load pages');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages));
-  }, [pages]);
+    loadPages();
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -115,60 +118,60 @@ const AdminPagesPage = () => {
     setViewingPage(page);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date().toISOString();
-
-    if (editingPage) {
-      // Update existing page
-      setPages(prev => prev.map(page =>
-        page.id === editingPage.id
-          ? {
-              ...page,
-              ...formData,
-              updatedAt: now,
-              lastModified: now,
-              publishedDate: formData.status === 'published' && page.status !== 'published' ? now : page.publishedDate
-            }
-          : page
-      ));
-    } else {
-      // Create new page
-      const newPage: Page = {
-        id: Date.now().toString(),
-        ...formData,
-        lastModified: now,
-        createdAt: now,
-        updatedAt: now,
-        publishedDate: formData.status === 'published' ? now : undefined
-      };
-      setPages(prev => [...prev, newPage]);
+    
+    try {
+      if (editingPage) {
+        await adminRequest(`/pages/${editingPage.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(formData)
+        });
+      } else {
+        await adminRequest('/pages', {
+          method: 'POST',
+          body: JSON.stringify(formData)
+        });
+      }
+      setIsDialogOpen(false);
+      resetForm();
+      loadPages();
+    } catch (e: any) {
+      console.warn('Failed to save page:', e.message);
+      setError('Failed to save page');
     }
-
-    setIsDialogOpen(false);
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this page?')) return;
-    setPages(prev => prev.filter(page => page.id !== id));
+    try {
+      await adminRequest(`/pages/${id}`, { method: 'DELETE' });
+      loadPages();
+    } catch (e: any) {
+      console.warn('Failed to delete page:', e.message);
+      setError('Failed to delete page');
+    }
   };
 
-  const handlePublish = (id: string) => {
-    const now = new Date().toISOString();
-    setPages(prev => prev.map(page =>
-      page.id === id
-        ? { ...page, status: 'published', publishedDate: now, updatedAt: now, lastModified: now }
-        : page
-    ));
+  const handlePublish = async (id: string) => {
+    try {
+      await adminRequest(`/pages/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'published' })
+      });
+      loadPages();
+    } catch (e: any) {
+      console.warn('Failed to publish page:', e.message);
+      setError('Failed to publish page');
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'draft': return 'bg-yellow-100 text-yellow-800';
       case 'published': return 'bg-green-100 text-green-800';
-      case 'archived': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'archived': return 'bg-muted text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -196,7 +199,7 @@ const AdminPagesPage = () => {
       case 'ministry': return 'bg-purple-100 text-purple-800';
       case 'event': return 'bg-green-100 text-green-800';
       case 'resource': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -221,12 +224,12 @@ const AdminPagesPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Page Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Dynamic Pages</h1>
-          <p className="text-sm text-black/70 mt-1">Create and manage dynamic website pages</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Page Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">Dynamic Pages</h1>
+          <p className="text-sm text-muted-foreground mt-1">Create and manage dynamic website pages</p>
         </div>
         {can('content.create') && (
-          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Create Page
           </Button>
@@ -283,7 +286,7 @@ const AdminPagesPage = () => {
 
         <TabsContent value="all" className="space-y-4">
           {pages.length === 0 ? (
-            <p className="text-black/60">No pages found</p>
+            <p className="text-muted-foreground">No pages found</p>
           ) : (
             <Card>
               <CardContent className="p-0">
@@ -365,7 +368,7 @@ const AdminPagesPage = () => {
         {['published', 'draft', 'archived'].map((status) => (
           <TabsContent key={status} value={status} className="space-y-4">
             {groupedPages[status]?.length === 0 ? (
-              <p className="text-black/60">No {status} pages found</p>
+              <p className="text-muted-foreground">No {status} pages found</p>
             ) : (
               <Card>
                 <CardContent className="p-0">
@@ -550,7 +553,7 @@ const AdminPagesPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingPage ? 'Update Page' : 'Create Page'}
               </Button>
             </div>
@@ -603,7 +606,7 @@ const AdminPagesPage = () => {
 
               <div>
                 <label className="text-sm font-medium text-gray-500">Content</label>
-                <div className="mt-2 p-4 bg-gray-50 rounded-lg border">
+                <div className="mt-2 p-4 bg-muted rounded-lg border">
                   <div className="prose prose-sm max-w-none">
                     <pre className="whitespace-pre-wrap font-sans">{viewingPage.content}</pre>
                   </div>

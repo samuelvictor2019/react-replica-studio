@@ -9,13 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar, Clock, MapPin, Plus, Edit, Trash2, Eye, Download, Search, Link as LinkIcon, QrCode } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Calendar, Clock, MapPin, Plus, Edit, Trash2, Eye, Download, Search, Link as LinkIcon, QrCode, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { buildEventRegistrationUrl } from '@/lib/api';
+import { buildEventRegistrationUrl, getEventTypes } from '@/lib/api';
 import QRCode from 'qrcode';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 type Event = {
   id: string;
@@ -32,7 +34,8 @@ type Event = {
   bannerImageUrl?: string;
   price: number;
   status: 'draft' | 'published' | 'cancelled' | 'completed';
-  type: string;
+  typeId: string;
+  eventType?: { id: string; name: string; slug: string; };
   createdAt: string;
   updatedAt: string;
 };
@@ -58,6 +61,7 @@ const FORMS_ACCESS_BLOCKED_KEY = 'wgc_forms_access_blocked';
 const AdminEventsPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [events, setEvents] = useState<Event[]>([]);
+  const [eventTypes, setEventTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -74,6 +78,55 @@ const AdminEventsPage = () => {
   });
   const [registrantsSearch, setRegistrantsSearch] = useState('');
   const [accommodationFilter, setAccommodationFilter] = useState<'all' | 'yes' | 'no'>('all');
+
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
+  const [eventSearchTerm, setEventSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [statusCounts, setStatusCounts] = useState({ all: 0, published: 0, ongoing: 0, completed: 0, draft: 0 });
+  const EVENTS_PER_PAGE = 10;
+
+  const loadCounts = async () => {
+    try {
+      const [allRes, pubRes, ongRes, compRes, draftRes] = await Promise.all([
+        adminRequest<any>('/events?page=1&limit=1'),
+        adminRequest<any>('/events?page=1&limit=1&status=published'),
+        adminRequest<any>('/events?page=1&limit=1&status=ongoing'),
+        adminRequest<any>('/events?page=1&limit=1&status=completed'),
+        adminRequest<any>('/events?page=1&limit=1&status=draft')
+      ]);
+
+      const getTotal = (res: any) => res?.meta?.totalItems || res?.data?.meta?.totalItems || res?.data?.total || res?.totalItems || 0;
+
+      setStatusCounts({
+        all: getTotal(allRes),
+        published: getTotal(pubRes),
+        ongoing: getTotal(ongRes),
+        completed: getTotal(compRes),
+        draft: getTotal(draftRes)
+      });
+    } catch (e) {
+      console.error('Failed to load status counts', e);
+    }
+  };
+
+  const loadEventTypes = async () => {
+    try {
+      const types = await getEventTypes(true);
+      setEventTypes(types);
+    } catch (e) {
+      console.error('Failed to load event types', e);
+    }
+  };
+
+  const goToNextPage = () => setCurrentPage(p => Math.min(Math.max(1, Math.ceil(totalItems / EVENTS_PER_PAGE)), p + 1));
+  const goToPrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, eventSearchTerm, sortOrder]);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -84,35 +137,42 @@ const AdminEventsPage = () => {
     bannerImageUrl: '',
     price: 0,
     status: 'published' as 'draft' | 'published' | 'cancelled' | 'completed',
-    type: 'ETHANIM' as string
+    typeId: ''
   });
 
   const loadEvents = async () => {
     setLoading(true);
-
     try {
-      const res = await adminRequest<{ data: Event[]; meta: { totalItems: number; page: number; limit: number } }>('/events?page=1&limit=100');
-      setEvents(res.data);
-      // Save to localStorage as backup
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(res.data));
-      setError(''); // Clear any previous errors
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: EVENTS_PER_PAGE.toString(),
+        order: sortOrder,
+      });
+      if (statusFilter !== 'all') queryParams.append('status', statusFilter);
+      if (eventSearchTerm) queryParams.append('search', eventSearchTerm);
+
+      const res = await adminRequest<any>(`/events?${queryParams.toString()}`);
+
+      const extractItems = (payload: any) => {
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload?.items)) return payload.items;
+        if (Array.isArray(payload?.data)) return payload.data;
+        if (Array.isArray(payload?.data?.items)) return payload.data.items;
+        if (Array.isArray(payload?.data?.data)) return payload.data.data;
+        return [];
+      };
+
+      setEvents(extractItems(res));
+      setTotalItems(res.meta?.totalItems || res.data?.meta?.totalItems || res.data?.total || 0);
+      setError('');
     } catch (e: any) {
       let errorMessage = 'Failed to load events from API';
-
-      if (e.message?.includes('CORS_ERROR')) {
-        errorMessage = 'CORS Error: Backend server does not allow requests from this origin.';
-      } else if (e.message?.includes('BACKEND_ERROR')) {
-        errorMessage = 'Backend Error: Server is currently unavailable (502 Bad Gateway).';
-      } else if (e.message?.includes('NETWORK_ERROR')) {
-        errorMessage = 'Network Error: Unable to connect to backend server.';
-      } else if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
-        errorMessage = 'Authentication Error: Invalid or expired token.';
-      } else if (e.message?.includes('403') || e.message?.includes('Forbidden')) {
-        errorMessage = 'Permission Error: You do not have permission to access this resource.';
-      }
-
+      if (e.message?.includes('CORS_ERROR')) errorMessage = 'CORS Error';
+      else if (e.message?.includes('401') || e.message?.includes('Unauthorized')) errorMessage = 'Authentication Error';
+      else if (e.message?.includes('403') || e.message?.includes('Forbidden')) errorMessage = 'Permission Error';
       setError(errorMessage);
-      setEvents([]); // Clear events on error for live testing
+      setEvents([]);
+      setTotalItems(0);
     } finally {
       setLoading(false);
     }
@@ -120,7 +180,9 @@ const AdminEventsPage = () => {
 
   useEffect(() => {
     loadEvents();
-  }, []);
+    loadCounts();
+    loadEventTypes();
+  }, [currentPage, statusFilter, eventSearchTerm, sortOrder]);
 
   const resetForm = () => {
     setFormData({
@@ -133,7 +195,7 @@ const AdminEventsPage = () => {
       bannerImageUrl: '',
       price: 0,
       status: 'published',
-      type: 'ETHANIM'
+      typeId: ''
     });
     setEditingEvent(null);
   };
@@ -167,7 +229,7 @@ const AdminEventsPage = () => {
       bannerImageUrl: event.bannerImageUrl || '',
       price: event.price,
       status: event.status,
-      type: event.type
+      typeId: event.typeId || event.eventType?.id || ''
     });
     setEditingEvent(event);
     setIsDialogOpen(true);
@@ -311,12 +373,12 @@ const AdminEventsPage = () => {
               const rawData = item?.data;
               const data = typeof rawData === 'string'
                 ? (() => {
-                    try {
-                      return JSON.parse(rawData);
-                    } catch {
-                      return {};
-                    }
-                  })()
+                  try {
+                    return JSON.parse(rawData);
+                  } catch {
+                    return {};
+                  }
+                })()
                 : rawData || {};
 
               const eventIdMatches = String(data.eventId || '').trim() === String(event.id).trim();
@@ -328,12 +390,12 @@ const AdminEventsPage = () => {
               const rawData = item?.data;
               const data = typeof rawData === 'string'
                 ? (() => {
-                    try {
-                      return JSON.parse(rawData);
-                    } catch {
-                      return {};
-                    }
-                  })()
+                  try {
+                    return JSON.parse(rawData);
+                  } catch {
+                    return {};
+                  }
+                })()
                 : rawData || {};
 
               const fullName = String(item.fullName || data.fullName || '').trim();
@@ -487,7 +549,7 @@ const AdminEventsPage = () => {
     const link = `${window.location.origin}${buildEventRegistrationUrl({
       id: event.id,
       title: event.title,
-      type: event.type,
+      type: event.eventType?.name || '',
       startDate: event.startDate,
       endDate: event.endDate,
       location: event.location,
@@ -502,7 +564,7 @@ const AdminEventsPage = () => {
     const link = `${window.location.origin}${buildEventRegistrationUrl({
       id: event.id,
       title: event.title,
-      type: event.type,
+      type: event.eventType?.name || '',
       startDate: event.startDate,
       endDate: event.endDate,
       location: event.location,
@@ -543,7 +605,7 @@ const AdminEventsPage = () => {
         <div>
           <p className="text-xs uppercase tracking-[0.16em] text-black/40">Events Management</p>
           <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Church Events</h1>
-          <p className="text-sm text-black/70 mt-1">Manage upcoming and past church events</p>
+          <p className="text-sm text-muted-foreground mt-1">Manage upcoming and past church events</p>
           {error && (
             <div className="mt-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-sm text-yellow-800 flex items-center gap-2">
@@ -554,7 +616,7 @@ const AdminEventsPage = () => {
           )}
         </div>
         {can('content.create') && (
-          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto shadow-sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Event
           </Button>
@@ -563,140 +625,194 @@ const AdminEventsPage = () => {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {/* Upcoming Events */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-600" />
-            Upcoming Events ({upcomingEvents.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <p className="text-black/60">Loading events...</p>
-          ) : upcomingEvents.length === 0 ? (
-            <p className="text-black/60">No upcoming events</p>
-          ) : (
-            <div className="space-y-4">
-              {upcomingEvents.map((event) => (
-                <div key={event.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{event.title}</h3>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800 w-fit">
-                        {event.status}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                        {format(new Date(event.startDate), 'MMM dd, yyyy')}
-                        {event.endDate && event.endDate !== event.startDate && (
-                          <> - {format(new Date(event.endDate), 'MMM dd, yyyy')}</>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4 flex-shrink-0" />
-                        {event.location}
-                      </div>
-                      {event.price > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">${event.price}</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-700 line-clamp-2">{event.description}</p>
-                  </div>
-                  <div className="flex items-center gap-2 self-start sm:self-center">
-                    <Button variant="outline" size="sm" onClick={() => loadRegistrants(event)}>
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => copyRegistrationLink(event)}>
-                      <LinkIcon className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => openQrDialog(event)}>
-                      <QrCode className="w-4 h-4" />
-                    </Button>
-                    {can('content.update') && (
-                      <Button variant="outline" size="sm" onClick={() => openEditDialog(event)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    )}
-                    {can('content.delete') && (
-                      <Button variant="outline" size="sm" onClick={() => handleDelete(event.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Past Events */}
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
+          <Button variant={statusFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('all')}>
+            All ({statusCounts.all})
+          </Button>
+          <Button variant={statusFilter === 'published' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('published')}>
+            Published ({statusCounts.published})
+          </Button>
+          <Button variant={statusFilter === 'ongoing' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('ongoing')}>
+            Ongoing ({statusCounts.ongoing})
+          </Button>
+          <Button variant={statusFilter === 'completed' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('completed')}>
+            Completed ({statusCounts.completed})
+          </Button>
+          <Button variant={statusFilter === 'draft' ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter('draft')}>
+            Drafts ({statusCounts.draft})
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search events..."
+              className="pl-9"
+              value={eventSearchTerm}
+              onChange={(e) => setEventSearchTerm(e.target.value)}
+            />
+          </div>
+          <Select value={sortOrder} onValueChange={(v: 'ASC' | 'DESC') => setSortOrder(v)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="DESC">Newest First</SelectItem>
+              <SelectItem value="ASC">Oldest First</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-600" />
-            Past Events ({pastEvents.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {pastEvents.length === 0 ? (
-            <p className="text-black/60">No past events</p>
-          ) : (
-            <div className="space-y-4">
-              {pastEvents.map((event) => (
-                <div key={event.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 opacity-75">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
-                      <h3 className="font-semibold">{event.title}</h3>
-                      <Badge variant="outline" className="w-fit">{event.status}</Badge>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
-                        {format(new Date(event.startDate), 'MMM dd, yyyy')}
-                        {event.endDate && event.endDate !== event.startDate && (
-                          <> - {format(new Date(event.endDate), 'MMM dd, yyyy')}</>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4 flex-shrink-0" />
-                        {event.location}
-                      </div>
-                      {event.price > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">${event.price}</span>
+        <CardContent className="p-0">
+          <div className="border rounded-md overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Event</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="min-w-[150px]">Dates</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+                      Loading events...
+                    </TableCell>
+                  </TableRow>
+                ) : events.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      No events found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  events.map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell>
+                        <div className="font-medium text-foreground">{event.title}</div>
+                        <div className="text-xs text-muted-foreground line-clamp-1">{event.description}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{event.eventType?.name || event.type || '-'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(event.startDate), 'MMM dd, yyyy')}
+                          {event.endDate && event.endDate !== event.startDate && (
+                            <><br /><span className="text-muted-foreground">to {format(new Date(event.endDate), 'MMM dd, yyyy')}</span></>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 self-start sm:self-center">
-                    <Button variant="outline" size="sm" onClick={() => loadRegistrants(event)}>
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => copyRegistrationLink(event)}>
-                      <LinkIcon className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => openQrDialog(event)}>
-                      <QrCode className="w-4 h-4" />
-                    </Button>
-                    {can('content.update') && (
-                      <Button variant="outline" size="sm" onClick={() => openEditDialog(event)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                    )}
-                    {can('content.delete') && (
-                      <Button variant="outline" size="sm" onClick={() => handleDelete(event.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                      </TableCell>
+                      <TableCell>
+                        {event.price > 0 ? `$${event.price}` : 'Free'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="gap-1.5 capitalize font-medium px-2 py-0.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            event.status === 'published' ? 'bg-blue-500' :
+                            event.status === 'ongoing' ? 'bg-green-500' :
+                            event.status === 'completed' ? 'bg-gray-500' :
+                            'bg-yellow-500'
+                          }`}></span>
+                          {event.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <TooltipProvider delayDuration={150}>
+                          <div className="flex items-center justify-end gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => loadRegistrants(event)}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>View Registrants</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => copyRegistrationLink(event)}>
+                                  <LinkIcon className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Copy Link</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => openQrDialog(event)}>
+                                  <QrCode className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>QR Code</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            {can('content.update') && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => openEditDialog(event)}>
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit Event</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                            
+                            {can('content.delete') && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => handleDelete(event.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete Event</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                        </TooltipProvider>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          {totalItems > 0 && (
+            <div className="flex items-center justify-between p-4 border-t bg-muted/20">
+              <div className="text-sm text-muted-foreground">
+                Showing {Math.min((currentPage - 1) * EVENTS_PER_PAGE + 1, totalItems)} to {Math.min(currentPage * EVENTS_PER_PAGE, totalItems)} of {totalItems} events
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={goToPrevPage} disabled={currentPage === 1}>
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Prev
+                </Button>
+                <Button variant="outline" size="sm" onClick={goToNextPage} disabled={currentPage >= Math.ceil(totalItems / EVENTS_PER_PAGE)}>
+                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
@@ -748,38 +864,38 @@ const AdminEventsPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <Card>
                 <CardContent className="p-3">
-                  <p className="text-xs text-black/60">Total</p>
+                  <p className="text-xs text-muted-foreground">Total</p>
                   <p className="text-xl font-semibold">{registrants.length}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3">
-                  <p className="text-xs text-black/60">Needs Accommodation</p>
+                  <p className="text-xs text-muted-foreground">Needs Accommodation</p>
                   <p className="text-xl font-semibold">{registrants.filter(r => parseAccommodation(r) === 'yes').length}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3">
-                  <p className="text-xs text-black/60">No Accommodation</p>
+                  <p className="text-xs text-muted-foreground">No Accommodation</p>
                   <p className="text-xl font-semibold">{registrants.filter(r => parseAccommodation(r) === 'no').length}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3">
-                  <p className="text-xs text-black/60">Filtered</p>
+                  <p className="text-xs text-muted-foreground">Filtered</p>
                   <p className="text-xl font-semibold">{filteredRegistrants.length}</p>
                 </CardContent>
               </Card>
             </div>
 
             {registrantsLoading ? (
-              <p className="text-sm text-black/60">Loading registrants...</p>
+              <p className="text-sm text-muted-foreground">Loading registrants...</p>
             ) : filteredRegistrants.length === 0 ? (
-              <p className="text-sm text-black/60">No registrants found for this filter.</p>
+              <p className="text-sm text-muted-foreground">No registrants found for this filter.</p>
             ) : (
               <div className="border rounded-lg overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-muted">
                     <tr>
                       <th className="text-left p-2">Name</th>
                       <th className="text-left p-2">Email</th>
@@ -821,16 +937,16 @@ const AdminEventsPage = () => {
               {qrCodeDataUrl ? (
                 <img src={qrCodeDataUrl} alt="Event registration QR code" className="w-72 h-72 border rounded-lg" />
               ) : (
-                <p className="text-sm text-black/60">Generating QR code...</p>
+                <p className="text-sm text-muted-foreground">Generating QR code...</p>
               )}
             </div>
 
             {qrEvent && (
-              <div className="rounded-md bg-gray-50 p-2 text-[11px] text-black/70 break-all">
+              <div className="rounded-md bg-muted p-2 text-[11px] text-muted-foreground break-all">
                 {`${window.location.origin}${buildEventRegistrationUrl({
                   id: qrEvent.id,
                   title: qrEvent.title,
-                  type: qrEvent.type,
+                  type: qrEvent.eventType?.name || '',
                   startDate: qrEvent.startDate,
                   endDate: qrEvent.endDate,
                   location: qrEvent.location,
@@ -870,21 +986,14 @@ const AdminEventsPage = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Event Type</label>
-                <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+                <Select value={formData.typeId} onValueChange={(value) => setFormData(prev => ({ ...prev, typeId: value }))}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select Event Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="SEERS AND SCRIBES BOOTCAMP">Seers and Scribes Bootcamp</SelectItem>
-                    <SelectItem value="KINGDOM DIPLOMAT GATHERING">Kingdom Diplomat Gathering</SelectItem>
-                    <SelectItem value="FEAST OF CHOICE PIECES">Feast of Choice Pieces</SelectItem>
-                    <SelectItem value="KINGDOM ADVANCEMENT CITY SUMMIT">Kingdom Advancement City Summit</SelectItem>
-                    <SelectItem value="ETHANIM">Ethanım</SelectItem>
-                    <SelectItem value="TYRANUS RETREAT">Tyranus Retreat</SelectItem>
-                    <SelectItem value="CRYSTAL WATERS">Crystal Waters</SelectItem>
-                    <SelectItem value="HUNDREDFOLD SUMMIT">Hundredfold Summit</SelectItem>
-                    <SelectItem value="TRANSFORMATION SERVICE">Transformation Service</SelectItem>
-                    <SelectItem value="HARP AND BOWL">Harp and Bowl</SelectItem>
+                    {eventTypes.map(type => (
+                      <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

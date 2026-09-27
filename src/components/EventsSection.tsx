@@ -174,7 +174,7 @@ const EventCard = ({ event }: { event: EventData }) => {
   const displayDateRange = isHardcoded ? (event as any).dateRange : formatDateRange(event.date, event.endDate || event.date);
   const displayTime = isHardcoded ? (event as any).time : formatTimeDisplay(event.date, event.time);
   const displayLocation = isHardcoded ? (event as any).location : event.location;
-  const displayAttendees = isHardcoded ? (event as any).attendees : 'Open to All';
+  const displayAttendees = isHardcoded ? 'Open to All' : (event as any).attendees;
   const displayRegistration = isHardcoded ? (event as any).registration : 'Everyone Welcome';
   const buttonText = isHardcoded ? 'REGISTER' : (event.status === 'upcoming' ? 'REGISTER' : 'VIEW DETAILS');
   const registerUrl = buildEventRegistrationUrl({
@@ -334,10 +334,52 @@ const EventsSection = () => {
       try {
         setLoading(true);
         setError(null);
-        const apiEvents = await getEvents();
+
+        const now = new Date();
+        const formatDateStr = (d: Date) => {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+
+        const todayStr = formatDateStr(now);
+        const options: { fromDate?: string; toDate?: string; status?: string } = {};
+
+        if (activeTab === "UPCOMING") {
+          options.fromDate = todayStr;
+          options.status = 'published';
+        } else if (activeTab === "THIS WEEK") {
+          options.fromDate = todayStr;
+          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          options.toDate = formatDateStr(weekFromNow);
+        } else if (activeTab === "THIS MONTH") {
+          options.fromDate = todayStr;
+          const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+          options.toDate = formatDateStr(nextMonth);
+        }
+
+        let apiEvents = [];
+        if (activeTab === "UPCOMING") {
+          apiEvents = await getEvents(options);
+        } else {
+          // THIS WEEK and THIS MONTH can contain both published and ongoing
+          const [publishedEvents, ongoingEvents] = await Promise.all([
+            getEvents({ ...options, status: 'published' }),
+            getEvents({ ...options, status: 'ongoing' })
+          ]);
+          // Combine and deduplicate just in case
+          const seen = new Set();
+          apiEvents = [...publishedEvents, ...ongoingEvents].filter(ev => {
+            if (seen.has(ev.id)) return false;
+            seen.add(ev.id);
+            return true;
+          });
+        }
 
         // Transform API events to match component's expected format
         const transformedEvents = apiEvents.map((event: any) => {
+          console.log("Event: ", event)
           const startDate = new Date(event.startDate);
           const now = new Date();
           const isUpcoming = startDate >= now;
@@ -345,19 +387,19 @@ const EventsSection = () => {
           return {
             id: event.id,
             image: event.bannerImageUrl || event1Img,
-            category: event.type?.toUpperCase() || "EVENT",
+            category: event.eventType?.name?.toUpperCase() || event.type?.toUpperCase() || "EVENT",
             title: event.title,
             description: event.description || "Join us for this upcoming event at WaterGate Church.",
             dateRange: formatDateRange(event.startDate, event.endDate),
             time: event.dailySchedule?.[0]?.time || "TBD",
             location: event.location || "THE WATERGATE CHURCH, JENDOL BUS-STOP, OJU ORE, OTA",
-            attendees: "100+ Attending",
+            attendees: `${event.registrationCount}+ Attending`,
             registration: event.price > 0 ? `₦${event.price} Registration` : "Free Registration Required",
             status: isUpcoming ? 'upcoming' : 'past',
             date: event.startDate, // Add the actual date for filtering
             endDate: event.endDate,
             bannerImageUrl: event.bannerImageUrl, // Keep the original URL
-            type: event.type, // Keep the original type
+            type: event.eventType?.name || event.type, // Keep the original type
           };
         });
 
@@ -373,47 +415,45 @@ const EventsSection = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [activeTab]);
 
   // Determine which events to display based on the logic
   const displayEvents = useMemo(() => {
     if (loading) return [];
-
-    if (events.length >= 3) {
-      // Show only API data when 3 or more items
-      return events;
-    } else {
-      // Show API data + hardcoded data when 2 or fewer items
-      return [...events, ...hardcodedEvents];
-    }
+    return events;
+    // if (events.length >= 3) {
+    //   // Show only API data when 3 or more items
+    //   return events;
+    // } else {
+    //   // Show API data + hardcoded data when 2 or fewer items
+    //   return [...events, ...hardcodedEvents];
+    // }
   }, [events, loading]);
 
   // Filter events based on active tab
   const filteredEvents = useMemo(() => {
-    if (activeTab === "UPCOMING") {
-      return displayEvents.filter(event => {
-        if (event.id.startsWith('hardcoded-')) {
-          // For hardcoded events, consider them upcoming
-          return true;
-        }
-        return event.status === 'upcoming';
-      });
-    } else if (activeTab === "THIS WEEK") {
-      const now = new Date();
-      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      return displayEvents.filter(event => {
-        const eventDate = new Date(event.date);
+    // If the data is from the API, we trust the API's filtering which uses the fromDate and toDate.
+    // We only need to filter hardcoded fallback events.
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    return displayEvents.filter(event => {
+      if (!event.id.startsWith('hardcoded-')) return true; // Trust API response
+
+      const eventDate = new Date(event.date);
+      eventDate.setHours(0, 0, 0, 0);
+
+      if (activeTab === "UPCOMING") {
+        return eventDate >= now || event.status === 'upcoming';
+      } else if (activeTab === "THIS WEEK") {
+        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         return eventDate >= now && eventDate <= weekFromNow;
-      });
-    } else if (activeTab === "THIS MONTH") {
-      const now = new Date();
-      const monthFromNow = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-      return displayEvents.filter(event => {
-        const eventDate = new Date(event.date);
-        return eventDate >= now && eventDate <= monthFromNow;
-      });
-    }
-    return displayEvents;
+      } else if (activeTab === "THIS MONTH") {
+        const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        return eventDate >= now && eventDate <= nextMonth;
+      }
+      return true;
+    });
   }, [displayEvents, activeTab]);
 
   return (

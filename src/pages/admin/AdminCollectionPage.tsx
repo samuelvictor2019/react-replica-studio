@@ -23,7 +23,7 @@ const AdminCollectionPage = () => {
   const [loading, setLoading] = useState(false);
 
   const endpoint = useMemo(() => {
-    return coreCollections.includes(collection) ? `/api/admin/${collection}` : `/api/admin/content/${collection}`;
+    return coreCollections.includes(collection) ? `/${collection}` : `/content/${collection}`;
   }, [collection]);
 
   const load = async () => {
@@ -90,8 +90,8 @@ const AdminCollectionPage = () => {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-xs uppercase tracking-[0.16em] text-black/40">Content Management</p>
-        <h1 className="font-body text-3xl text-black capitalize mt-1">Manage {collection.replace('-', ' ')}</h1>
+        <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Content Management</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground capitalize mt-1">Manage {collection.replace('-', ' ')}</h1>
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -100,7 +100,7 @@ const AdminCollectionPage = () => {
         <div className="rounded-xl border border-border bg-white/90 p-4">
           <h2 className="font-semibold text-black mb-3">Records</h2>
           {loading ? (
-            <p className="text-black/60 text-sm">Loading...</p>
+            <p className="text-muted-foreground text-sm">Loading...</p>
           ) : (
             <div className="max-h-[420px] overflow-y-auto space-y-2">
               {items.map((item) => (
@@ -110,7 +110,7 @@ const AdminCollectionPage = () => {
                   className={`w-full text-left rounded-lg border px-3 py-2.5 transition-colors ${selectedId === item.id ? 'border-sky-300 bg-sky-50' : 'border-border hover:bg-slate-50'}`}
                 >
                   <p className="font-medium text-sm text-black">{item.title || item.slug || item.id}</p>
-                  <p className="text-xs text-black/60">Status: {item.status || 'n/a'}</p>
+                  <p className="text-xs text-muted-foreground">Status: {item.status || 'n/a'}</p>
                 </button>
               ))}
             </div>

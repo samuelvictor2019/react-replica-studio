@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { Users, Shield, UserPlus, Edit, Trash2, Key, Activity, Search, Filter, MoreHorizontal, Eye, Ban, CheckCircle } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { getRoleLabel, normalizeRole } from '@/lib/adminApi';
+import { adminRequest, getRoleLabel, normalizeRole } from '@/lib/adminApi';
 
 type User = {
   id: string;
@@ -38,8 +38,7 @@ type UserActivity = {
   ipAddress?: string;
 };
 
-const USERS_STORAGE_KEY = 'wgc_admin_users';
-const ACTIVITY_STORAGE_KEY = 'wgc_admin_user_activity';
+
 
 const AdminUsersPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
@@ -60,67 +59,31 @@ const AdminUsersPage = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    // Load users
-    const storedUsers = localStorage.getItem(USERS_STORAGE_KEY);
-    if (storedUsers) {
-      try {
-        setUsers(JSON.parse(storedUsers));
-      } catch (error) {
-        console.error('Failed to load users from storage:', error);
-      }
-    } else {
-      // Initialize with default admin user
-      const defaultUsers: User[] = [{
-        id: '1',
-        username: 'admin',
-        email: 'admin@wgc.com',
-        role: 'super_admin',
-        status: 'active',
-        lastLogin: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        loginAttempts: 0,
-        passwordResetRequired: false,
-        twoFactorEnabled: false
-      }];
-      setUsers(defaultUsers);
-      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(defaultUsers));
-    }
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    // Load activities
-    const storedActivities = localStorage.getItem(ACTIVITY_STORAGE_KEY);
-    if (storedActivities) {
-      try {
-        setActivities(JSON.parse(storedActivities));
-      } catch (error) {
-        console.error('Failed to load activities from storage:', error);
-      }
-    } else {
-      // Initialize with some sample activities
-      const defaultActivities: UserActivity[] = [{
-        id: '1',
-        userId: '1',
-        action: 'login',
-        details: 'Successful login',
-        timestamp: new Date().toISOString(),
-        ipAddress: '192.168.1.1'
-      }];
-      setActivities(defaultActivities);
-      localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(defaultActivities));
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [usersRes, activitiesRes] = await Promise.all([
+        adminRequest<{ data: User[] }>('/auth/users?page=1&limit=10'),
+        adminRequest<{ data: UserActivity[] }>('/activities').catch(() => ({ data: [] }))
+      ]);
+      const usersArray = Array.isArray(usersRes) ? usersRes : Array.isArray(usersRes.data) ? usersRes.data : [];
+      setUsers(usersArray);
+      setActivities(activitiesRes.data || []);
+      setError('');
+    } catch (error) {
+      console.warn('Failed to load users data:', error);
+      setError('Failed to load users data');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
-
-  // Save users to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  }, [users]);
-
-  // Save activities to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(activities));
-  }, [activities]);
 
   const resetUserForm = () => {
     setUserFormData({
@@ -154,133 +117,93 @@ const AdminUsersPage = () => {
     setIsUserDialogOpen(true);
   };
 
-  const handleUserSubmit = (e: React.FormEvent) => {
+  const handleUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canManageUsers) return;
-    const now = new Date().toISOString();
 
-    if (editingUser) {
-      // Update existing user
-      setUsers(prev => prev.map(user =>
-        user.id === editingUser.id
-          ? { ...user, ...userFormData, updatedAt: now }
-          : user
-      ));
-
-      // Log activity
-      const activity: UserActivity = {
-        id: Date.now().toString(),
-        userId: editingUser.id,
-        action: 'profile_update',
-        details: `Profile updated by admin`,
-        timestamp: now
-      };
-      setActivities(prev => [activity, ...prev]);
-    } else {
-      // Create new user
-      const newUser: User = {
-        id: Date.now().toString(),
-        ...userFormData,
-        createdAt: now,
-        updatedAt: now,
-        loginAttempts: 0
-      };
-      setUsers(prev => [...prev, newUser]);
-
-      // Log activity
-      const activity: UserActivity = {
-        id: Date.now().toString(),
-        userId: newUser.id,
-        action: 'user_created',
-        details: `New user account created`,
-        timestamp: now
-      };
-      setActivities(prev => [activity, ...prev]);
+    try {
+      if (editingUser) {
+        await adminRequest(`/auth/users/${editingUser.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(userFormData)
+        });
+      } else {
+        await adminRequest('/auth/users', {
+          method: 'POST',
+          body: JSON.stringify(userFormData)
+        });
+      }
+      setIsUserDialogOpen(false);
+      resetUserForm();
+      loadData();
+    } catch (e: any) {
+      console.warn('Failed to save user:', e.message);
+      alert(e.message || 'Failed to save user');
     }
-
-    setIsUserDialogOpen(false);
-    resetUserForm();
   };
 
-  const handleUserDelete = (id: string) => {
+  const handleUserDelete = async (id: string) => {
     if (!canManageUsers) return;
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
 
-    const user = users.find(u => u.id === id);
-    setUsers(prev => prev.filter(user => user.id !== id));
-
-    // Log activity
-    const activity: UserActivity = {
-      id: Date.now().toString(),
-      userId: id,
-      action: 'user_deleted',
-      details: `User account deleted: ${user?.username}`,
-      timestamp: new Date().toISOString()
-    };
-    setActivities(prev => [activity, ...prev]);
+    try {
+      await adminRequest(`/users/${id}`, { method: 'DELETE' });
+      loadData();
+    } catch (e: any) {
+      console.warn('Failed to delete user:', e.message);
+      alert(e.message || 'Failed to delete user');
+    }
   };
 
-  const handleUserStatusChange = (id: string, newStatus: 'active' | 'inactive' | 'suspended') => {
+  const handleUserStatusChange = async (id: string, newStatus: 'active' | 'inactive' | 'suspended') => {
     if (!canManageUsers) return;
-    setUsers(prev => prev.map(user =>
-      user.id === id
-        ? { ...user, status: newStatus, updatedAt: new Date().toISOString() }
-        : user
-    ));
-
-    // Log activity
-    const activity: UserActivity = {
-      id: Date.now().toString(),
-      userId: id,
-      action: 'status_change',
-      details: `Status changed to ${newStatus}`,
-      timestamp: new Date().toISOString()
-    };
-    setActivities(prev => [activity, ...prev]);
+    try {
+      await adminRequest(`/auth/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus })
+      });
+      loadData();
+    } catch (e: any) {
+      console.warn('Failed to change status:', e.message);
+      alert(e.message || 'Failed to change user status');
+    }
   };
 
-  const handlePasswordReset = (id: string) => {
+  const handlePasswordReset = async (id: string) => {
     if (!canManageUsers) return;
-    setUsers(prev => prev.map(user =>
-      user.id === id
-        ? { ...user, passwordResetRequired: true, updatedAt: new Date().toISOString() }
-        : user
-    ));
-
-    // Log activity
-    const activity: UserActivity = {
-      id: Date.now().toString(),
-      userId: id,
-      action: 'password_reset_required',
-      details: 'Password reset required flag set',
-      timestamp: new Date().toISOString()
-    };
-    setActivities(prev => [activity, ...prev]);
+    try {
+      await adminRequest(`/auth/users/${id}/password-reset`, { method: 'POST' });
+      loadData();
+      alert('Password reset has been initiated for this user.');
+    } catch (e: any) {
+      console.warn('Failed to reset password:', e.message);
+      alert(e.message || 'Failed to initiate password reset');
+    }
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || normalizeRole(user.role) === roleFilter;
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  const getRoleColor = (role: string) => {
+  const getRoleDotColor = (role: string) => {
     switch (normalizeRole(role)) {
-      case 'super_admin': return 'bg-red-100 text-red-800';
-      case 'editor': return 'bg-blue-100 text-blue-800';
-      case 'viewer': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'super_admin': return 'bg-red-500';
+      case 'editor': return 'bg-blue-500';
+      case 'viewer': return 'bg-gray-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusDotColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-red-100 text-red-800';
-      case 'suspended': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'bg-green-500';
+      case 'inactive': return 'bg-red-500';
+      case 'suspended': return 'bg-orange-500';
+      default: return 'bg-gray-500';
     }
   };
 
@@ -301,9 +224,9 @@ const AdminUsersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">User Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Users & Roles</h1>
-          <p className="text-sm text-black/70 mt-1">Manage administrator accounts and permissions</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">User Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">Users & Roles</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage administrator accounts and permissions</p>
         </div>
       </div>
 
@@ -398,7 +321,7 @@ const AdminUsersPage = () => {
               </Select>
             </div>
             {canManageUsers && (
-              <Button onClick={openUserCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black">
+              <Button onClick={openUserCreateDialog} className="w-full sm:w-auto">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add User
               </Button>
@@ -432,12 +355,14 @@ const AdminUsersPage = () => {
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
-                        <Badge className={getRoleColor(user.role)}>
+                        <Badge variant="outline" className="gap-1.5 capitalize font-medium px-2 py-0.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${getRoleDotColor(user.role)}`}></span>
                           {getRoleLabel(user.role)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getStatusColor(user.status)}>
+                        <Badge variant="outline" className="gap-1.5 capitalize font-medium px-2 py-0.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(user.status)}`}></span>
                           {user.status}
                         </Badge>
                       </TableCell>
@@ -637,7 +562,7 @@ const AdminUsersPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsUserDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingUser ? 'Update User' : 'Add User'}
               </Button>
             </div>

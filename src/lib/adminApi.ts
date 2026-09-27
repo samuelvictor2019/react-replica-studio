@@ -80,7 +80,22 @@ export async function adminRequest<T = any>(
   path: string,
   options: RequestInit = {},
   withAuth = true,
+  cacheDurationMs = 0
 ): Promise<T> {
+  const method = options.method?.toUpperCase() || 'GET';
+  
+  if (method === 'GET' && cacheDurationMs > 0) {
+    const cacheKey = `api_cache_${path}`;
+    const cachedStr = localStorage.getItem(cacheKey);
+    if (cachedStr) {
+      try {
+        const cached = JSON.parse(cachedStr);
+        if (Date.now() - cached.timestamp < cacheDurationMs) {
+          return cached.data as T;
+        }
+      } catch (e) {}
+    }
+  }
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
@@ -140,7 +155,17 @@ export async function adminRequest<T = any>(
     throw new Error('Authentication expired');
   }
 
-  return handleResponse<T>(response);
+  const data = await handleResponse<T>(response);
+  
+  if (method === 'GET' && cacheDurationMs > 0) {
+    const cacheKey = `api_cache_${path}`;
+    localStorage.setItem(cacheKey, JSON.stringify({
+      timestamp: Date.now(),
+      data
+    }));
+  }
+  
+  return data;
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -172,12 +197,9 @@ export async function adminLogin(email: string, password: string) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   }).catch(error => {
-    // Handle network errors (including CORS)
-    if (error.name === 'TypeError' && error.message.includes('CORS')) {
-      throw new Error('CORS_ERROR: Backend server does not allow requests from this origin. Try demo login instead.');
-    }
+    // Handle network errors
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('NETWORK_ERROR: Unable to connect to backend server. Try demo login instead.');
+      throw new Error('NETWORK_ERROR: Unable to connect to backend server.');
     }
     throw error;
   });
@@ -188,7 +210,7 @@ export async function adminLogin(email: string, password: string) {
 
     // Handle specific HTTP status codes
     if (response.status === 502) {
-      errorMessage = 'BACKEND_ERROR: Backend server is currently unavailable (502 Bad Gateway). Try demo login instead.';
+      errorMessage = 'BACKEND_ERROR: Backend server is currently unavailable (502 Bad Gateway).';
     } else if (response.status === 401) {
       errorMessage = 'Invalid email or password.';
     } else if (response.status === 403) {
@@ -203,17 +225,7 @@ export async function adminLogin(email: string, password: string) {
   setRefreshToken(data.refreshToken);
 }
 
-export async function demoLogin() {
-  // Create a demo token for offline/development use
-  const demoToken = 'demo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-  const demoRefreshToken = 'refresh_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-  setAdminToken(demoToken);
-  setRefreshToken(demoRefreshToken);
-
-  // Store demo mode flag
-  localStorage.setItem('demo_mode', 'true');
-}
 
 export async function adminMe(): Promise<{ admin: AdminUser }> {
   const response = await adminRequest('/auth/profile');

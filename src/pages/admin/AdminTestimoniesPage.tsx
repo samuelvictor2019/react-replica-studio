@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,6 @@ type FormSubmission = {
   updatedAt: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_testimonies';
 
 const AdminTestimoniesPage = () => {
   const { can, user } = useOutletContext<AdminOutletContext>();
@@ -90,86 +89,31 @@ const AdminTestimoniesPage = () => {
     if (source === 'form') {
       return <Badge className="bg-sky-100 text-sky-800">Form</Badge>;
     }
-    return <Badge className="bg-gray-100 text-gray-800">Manual</Badge>;
+    return <Badge className="bg-muted text-gray-800">Manual</Badge>;
   };
 
-  // Load testimonies from API on component mount
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadTestimonies = async () => {
+    if (!can('testimonies.read')) return;
+    
+    setLoading(true);
+    try {
+      const res = await adminRequest<{ data: Testimony[] }>('/forms?page=1&limit=1&type=Testimony');
+      setTestimonies(res.data || []);
+      setError('');
+    } catch (error) {
+      console.warn('Failed to load testimonies:', error);
+      setError('Failed to load testimonies');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadTestimonies = async () => {
-      let localManualTestimonies: Testimony[] = [];
-
-      const stored = localStorage.getItem(STORAGE_KEY);
-      try {
-        const parsed = stored ? JSON.parse(stored) : [];
-        localManualTestimonies = (Array.isArray(parsed) ? parsed : []).filter((item: Testimony) => item.source !== 'form');
-      } catch (error) {
-        console.error('Failed to load testimonies from storage:', error);
-        localManualTestimonies = [];
-      }
-
-      try {
-        let formTestimonies: Testimony[] = [];
-        if (can('testimonies.read') && can('forms.read')) {
-          let formItems: FormSubmission[] = [];
-
-          try {
-            const formsRes = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>(
-              '/forms?page=1&limit=100&type=Testimony'
-            );
-            formItems = extractFormItems(formsRes);
-          } catch (primaryError: any) {
-            if (!isNotFoundError(primaryError)) {
-              throw primaryError;
-            }
-            const fallbackRes = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>(
-              '/admin/forms/all?page=1&pageSize=100'
-            );
-            const fallbackItems = extractFormItems(fallbackRes);
-            formItems = fallbackItems.filter((item) => String(item.type || '').toLowerCase().trim() === 'testimony');
-          }
-
-          formTestimonies = formItems
-            .filter((submission) => String(submission.type || '').toLowerCase().trim() === 'testimony')
-            .map((submission) => ({
-              id: `form-${submission.id}`,
-              authorName: submission.fullName || submission.data?.fullName || 'Anonymous',
-              authorEmail: submission.email || submission.data?.email || 'no-email@submitted.local',
-              title: submission.data?.title || 'Untitled Testimony',
-              content: submission.data?.testimony || submission.data?.message || '',
-              category: 'other',
-              status: mapFormStatusToTestimonyStatus(submission.status),
-              submittedDate: submission.createdAt,
-              reviewedDate:
-                submission.status === 'completed' || submission.status === 'archived'
-                  ? submission.updatedAt || submission.createdAt
-                  : undefined,
-              reviewerNotes: submission.notes || '',
-              createdAt: submission.createdAt,
-              updatedAt: submission.updatedAt,
-              source: 'form',
-              formSubmissionId: submission.id,
-            }));
-        }
-
-        const combined = [...formTestimonies, ...localManualTestimonies];
-        const uniqueById = Array.from(new Map(combined.map((item) => [item.id, item])).values());
-
-        setTestimonies(uniqueById);
-        // Save to localStorage as backup
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueById.filter((item) => item.source !== 'form')));
-      } catch (e: any) {
-        console.warn('Failed to load testimonies from API:', e.message);
-        setTestimonies(localManualTestimonies);
-      }
-    };
-
     loadTestimonies();
-  }, [can, user.role]);
-
-  // Save only non-form testimonies to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(testimonies.filter((item) => item.source !== 'form')));
-  }, [testimonies]);
+  }, [can]);
 
   const resetForm = () => {
     setFormData({
@@ -209,59 +153,22 @@ const AdminTestimoniesPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date().toISOString();
 
     try {
       if (editingTestimony) {
-        if (editingTestimony.source === 'form') {
-          const formId = editingTestimony.formSubmissionId || editingTestimony.id.replace(/^form-/, '');
-          await adminRequest(`/forms/${formId}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              fullName: formData.authorName,
-              email: formData.authorEmail,
-              type: 'Testimony',
-              data: {
-                title: formData.title,
-                testimony: formData.content,
-                category: formData.category,
-              },
-              status: mapTestimonyStatusToFormStatus(formData.status),
-              notes: formData.reviewerNotes,
-            })
-          });
-        }
-        // Update local state
-        setTestimonies(prev => prev.map(testimony =>
-          testimony.id === editingTestimony.id
-            ? {
-                ...testimony,
-                ...formData,
-                updatedAt: now,
-                reviewedDate: formData.status !== 'pending' && testimony.status === 'pending' ? now : testimony.reviewedDate
-              }
-            : testimony
-        ));
+        await adminRequest(`/testimonies/${editingTestimony.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(formData)
+        });
       } else {
-        const newTestimony: Testimony = {
-          id: `manual-${Date.now()}`,
-          authorName: formData.authorName,
-          authorEmail: formData.authorEmail,
-          title: formData.title,
-          content: formData.content,
-          category: formData.category,
-          status: formData.status,
-          submittedDate: now,
-          reviewedDate: formData.status !== 'pending' ? now : undefined,
-          reviewerNotes: formData.reviewerNotes,
-          createdAt: now,
-          updatedAt: now,
-          source: 'manual',
-        };
-        setTestimonies(prev => [newTestimony, ...prev]);
+        await adminRequest('/testimonies', {
+          method: 'POST',
+          body: JSON.stringify(formData)
+        });
       }
       setIsDialogOpen(false);
       resetForm();
+      loadTestimonies();
     } catch (e: any) {
       console.warn('API call failed:', e.message);
       alert(e?.message || 'Failed to save testimony');
@@ -271,15 +178,9 @@ const AdminTestimoniesPage = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this testimony?')) return;
 
-    const testimony = testimonies.find(item => item.id === id);
-    if (!testimony) return;
-
     try {
-      if (testimony.source === 'form') {
-        const formId = testimony.formSubmissionId || testimony.id.replace(/^form-/, '');
-        await adminRequest(`/forms/${formId}`, { method: 'DELETE' });
-      }
-      setTestimonies(prev => prev.filter(testimony => testimony.id !== id));
+      await adminRequest(`/testimonies/${id}`, { method: 'DELETE' });
+      loadTestimonies();
     } catch (e: any) {
       console.warn('API delete failed:', e.message);
       alert(e?.message || 'Failed to delete testimony');
@@ -287,60 +188,28 @@ const AdminTestimoniesPage = () => {
   };
 
   const handleApprove = async (id: string) => {
-    const now = new Date().toISOString();
-    const testimony = testimonies.find(item => item.id === id);
-    if (!testimony) return;
-
     try {
-      if (testimony.source === 'form') {
-        const formId = testimony.formSubmissionId || testimony.id.replace(/^form-/, '');
-        await adminRequest(`/forms/${formId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'completed' })
-        });
-      }
-      setTestimonies(prev => prev.map(testimony =>
-        testimony.id === id
-          ? { ...testimony, status: 'approved', reviewedDate: now, updatedAt: now }
-          : testimony
-      ));
+      await adminRequest(`/testimonies/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'approved' })
+      });
+      loadTestimonies();
     } catch (e: any) {
-      console.warn('API update failed, updating local storage:', e.message);
-      // Fallback to localStorage when API fails
-      setTestimonies(prev => prev.map(testimony =>
-        testimony.id === id
-          ? { ...testimony, status: 'approved', reviewedDate: now, updatedAt: now }
-          : testimony
-      ));
+      console.warn('API update failed:', e.message);
+      alert(e?.message || 'Failed to approve testimony');
     }
   };
 
   const handleReject = async (id: string) => {
-    const now = new Date().toISOString();
-    const testimony = testimonies.find(item => item.id === id);
-    if (!testimony) return;
-
     try {
-      if (testimony.source === 'form') {
-        const formId = testimony.formSubmissionId || testimony.id.replace(/^form-/, '');
-        await adminRequest(`/forms/${formId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'archived' })
-        });
-      }
-      setTestimonies(prev => prev.map(testimony =>
-        testimony.id === id
-          ? { ...testimony, status: 'rejected', reviewedDate: now, updatedAt: now }
-          : testimony
-      ));
+      await adminRequest(`/testimonies/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'rejected' })
+      });
+      loadTestimonies();
     } catch (e: any) {
-      console.warn('API update failed, updating local storage:', e.message);
-      // Fallback to localStorage when API fails
-      setTestimonies(prev => prev.map(testimony =>
-        testimony.id === id
-          ? { ...testimony, status: 'rejected', reviewedDate: now, updatedAt: now }
-          : testimony
-      ));
+      console.warn('API update failed:', e.message);
+      alert(e?.message || 'Failed to reject testimony');
     }
   };
 
@@ -349,7 +218,7 @@ const AdminTestimoniesPage = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'approved': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -368,7 +237,7 @@ const AdminTestimoniesPage = () => {
       case 'healing': return 'bg-green-100 text-green-800';
       case 'provision': return 'bg-purple-100 text-purple-800';
       case 'deliverance': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -393,12 +262,12 @@ const AdminTestimoniesPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Testimony Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Member Testimonies</h1>
-          <p className="text-sm text-black/70 mt-1">Review and manage member testimony submissions</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Testimony Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">Member Testimonies</h1>
+          <p className="text-sm text-muted-foreground mt-1">Review and manage member testimony submissions</p>
         </div>
         {can('testimonies.create') && (
-          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Testimony
           </Button>
@@ -455,7 +324,7 @@ const AdminTestimoniesPage = () => {
 
         <TabsContent value="all" className="space-y-4">
           {testimonies.length === 0 ? (
-            <p className="text-black/60">No testimonies found</p>
+            <p className="text-muted-foreground">No testimonies found</p>
           ) : (
             <Card>
               <CardContent className="p-0">
@@ -546,7 +415,7 @@ const AdminTestimoniesPage = () => {
         {['pending', 'approved', 'rejected'].map((status) => (
           <TabsContent key={status} value={status} className="space-y-4">
             {groupedTestimonies[status]?.length === 0 ? (
-              <p className="text-black/60">No {status} testimonies found</p>
+              <p className="text-muted-foreground">No {status} testimonies found</p>
             ) : (
               <Card>
                 <CardContent className="p-0">
@@ -727,7 +596,7 @@ const AdminTestimoniesPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingTestimony ? 'Update Testimony' : 'Add Testimony'}
               </Button>
             </div>
@@ -761,7 +630,7 @@ const AdminTestimoniesPage = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="bg-muted p-4 rounded-lg">
                 <p className="text-gray-800 whitespace-pre-wrap">{viewingTestimony.content}</p>
               </div>
 

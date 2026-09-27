@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -46,9 +46,6 @@ type FormSubmission = {
   updatedAt: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_forms';
-const LOCAL_FORMS_STORAGE_KEY = 'wgc_frontend_form_submissions';
-const FORMS_API_BLOCKED_KEY = 'wgc_forms_api_blocked';
 const DEDICATED_TYPES = new Set(['new comers', 'newcomers', 'new member', 'new-member', 'testimony']);
 
 const parseSubmissionData = (rawData: any): Record<string, any> => {
@@ -102,7 +99,6 @@ const AdminFormsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSubmission, setEditingSubmission] = useState<FormSubmission | null>(null);
   const [viewingSubmission, setViewingSubmission] = useState<FormSubmission | null>(null);
-  const [formsApiBlocked, setFormsApiBlocked] = useState(() => localStorage.getItem(FORMS_API_BLOCKED_KEY) === 'true');
   const [formData, setFormData] = useState({
     type: 'Feedback',
     fullName: '',
@@ -123,78 +119,24 @@ const AdminFormsPage = () => {
     return message.includes('forbidden') || message.includes('403') || message.includes('unauthorized') || message.includes('401') || message.includes('authentication expired');
   };
 
-  const loadLocalManagedSubmissions = () => {
-    const localApiMirrorRaw = localStorage.getItem(LOCAL_FORMS_STORAGE_KEY);
-    const localApiMirror = localApiMirrorRaw ? JSON.parse(localApiMirrorRaw) : [];
-    const localBackupRaw = localStorage.getItem(STORAGE_KEY);
-    const localBackup = localBackupRaw ? JSON.parse(localBackupRaw) : [];
-    const mergedLocal = [...(Array.isArray(localApiMirror) ? localApiMirror : []), ...(Array.isArray(localBackup) ? localBackup : [])];
-    const normalized = mergedLocal.map(normalizeSubmission).filter(isManagedByFormsPage);
-    return Array.from(new Map(normalized.map((item) => [item.id, item])).values());
-  };
-
   // Load submissions from API on component mount
   useEffect(() => {
     const loadSubmissions = async () => {
       try {
-        if (formsApiBlocked) {
-          const localOnly = loadLocalManagedSubmissions();
-          setSubmissions(localOnly);
-          setError('API access to forms is restricted for this account. Showing local form submissions.');
-          return;
-        }
-
-        let apiItems: FormSubmission[] = [];
-
-        try {
-          const res = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>('/forms?page=1&limit=100');
-          apiItems = Array.isArray(res.items) ? res.items : Array.isArray(res.data) ? res.data : [];
-        } catch (primaryError: any) {
-          if (!isNotFoundError(primaryError)) {
-            throw primaryError;
-          }
-
-          const fallbackRes = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>('/admin/forms/all?page=1&pageSize=100');
-          apiItems = Array.isArray(fallbackRes.items) ? fallbackRes.items : Array.isArray(fallbackRes.data) ? fallbackRes.data : [];
-        }
-
-        const localRaw = localStorage.getItem(LOCAL_FORMS_STORAGE_KEY);
-        const localItems = localRaw ? JSON.parse(localRaw) : [];
-        const mergedItems = [...apiItems, ...(Array.isArray(localItems) ? localItems : [])];
-        const normalizedItems = mergedItems.map(normalizeSubmission).filter(isManagedByFormsPage);
-
-        const uniqueItems = Array.from(
-          new Map(normalizedItems.map((item) => [item.id, item])).values()
-        );
-
-        if (formsApiBlocked) {
-          setFormsApiBlocked(false);
-          localStorage.removeItem(FORMS_API_BLOCKED_KEY);
-        }
+        const res = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>('/forms/submissions?page=1&limit=100');
+        const apiItems = Array.isArray(res.items) ? res.items : Array.isArray(res.data) ? res.data : [];
+        const normalizedItems = apiItems.map(normalizeSubmission).filter(isManagedByFormsPage);
+        setSubmissions(normalizedItems);
         setError('');
-        setSubmissions(uniqueItems);
-        // Save to localStorage as backup
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(uniqueItems));
       } catch (e: any) {
         console.warn('Failed to load submissions from API:', e.message);
-        if (isAuthPermissionError(e)) {
-          setFormsApiBlocked(true);
-          localStorage.setItem(FORMS_API_BLOCKED_KEY, 'true');
-          setError('You do not have permission to read forms from the backend. Showing local form submissions only.');
-        } else {
-          setError('Failed to load forms from backend. Showing local form submissions.');
-        }
-        setSubmissions(loadLocalManagedSubmissions());
+        setError('Failed to load forms from backend.');
+        setSubmissions([]);
       }
     };
 
     loadSubmissions();
-  }, [formsApiBlocked]);
-
-  // Save submissions to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(submissions));
-  }, [submissions]);
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -240,24 +182,14 @@ const AdminFormsPage = () => {
     try {
       if (editingSubmission) {
         // Update submission status and notes
-        try {
-          await adminRequest(`/forms/${editingSubmission.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              status: formData.status,
-              notes: formData.notes
-            })
-          });
-        } catch (primaryError: any) {
-          if (!isNotFoundError(primaryError)) throw primaryError;
-          await adminRequest(`/admin/forms/${editingSubmission.type}/${editingSubmission.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              status: formData.status,
-              notes: formData.notes
-            })
-          });
-        }
+        await adminRequest(`/forms/submissions/${editingSubmission.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            status: formData.status,
+            notes: formData.notes
+          })
+        });
+        
         // Update local state
         setSubmissions(prev => prev.map(submission =>
           submission.id === editingSubmission.id
@@ -270,8 +202,6 @@ const AdminFormsPage = () => {
             : submission
         ));
       } else {
-        // For now, creating new submissions manually isn't supported via admin
-        // The API expects submissions to come from the frontend forms
         alert('Creating new submissions is not supported. Submissions are created automatically when users submit forms on the website.');
         return;
       }
@@ -279,50 +209,31 @@ const AdminFormsPage = () => {
       resetForm();
     } catch (e: any) {
       console.warn('API call failed:', e.message);
-      // For live API testing, don't automatically fallback to localStorage
-      throw e;
+      setError(e.message || 'Failed to update submission');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this form submission?')) return;
 
-    const submission = submissions.find(s => s.id === id);
-    if (!submission) return;
-
     try {
-      try {
-        await adminRequest(`/forms/${id}`, { method: 'DELETE' });
-      } catch (primaryError: any) {
-        if (!isNotFoundError(primaryError)) throw primaryError;
-        await adminRequest(`/admin/forms/${submission.type}/${id}`, { method: 'DELETE' });
-      }
+      await adminRequest(`/forms/submissions/${id}`, { method: 'DELETE' });
       setSubmissions(prev => prev.filter(submission => submission.id !== id));
     } catch (e: any) {
       console.warn('API delete failed:', e.message);
-      // For live API testing, don't automatically fallback to localStorage
-      throw e;
+      setError(e.message || 'Failed to delete submission');
     }
   };
 
   const handleStatusUpdate = async (id: string, status: 'new' | 'in_progress' | 'completed' | 'archived') => {
     const now = new Date().toISOString();
-    const submission = submissions.find(s => s.id === id);
-    if (!submission) return;
-
+    
     try {
-      try {
-        await adminRequest(`/forms/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status })
-        });
-      } catch (primaryError: any) {
-        if (!isNotFoundError(primaryError)) throw primaryError;
-        await adminRequest(`/admin/forms/${submission.type}/${id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status })
-        });
-      }
+      await adminRequest(`/forms/submissions/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status })
+      });
+      
       setSubmissions(prev => prev.map(submission =>
         submission.id === id
           ? {
@@ -333,18 +244,8 @@ const AdminFormsPage = () => {
           : submission
       ));
     } catch (e: any) {
-      console.warn('API update failed, updating local storage:', e.message);
-      // Fallback to localStorage when API fails
-      setSubmissions(prev => prev.map(submission =>
-        submission.id === id
-          ? {
-              ...submission,
-              status,
-              updatedAt: now,
-              processedDate: status !== 'new' && submission.status === 'new' ? now : submission.processedDate
-            }
-          : submission
-      ));
+      console.warn('API update failed:', e.message);
+      setError(e.message || 'Failed to update status');
     }
   };
 
@@ -353,8 +254,8 @@ const AdminFormsPage = () => {
       case 'new': return 'bg-blue-100 text-blue-800';
       case 'in_progress': return 'bg-yellow-100 text-yellow-800';
       case 'completed': return 'bg-green-100 text-green-800';
-      case 'archived': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'archived': return 'bg-muted text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -378,7 +279,7 @@ const AdminFormsPage = () => {
       case 'New Comers': return 'bg-yellow-100 text-yellow-800';
       case 'Pre-Marital Counselling': return 'bg-pink-100 text-pink-800';
       case 'Volunteer': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -424,9 +325,9 @@ const AdminFormsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Form Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Form Submissions</h1>
-          <p className="text-sm text-black/70 mt-1">View and manage form submissions from the website</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Form Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">Form Submissions</h1>
+          <p className="text-sm text-muted-foreground mt-1">View and manage form submissions from the website</p>
           {error && (
             <div className="mt-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-md">
               <p className="text-sm text-yellow-800">{error}</p>
@@ -486,7 +387,7 @@ const AdminFormsPage = () => {
 
         <TabsContent value="all" className="space-y-4">
           {submissions.length === 0 ? (
-            <p className="text-black/60">No form submissions found</p>
+            <p className="text-muted-foreground">No form submissions found</p>
           ) : (
             <Card>
               <CardContent className="p-0">
@@ -579,7 +480,7 @@ const AdminFormsPage = () => {
         {['new', 'in_progress', 'completed', 'archived'].map((status) => (
           <TabsContent key={status} value={status} className="space-y-4">
             {groupedSubmissions[status]?.length === 0 ? (
-              <p className="text-black/60">No {status.replace('_', ' ')} submissions found</p>
+              <p className="text-muted-foreground">No {status.replace('_', ' ')} submissions found</p>
             ) : (
               <Card>
                 <CardContent className="p-0">
@@ -785,7 +686,7 @@ const AdminFormsPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingSubmission ? 'Update Submission' : 'Add Submission'}
               </Button>
             </div>
@@ -837,7 +738,7 @@ const AdminFormsPage = () => {
 
               <div>
                 <label className="text-sm font-medium text-gray-500">Message</label>
-                <div className="mt-1 p-4 bg-gray-50 rounded-lg">
+                <div className="mt-1 p-4 bg-muted rounded-lg">
                   <p className="text-gray-800 whitespace-pre-wrap">{getSubmissionSummary(viewingSubmission)}</p>
                 </div>
               </div>

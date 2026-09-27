@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,6 @@ type FormSubmission = {
   updatedAt: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_members';
 
 const AdminMembersPage = () => {
   const { can, user } = useOutletContext<AdminOutletContext>();
@@ -89,101 +88,19 @@ const AdminMembersPage = () => {
     return 'single';
   };
 
-  // Load members from API + keep local manual members
+  const loadMembers = async () => {
+    try {
+      const res = await adminRequest<{ data: Member[] }>('/members');
+      setMembers(res.data || []);
+    } catch (error) {
+      console.warn('Failed to load members from API:', error);
+      setMembers([]);
+    }
+  };
+
   useEffect(() => {
-    const loadMembers = async () => {
-      let localManualMembers: Member[] = [];
-
-      const stored = localStorage.getItem(STORAGE_KEY);
-      try {
-        const parsed = stored ? JSON.parse(stored) : [];
-        localManualMembers = (Array.isArray(parsed) ? parsed : []).filter((member: Member) => member.source !== 'form');
-      } catch (error) {
-        console.error('Failed to load members from storage:', error);
-        localManualMembers = [];
-      }
-
-      if (user.role !== 'admin') {
-        setMembers(localManualMembers);
-        return;
-      }
-
-      try {
-        let submissions: FormSubmission[] = [];
-
-        try {
-          // Preferred endpoint from current production API docs
-          const res = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>(
-            '/forms?page=1&limit=100&type=New%20Comers'
-          );
-          submissions = Array.isArray(res.items) ? res.items : Array.isArray(res.data) ? res.data : [];
-        } catch (primaryError: any) {
-          const isNotFound = String(primaryError?.message || '').includes('NOT_FOUND') || String(primaryError?.message || '').includes('404');
-          if (!isNotFound) {
-            throw primaryError;
-          }
-
-          // Backward compatibility for older backend route
-          const fallbackRes = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>(
-            '/admin/forms/all?page=1&pageSize=500'
-          );
-          submissions = Array.isArray(fallbackRes.items)
-            ? fallbackRes.items
-            : Array.isArray(fallbackRes.data)
-              ? fallbackRes.data
-              : [];
-        }
-
-        const firstTimerSubmissions = submissions.filter((submission) => {
-          const normalizedType = String(submission.type || '').toLowerCase().trim();
-          return normalizedType === 'new comers' || normalizedType === 'newcomers' || normalizedType === 'new member' || normalizedType === 'new-member';
-        });
-
-        const mappedFromForms: Member[] = firstTimerSubmissions.map((submission) => {
-          const fullName = submission.fullName || submission.data?.fullName || submission.data?.name || '';
-          const { firstName, lastName } = splitName(fullName);
-
-          return {
-            id: `form-${submission.id}`,
-            firstName,
-            lastName,
-            email: submission.email || submission.data?.email || '',
-            phone: submission.phone || submission.data?.phone || '',
-            address: submission.data?.address || '',
-            dateOfBirth: submission.data?.dateOfBirth || submission.data?.dob || '',
-            maritalStatus: mapMaritalStatus(submission.data?.maritalStatus),
-            occupation: submission.data?.occupation || '',
-            status: mapFormStatusToMemberStatus(submission.status),
-            registrationDate: submission.createdAt,
-            integrationDate:
-              submission.status === 'completed' || submission.status === 'archived'
-                ? submission.updatedAt || submission.createdAt
-                : undefined,
-            notes: submission.notes || submission.data?.prayerRequests || '',
-            createdAt: submission.createdAt,
-            updatedAt: submission.updatedAt,
-            source: 'form',
-            formType: submission.type,
-            formSubmissionId: submission.id,
-          };
-        });
-
-        setMembers([...mappedFromForms, ...localManualMembers]);
-      } catch (error) {
-        console.warn('Failed to load new member submissions from API:', error);
-        setMembers(localManualMembers);
-      }
-
-    };
-
     loadMembers();
-  }, [user.role]);
-
-  // Save only manually created/edited members to localStorage
-  useEffect(() => {
-    const manualMembers = members.filter((member) => member.source !== 'form');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(manualMembers));
-  }, [members]);
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -227,42 +144,39 @@ const AdminMembersPage = () => {
     setViewingMember(member);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date().toISOString();
 
-    if (editingMember) {
-      // Update existing member
-      setMembers(prev => prev.map(member =>
-        member.id === editingMember.id
-          ? {
-              ...member,
-              ...formData,
-              updatedAt: now,
-              integrationDate: formData.status === 'integrated' && member.status !== 'integrated' ? now : member.integrationDate
-            }
-          : member
-      ));
-    } else {
-      // Create new member
-      const newMember: Member = {
-        id: Date.now().toString(),
-        ...formData,
-        registrationDate: now,
-        createdAt: now,
-        updatedAt: now,
-        source: 'manual',
-      };
-      setMembers(prev => [...prev, newMember]);
+    try {
+      if (editingMember) {
+        await adminRequest(`/members/${editingMember.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(formData)
+        });
+      } else {
+        await adminRequest('/members', {
+          method: 'POST',
+          body: JSON.stringify(formData)
+        });
+      }
+      setIsDialogOpen(false);
+      resetForm();
+      loadMembers();
+    } catch (e: any) {
+      console.warn('Failed to save member:', e.message);
+      alert(e.message || 'Failed to save member');
     }
-
-    setIsDialogOpen(false);
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this member record?')) return;
-    setMembers(prev => prev.filter(member => member.id !== id));
+    try {
+      await adminRequest(`/members/${id}`, { method: 'DELETE' });
+      loadMembers();
+    } catch (e: any) {
+      console.warn('Failed to delete member:', e.message);
+      alert(e.message || 'Failed to delete member');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -270,7 +184,7 @@ const AdminMembersPage = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'approved': return 'bg-blue-100 text-blue-800';
       case 'integrated': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -309,12 +223,12 @@ const AdminMembersPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Member Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">New Members</h1>
-          <p className="text-sm text-black/70 mt-1">Track and manage new member registrations</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Member Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">New Members</h1>
+          <p className="text-sm text-muted-foreground mt-1">Track and manage new member registrations</p>
         </div>
         {can('content.create') && (
-          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Member
           </Button>
@@ -371,7 +285,7 @@ const AdminMembersPage = () => {
 
         <TabsContent value="all" className="space-y-4">
           {members.length === 0 ? (
-            <p className="text-black/60">No members found</p>
+            <p className="text-muted-foreground">No members found</p>
           ) : (
             <Card>
               <CardContent className="p-0">
@@ -446,7 +360,7 @@ const AdminMembersPage = () => {
         {['pending', 'approved', 'integrated'].map((status) => (
           <TabsContent key={status} value={status} className="space-y-4">
             {groupedMembers[status]?.length === 0 ? (
-              <p className="text-black/60">No {status} members found</p>
+              <p className="text-muted-foreground">No {status} members found</p>
             ) : (
               <Card>
                 <CardContent className="p-0">
@@ -635,7 +549,7 @@ const AdminMembersPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingMember ? 'Update Member' : 'Add Member'}
               </Button>
             </div>

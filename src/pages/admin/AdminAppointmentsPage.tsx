@@ -346,7 +346,7 @@ const AdminAppointmentsPage = () => {
   };
 
   if (!can('appointments.read')) {
-    return <div className="text-sm text-black/70">You do not have permission to view appointments.</div>;
+    return <div className="text-sm text-muted-foreground">You do not have permission to view appointments.</div>;
   }
 
   return (
@@ -354,7 +354,7 @@ const AdminAppointmentsPage = () => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-black">Appointments</h1>
-          <p className="text-sm text-black/60">Admin-only booking and schedule management for the Serving Overseer.</p>
+          <p className="text-sm text-muted-foreground">Admin-only booking and schedule management for the Serving Overseer.</p>
         </div>
         <Button onClick={loadAll} variant="outline" className="gap-2">
           <RefreshCw className="w-4 h-4" /> Refresh
@@ -474,12 +474,12 @@ const AdminAppointmentsPage = () => {
                     <TableRow key={item.id}>
                       <TableCell>
                         <div className="font-medium">{item.guestName}</div>
-                        <div className="text-xs text-black/60">{item.guestEmail}</div>
+                        <div className="text-xs text-muted-foreground">{item.guestEmail}</div>
                       </TableCell>
                       <TableCell>{item.type?.name || '-'}</TableCell>
                       <TableCell>
                         <div className="text-sm">{new Date(item.startAt).toLocaleString()}</div>
-                        <div className="text-xs text-black/60">to {new Date(item.endAt).toLocaleString()}</div>
+                        <div className="text-xs text-muted-foreground">to {new Date(item.endAt).toLocaleString()}</div>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{item.status}</Badge>
@@ -548,7 +548,7 @@ const AdminAppointmentsPage = () => {
                     <TableRow key={t.id}>
                       <TableCell>
                         <div className="font-medium">{t.name}</div>
-                        <div className="text-xs text-black/60">{t.location || '-'}</div>
+                        <div className="text-xs text-muted-foreground">{t.location || '-'}</div>
                       </TableCell>
                       <TableCell>{t.durationMinutes} min</TableCell>
                       <TableCell>{t.minNoticeHours}h notice · {t.maxDaysInAdvance} days</TableCell>
@@ -644,7 +644,7 @@ const AdminAppointmentsPage = () => {
       </Tabs>
 
       {loading && (
-        <div className="text-sm text-black/60 flex items-center gap-2">
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
           <CalendarClock className="w-4 h-4 animate-pulse" /> Loading appointments data...
         </div>
       )}

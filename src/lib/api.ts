@@ -4,7 +4,7 @@ export async function postForm(formType: string, data: any) {
   const typeMapping: Record<string, string> = {
     'counselling': 'Counselling',
     'contact-us': 'Contact Us',
-    'event-registration': 'Feedback', // Map to Feedback for now
+    'event-registration': 'Event Registration', // Map to Feedback for now
     'feedback': 'Feedback',
     'new-member': 'New Comers',
     'pre-marital-counseling': 'Pre-Marital Counselling',
@@ -93,8 +93,16 @@ export async function postForm(formType: string, data: any) {
 }
 
 // Public API functions for fetching data
-export async function getEvents() {
-  const url = (import.meta.env.VITE_API_URL ?? '') + `/events?page=1&limit=50&status=published`;
+export async function getEvents(options?: { fromDate?: string; toDate?: string; status?: string }) {
+  const params = new URLSearchParams({
+    page: '1',
+    limit: '50',
+    status: options?.status || 'published'
+  });
+  if (options?.fromDate) params.append('fromDate', options.fromDate);
+  if (options?.toDate) params.append('toDate', options.toDate);
+
+  const url = (import.meta.env.VITE_API_URL ?? '') + `/events?${params.toString()}`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
@@ -124,6 +132,50 @@ export async function getEventById(eventId: string) {
   }
 }
 
+export interface EventType {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  createdBy: string | null;
+  updatedBy: string | null;
+  version: number;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  description: string;
+}
+
+export async function getEventTypes(activeOnly: boolean = true): Promise<EventType[]> {
+  const url = (import.meta.env.VITE_API_URL ?? '') + `/event-types?activeOnly=${activeOnly}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch event types: ${res.status}`);
+    }
+    const data = await res.json();
+    return data?.data || [];
+  } catch (error) {
+    console.warn('Failed to fetch event types from API:', error);
+    return [];
+  }
+}
+
+export async function getEventTypeById(id: string): Promise<EventType | null> {
+  const url = (import.meta.env.VITE_API_URL ?? '') + `/event-types/${encodeURIComponent(id)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch event type: ${res.status}`);
+    }
+    const data = await res.json();
+    return data?.data || null;
+  } catch (error) {
+    console.warn('Failed to fetch event type by ID from API:', error);
+    return null;
+  }
+}
+
 export function buildEventRegistrationUrl(event: {
   id: string;
   title?: string;
@@ -149,18 +201,25 @@ export async function registerEventParticipant(
   eventId: string,
   payload: {
     fullName: string;
-    email: string;
     phone?: string;
+    email: string;
     gender?: string;
-    address?: string;
-    placeOfWorship?: string;
+    selectedDays: string[];
+    allDays?: boolean;
+    member?: string;
+    accommodation: string;
+    consent: boolean;
+    contactConsent: boolean;
   }
 ) {
   const parts = String(payload.fullName || '').trim().split(/\s+/).filter(Boolean);
   const firstName = parts[0] || 'Guest';
   const lastName = parts.slice(1).join(' ') || 'Attendee';
 
+
+
   const url = (import.meta.env.VITE_API_URL ?? '') + `/events/${encodeURIComponent(eventId)}/participants/register`;
+  delete payload["allDays"]
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -170,11 +229,15 @@ export async function registerEventParticipant(
       email: payload.email,
       phone: payload.phone,
       gender: payload.gender ? String(payload.gender).toUpperCase() : undefined,
-      address: payload.address,
-      placeOfWorship: payload.placeOfWorship,
+      allDays: payload.allDays,
+      member: payload.member,
+      accommodation: payload.accommodation,
+      consent: payload.consent,
+      contactConsent: payload.contactConsent,
+      selectedDays: payload.selectedDays
     }),
   });
-
+  console.log("Result: res")
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || 'Failed to register participant');
@@ -183,26 +246,50 @@ export async function registerEventParticipant(
   return res.json();
 }
 
-export async function getMedia() {
-  // Media is stored locally (no API available), load from localStorage
-  const STORAGE_KEY = 'wgc_admin_media';
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const mediaItems = JSON.parse(stored);
-      // Filter for published items only
-      return mediaItems.filter((item: any) => item.status === 'published' || !item.status);
-    }
-  } catch (error) {
-    console.warn('Failed to load media from localStorage:', error);
-  }
+export interface PaginatedMediaResponse {
+  success: boolean;
+  message: string;
+  data: any[]; // The raw records
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalRecords: number;
+    totalPages: number;
+  };
+}
 
-  // Fallback to hardcoded data if nothing in localStorage
-  return getFallbackMedia();
+export async function getMedia(page: number = 1, pageSize: number = 10, search: string = "Transformation"): Promise<PaginatedMediaResponse> {
+  try {
+    const url = (import.meta.env.VITE_API_URL ?? '') + `/youtube/videos?page=${page}&limit=${pageSize}&search=${search}`;
+    console.log("Url: ", url)
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching media: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    return {
+      success: result.success,
+      message: result.message,
+      data: result.data || [],
+      pagination: result.pagination || { currentPage: page, pageSize, totalRecords: 0, totalPages: 1 }
+    };
+  } catch (error) {
+    console.error("API Fetch Error:", error);
+    // Return a safe empty state to prevent app crashes
+    return {
+      success: false,
+      message: "Failed to fetch",
+      data: [],
+      pagination: { currentPage: 1, pageSize, totalRecords: 0, totalPages: 1 }
+    };
+  }
 }
 
 export async function getTestimonies() {
-  const url = (import.meta.env.VITE_API_URL ?? '') + `/testimonies?page=1&limit=20&status=approved`;
+  const url = (import.meta.env.VITE_API_URL ?? '') + `/forms?page=1&limit=20&type=testimony`;
   try {
     const res = await fetch(url);
     if (!res.ok) {

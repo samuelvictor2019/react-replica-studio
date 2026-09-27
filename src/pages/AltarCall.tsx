@@ -91,7 +91,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
 
           {/* Submitted state */}
           {submitted ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center min-h-[400px]">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

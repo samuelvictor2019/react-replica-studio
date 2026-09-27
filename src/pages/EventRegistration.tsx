@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getEventById, postForm } from "@/lib/api";
+// import { getEventById, postForm } from "@/lib/api";
+import { getEventById, registerEventParticipant } from "@/lib/api";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +64,7 @@ const EventRegistration = () => {
           gender: form.gender,
           selectedDays: form.selectedDays,
           allDays: form.allDays,
-          member: form.member,
+          member: form.member.toLowerCase() === "yes" ? true : false,
           accommodation: form.accommodation,
           eventId,
           eventTitle: eventDetails?.title,
@@ -360,15 +361,14 @@ const EventRegistration = () => {
                     onClick={async () => {
                       setSubmitting(true);
                       try {
-                        await postForm('event-registration', {
-                          ...form,
-                          eventId,
-                          eventTitle: eventDetails?.title,
-                          eventType: eventDetails?.type,
-                          eventLocation: eventDetails?.location,
-                          eventStartDate: eventDetails?.startDate,
-                          eventEndDate: eventDetails?.endDate,
-                        });
+                        await registerEventParticipant(eventId, 
+                          form
+                          // eventTitle: eventDetails?.title,
+                          // eventType: eventDetails?.type,
+                          // eventLocation: eventDetails?.location,
+                          // eventStartDate: eventDetails?.startDate,
+                          // eventEndDate: eventDetails?.endDate,
+                        );
                         persistLocalRegistration();
                         setSubmitted(true);
                       } catch (err: any) {

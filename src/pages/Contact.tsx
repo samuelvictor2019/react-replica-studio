@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Turnstile } from '@marsidev/react-turnstile';
 import Navbar from "@/components/Navbar";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -24,6 +25,14 @@ type ContactForm = {
 const Contact = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loadTime, setLoadTime] = useState(0);
+  const [honeypot, setHoneypot] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoadTime(Date.now());
+  }, []);
+
   const [form, setForm] = useState<ContactForm>({
     fullName: "",
     phone: "",
@@ -49,7 +58,21 @@ const Contact = () => {
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
+
+    // Honeypot check
+    if (honeypot) {
+      setSubmitted(true);
+      return;
+    }
+
+    if (!captchaToken) {
+      alert("Please complete the security check to continue.");
+      return;
+    }
+
     setSubmitting(true);
+    const timeToSubmitMs = Date.now() - loadTime;
+
     try {
       await postForm("contact-us", {
         fullName: form.fullName,
@@ -60,6 +83,9 @@ const Contact = () => {
         responseMethod: form.responseMethod,
         consent: form.consent,
         source: "Contact Us",
+        _honeypot: honeypot,
+        _timeToSubmitMs: timeToSubmitMs,
+        captchaToken,
       });
       setSubmitted(true);
     } catch (err: any) {
@@ -110,6 +136,20 @@ const Contact = () => {
                     className="w-full max-w-3xl rounded-[28px] bg-[#edf2ff] p-4 sm:p-5 md:p-6 shadow-sm border border-black/5"
                   >
                     <div className="space-y-3 sm:space-y-3.5">
+                      {/* Honeypot field (hidden) */}
+                      <div className="opacity-0 absolute -left-[9999px] top-0 pointer-events-none" aria-hidden="true">
+                        <label htmlFor="_company_ext">Leave this empty</label>
+                        <input
+                          type="text"
+                          id="_company_ext"
+                          name="_company_ext"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={honeypot}
+                          onChange={(e) => setHoneypot(e.target.value)}
+                        />
+                      </div>
+
                       <div className="space-y-1.5">
                         <Label className="text-[11px] font-medium text-black/70">Full Name</Label>
                         <Input
@@ -190,6 +230,17 @@ const Contact = () => {
                         <Label className="text-[11px] sm:text-xs text-black/75 leading-snug">
                           I consent to be contacted by WaterGate Church regarding this enquiry.
                         </Label>
+                      </div>
+
+                      {/* Turnstile Captcha - Cloudflare dummy key for always pass */}
+                      <div className="py-2 flex justify-center">
+                        <Turnstile
+                          siteKey="1x00000000000000000000AA"
+                          options={{ appearance: 'interaction-only' }}
+                          onSuccess={(token) => setCaptchaToken(token)}
+                          onError={() => setCaptchaToken(null)}
+                          onExpire={() => setCaptchaToken(null)}
+                        />
                       </div>
 
                       <Button

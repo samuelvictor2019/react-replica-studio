@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Settings, Database, Globe, Lock, Save } from 'lucide-react';
+import { adminRequest } from '@/lib/adminApi';
 
 type SystemSettings = {
   siteName: string;
@@ -26,7 +27,6 @@ type SystemSettings = {
   updatedAt: string;
 };
 
-const SETTINGS_STORAGE_KEY = 'wgc_admin_settings';
 
 const getDefaultSettings = (): SystemSettings => ({
   siteName: 'Watergate Church',
@@ -50,40 +50,48 @@ const AdminSettingsPage = () => {
   const [settings, setSettings] = useState<SystemSettings>(getDefaultSettings());
   const [saveMessage, setSaveMessage] = useState('');
 
-  useEffect(() => {
-    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (!stored) {
-      const defaults = getDefaultSettings();
-      setSettings(defaults);
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaults));
-      return;
-    }
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  const loadSettings = async () => {
+    setLoading(true);
     try {
-      const parsed = JSON.parse(stored);
-      const merged = {
-        ...getDefaultSettings(),
-        ...(parsed || {}),
-      } as SystemSettings;
-      setSettings(merged);
-    } catch (error) {
-      console.error('Failed to load settings from storage:', error);
-      const defaults = getDefaultSettings();
-      setSettings(defaults);
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(defaults));
+      const res = await adminRequest<{ data: SystemSettings }>('/settings');
+      if (res.data) {
+        setSettings({ ...getDefaultSettings(), ...res.data });
+      }
+      setError('');
+    } catch (e: any) {
+      console.warn('Failed to load settings:', e.message);
+      setError('Failed to load settings');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadSettings();
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated = {
       ...settings,
       updatedAt: new Date().toISOString(),
     };
-    setSettings(updated);
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
-    setSaveMessage('System settings saved successfully.');
-    setTimeout(() => setSaveMessage(''), 2500);
+    
+    try {
+      await adminRequest('/settings', {
+        method: 'PATCH',
+        body: JSON.stringify(updated)
+      });
+      setSettings(updated);
+      setSaveMessage('System settings saved successfully.');
+      setTimeout(() => setSaveMessage(''), 2500);
+    } catch (e: any) {
+      console.warn('Failed to save settings:', e.message);
+      setError('Failed to save settings');
+    }
   };
 
   if (!can('users.update')) {
@@ -94,9 +102,9 @@ const AdminSettingsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Settings</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">System Settings</h1>
-          <p className="text-sm text-black/70 mt-1">Configure platform behavior, security defaults, and operational controls</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Settings</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">System Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">Configure platform behavior, security defaults, and operational controls</p>
           {saveMessage && (
             <p className="text-sm text-green-700 mt-2">{saveMessage}</p>
           )}
@@ -319,7 +327,7 @@ const AdminSettingsPage = () => {
             </div>
 
             <div className="flex justify-end">
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black">
+              <Button type="submit" className="w-full sm:w-auto">
                 <Save className="w-4 h-4 mr-2" />
                 Save Settings
               </Button>

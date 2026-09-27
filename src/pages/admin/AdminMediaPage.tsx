@@ -24,7 +24,6 @@ type MediaItem = {
   updatedAt: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_media';
 
 const AdminMediaPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
@@ -41,26 +40,26 @@ const AdminMediaPage = () => {
     description: ''
   });
 
-  // Load media from localStorage (no API for media)
-  useEffect(() => {
-    const loadMedia = () => {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        try {
-          setMedia(JSON.parse(stored));
-        } catch {
-          setMedia([]);
-        }
-      }
-    };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  const loadMedia = async () => {
+    setLoading(true);
+    try {
+      const res = await adminRequest<{ data: MediaItem[] }>('/media');
+      setMedia(res.data || []);
+      setError('');
+    } catch (e: any) {
+      console.warn('Failed to load media:', e.message);
+      setError('Failed to load media');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadMedia();
   }, []);
-
-  // Save media to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(media));
-  }, [media]);
 
   const resetForm = () => {
     setFormData({
@@ -96,33 +95,38 @@ const AdminMediaPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date().toISOString();
-
-    // Media is stored locally (no API available)
-    if (editingMedia) {
-      setMedia(prev => prev.map(item =>
-        item.id === editingMedia.id
-          ? { ...item, ...formData, updatedAt: now }
-          : item
-      ));
-    } else {
-      const newMedia: MediaItem = {
-        id: Date.now().toString(),
-        ...formData,
-        createdAt: now,
-        updatedAt: now
-      };
-      setMedia(prev => [...prev, newMedia]);
+    
+    try {
+      if (editingMedia) {
+        await adminRequest(`/media/${editingMedia.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(formData)
+        });
+      } else {
+        await adminRequest('/media', {
+          method: 'POST',
+          body: JSON.stringify(formData)
+        });
+      }
+      setIsDialogOpen(false);
+      resetForm();
+      loadMedia();
+    } catch (e: any) {
+      console.warn('Failed to save media:', e.message);
+      setError('Failed to save media');
     }
-    setIsDialogOpen(false);
-    resetForm();
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this media item?')) return;
 
-    // Media is stored locally (no API available)
-    setMedia(prev => prev.filter(item => item.id !== id));
+    try {
+      await adminRequest(`/media/${id}`, { method: 'DELETE' });
+      loadMedia();
+    } catch (e: any) {
+      console.warn('Failed to delete media:', e.message);
+      setError('Failed to delete media');
+    }
   };
 
   const getTypeIcon = (type: string) => {
@@ -139,7 +143,7 @@ const AdminMediaPage = () => {
       case 'sermons': return 'bg-purple-100 text-purple-800';
       case 'worship': return 'bg-blue-100 text-blue-800';
       case 'announcements': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-muted text-gray-800';
     }
   };
 
@@ -157,12 +161,12 @@ const AdminMediaPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.16em] text-black/40">Media Management</p>
-          <h1 className="font-body text-2xl sm:text-3xl text-black mt-1">Church Media Library</h1>
-          <p className="text-sm text-black/70 mt-1">Manage sermons, worship content, and announcements</p>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground font-medium">Media Management</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground mt-1">Church Media Library</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage sermons, worship content, and announcements</p>
         </div>
         {can('content.create') && (
-          <Button onClick={openCreateDialog} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+          <Button onClick={openCreateDialog} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Media
           </Button>
@@ -180,7 +184,7 @@ const AdminMediaPage = () => {
 
         <TabsContent value="all" className="space-y-4">
           {media.length === 0 ? (
-            <p className="text-black/60">No media items found</p>
+            <p className="text-muted-foreground">No media items found</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {media.map((item) => (
@@ -229,7 +233,7 @@ const AdminMediaPage = () => {
         {['sermons', 'worship', 'announcements', 'other'].map((category) => (
           <TabsContent key={category} value={category} className="space-y-4">
             {groupedMedia[category]?.length === 0 ? (
-              <p className="text-black/60">No {category} found</p>
+              <p className="text-muted-foreground">No {category} found</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {groupedMedia[category]?.map((item) => (
@@ -367,7 +371,7 @@ const AdminMediaPage = () => {
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
+              <Button type="submit" className="w-full sm:w-auto">
                 {editingMedia ? 'Update Media' : 'Add Media'}
               </Button>
             </div>
