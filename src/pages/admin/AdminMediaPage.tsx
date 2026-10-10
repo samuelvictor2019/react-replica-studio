@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Play, Image as ImageIcon, Youtube, Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { adminRequest } from '@/lib/adminApi';
+import AdminImageLibrary from './AdminImageLibrary';
 
 type MediaItem = {
   id: string;
@@ -174,8 +175,9 @@ const AdminMediaPage = () => {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
           <TabsTrigger value="all" className="text-xs sm:text-sm">All ({media.length})</TabsTrigger>
+          <TabsTrigger value="images" className="text-xs sm:text-sm">Image Library</TabsTrigger>
           <TabsTrigger value="sermons" className="text-xs sm:text-sm">Sermons ({groupedMedia.sermons?.length || 0})</TabsTrigger>
           <TabsTrigger value="worship" className="text-xs sm:text-sm">Worship ({groupedMedia.worship?.length || 0})</TabsTrigger>
           <TabsTrigger value="announcements" className="text-xs sm:text-sm">Announcements ({groupedMedia.announcements?.length || 0})</TabsTrigger>
@@ -228,6 +230,12 @@ const AdminMediaPage = () => {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="images" className="space-y-4">
+          <div className="bg-card border rounded-lg p-6">
+            <AdminImageLibrary />
+          </div>
         </TabsContent>
 
         {['sermons', 'worship', 'announcements', 'other'].map((category) => (

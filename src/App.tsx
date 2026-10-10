@@ -29,6 +29,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEventsPage from "./pages/admin/AdminEventsPage";
+import AdminEventTypesPage from "./pages/admin/AdminEventTypesPage";
 import AdminMediaPage from "./pages/admin/AdminMediaPage";
 import AdminMembersPage from "./pages/admin/AdminMembersPage";
 import AdminTestimoniesPage from "./pages/admin/AdminTestimoniesPage";
@@ -113,6 +114,7 @@ const App = () => (
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="events" element={<AdminEventsPage />} />
+            <Route path="event-types" element={<AdminEventTypesPage />} />
             <Route path="media" element={<AdminMediaPage />} />
             <Route path="members" element={<AdminMembersPage />} />
             <Route path="testimonies" element={<AdminTestimoniesPage />} />

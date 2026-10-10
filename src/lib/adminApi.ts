@@ -1,3 +1,5 @@
+import type { EventType } from '@/lib/api';
+
 export type Role = 'super_admin' | 'editor' | 'viewer' | 'admin' | 'user';
 export type CanonicalRole = 'super_admin' | 'editor' | 'viewer';
 
@@ -239,3 +241,93 @@ export async function adminLogout() {
     clearAdminToken();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Response / error helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Normalises the various list envelopes the backend may return
+ * (`[]`, `{ data: [] }`, `{ items: [] }`, `{ data: { items: [] } }`, `{ data: { data: [] } }`).
+ */
+export function extractList<T>(payload: any): T[] {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.data?.items)) return payload.data.items;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  return [];
+}
+
+/** Unwraps a single-resource envelope (`{ data }`, `{ item }` or the raw object). */
+export function extractItem<T>(payload: any): T {
+  return (payload?.data ?? payload?.item ?? payload) as T;
+}
+
+/** Maps errors thrown by `adminRequest` to short, human-readable messages. */
+export function describeApiError(error: any, fallback: string): string {
+  const message: string = error?.message || '';
+  if (message.includes('CORS_ERROR')) return 'CORS error: the backend rejected this origin.';
+  if (message.includes('NETWORK_ERROR')) return 'Network error: unable to reach the server.';
+  if (message.includes('BACKEND_ERROR')) return 'The server is temporarily unavailable. Please try again.';
+  if (message.includes('FORBIDDEN')) return 'You do not have permission to perform this action.';
+  if (message.includes('NOT_FOUND')) return 'The requested resource no longer exists.';
+  if (message.includes('SERVER_ERROR')) return 'The server encountered an error. Please try again.';
+
+  // NestJS-style JSON error bodies: { message: string | string[] }
+  try {
+    const parsed = JSON.parse(message);
+    const detail = Array.isArray(parsed?.message) ? parsed.message.join(', ') : parsed?.message;
+    if (detail) return String(detail);
+  } catch {
+    /* not JSON */
+  }
+
+  return message || fallback;
+}
+
+// ---------------------------------------------------------------------------
+// Event types
+// ---------------------------------------------------------------------------
+
+export type { EventType };
+
+export type EventTypePayload = {
+  name: string;
+  slug: string;
+  description: string;
+  isActive: boolean;
+};
+
+export const eventTypesApi = {
+  /** Includes inactive types so admins can review and re-enable them. */
+  async list(): Promise<EventType[]> {
+    const res = await adminRequest<any>('/event-types?activeOnly=false');
+    return extractList<EventType>(res);
+  },
+
+  async get(id: string): Promise<EventType> {
+    const res = await adminRequest<any>(`/event-types/${encodeURIComponent(id)}`);
+    return extractItem<EventType>(res);
+  },
+
+  async create(payload: EventTypePayload): Promise<EventType> {
+    const res = await adminRequest<any>('/event-types', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return extractItem<EventType>(res);
+  },
+
+  async update(id: string, payload: Partial<EventTypePayload>): Promise<EventType> {
+    const res = await adminRequest<any>(`/event-types/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    return extractItem<EventType>(res);
+  },
+
+  async remove(id: string): Promise<void> {
+    await adminRequest(`/event-types/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  },
+};

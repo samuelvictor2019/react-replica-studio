@@ -1,0 +1,24 @@
+import React from "react";
+import eventHeroImg from "@/assets/events_hero.jpg";
+
+const EventHero: React.FC<{ title?: string; subtitle?: string }> = ({
+  title = "Gather. Grow. Encounter.",
+  subtitle,
+}) => {
+  return (
+    <section className="bg-background text-black">
+      <div className="container max-w-6xl mx-auto px-4 pt-24 pb-8">
+        <h1 className="font-heading text-[clamp(2.1rem,7.6vw,4.5rem)] font-medium leading-[1.1] max-w-2xl hero-fade delay-1">
+          {title}
+        </h1>
+        {subtitle && <p className="mt-4 text-black/70 max-w-2xl hero-fade delay-2">{subtitle}</p>}
+      </div>
+
+      <div className="w-full">
+          <img src={eventHeroImg} alt={`${title} hero`} className="w-full h-auto object-contain hero-fade delay-2" />
+      </div>
+    </section>
+  );
+};
+
+export default EventHero;
