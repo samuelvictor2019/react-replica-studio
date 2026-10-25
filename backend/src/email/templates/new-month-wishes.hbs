@@ -1,58 +1,23 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f7; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #1a237e, #4a148c); color: #ffffff; text-align: center; padding: 36px 24px; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
-    .header .emoji { font-size: 40px; display: block; margin-bottom: 12px; }
-    .month-banner { background: #e8eaf6; color: #1a237e; text-align: center; padding: 14px; font-weight: bold; font-size: 18px; border-bottom: 2px solid #c5cae9; letter-spacing: 0.5px; }
-    .body { padding: 32px 24px; color: #333333; line-height: 1.7; }
-    .body h2 { color: #1a237e; margin-top: 0; font-size: 20px; font-weight: 600; }
-    .verse-card { background: linear-gradient(135deg, #ede7f6, #d1c4e9); border-radius: 10px; padding: 24px; margin: 24px 0; text-align: center; border-left: 4px solid #4a148c; }
-    .verse-text { font-size: 16px; font-style: italic; color: #1e293b; line-height: 1.6; margin: 0 0 8px 0; }
-    .verse-ref { font-size: 13px; font-weight: 700; color: #4a148c; text-transform: uppercase; letter-spacing: 0.5px; }
-    .message-box { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; font-size: 15px; color: #475569; }
-    .footer { text-align: center; padding: 24px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; background: #fafafa; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <span class="emoji">🎉</span>
-      <h1>Happy New Month!</h1>
-    </div>
-    <div class="month-banner">
-      ✨ Welcome to {{monthName}}!
-    </div>
-    <div class="body">
-      <h2>Hello {{recipientName}},</h2>
-      <p>A new month has dawned, and with it comes a fresh chapter filled with God's promises, purpose, and divine appointments.</p>
-
-      {{#if monthMessage}}
-      <div class="message-box">
-        {{monthMessage}}
-      </div>
-      {{/if}}
-
-      {{#if bibleVerse}}
-      <div class="verse-card">
-        <p class="verse-text">"{{bibleVerse}}"</p>
-        {{#if bibleReference}}
-        <span class="verse-ref">— {{bibleReference}}</span>
-        {{/if}}
-      </div>
-      {{/if}}
-
-      <p>As you step into this new month, may every plan you set your hands to prosper, and may the light of God's countenance shine upon you and your household.</p>
-      <p style="margin-top: 24px; font-weight: 600; color: #1a237e;">Blessed New Month from all of us at Watergate Church! 🙏✨</p>
-    </div>
-    <div class="footer">
-      <p>&copy; {{year}} Watergate Church Global. All rights reserved.</p>
-    </div>
-  </div>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>A new month from Watergate Church</title></head>
+<body style="margin:0;padding:0;background:#f4eee7;color:#342e28;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Welcome to {{monthName}}. A new month and a new page to fill.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f4eee7;"><tr><td align="center" style="padding:36px 14px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:590px;background:#fff;">
+      <tr><td align="center" style="padding:35px 28px 31px;background:#654b3b;color:#fff;">
+        <p style="margin:0 0 12px;color:#edd7b7;font-size:12px;font-weight:bold;letter-spacing:1.6px;text-transform:uppercase;">A new chapter</p>
+        <h1 style="margin:0;font:normal 30px/1.25 Georgia,'Times New Roman',serif;">Welcome to {{monthName}}</h1>
+      </td></tr>
+      <tr><td style="padding:30px 36px 34px;">
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.75;">Hello {{recipientName}},</p>
+        <p style="margin:0 0 20px;font-size:15px;line-height:1.75;">A new month opens a little more space for purpose, connection, and the good things still ahead. We hope it brings you renewed hope and peace.</p>
+        {{#if monthMessage}}<p style="margin:0 0 22px;padding:17px 19px;background:#f7f3ed;border:1px solid #eadfce;font-size:15px;line-height:1.75;">{{monthMessage}}</p>{{/if}}
+        {{#if bibleVerse}}<blockquote style="margin:0;padding:0 0 0 20px;border-left:3px solid #bb8955;color:#654b3b;"><p style="margin:0;font:italic 19px/1.55 Georgia,'Times New Roman',serif;">&ldquo;{{bibleVerse}}&rdquo;</p>{{#if bibleReference}}<footer style="margin-top:12px;color:#715d4b;font:700 12px Arial,sans-serif;">{{bibleReference}}</footer>{{/if}}</blockquote>{{/if}}
+        <p style="margin:24px 0 0;font-size:15px;line-height:1.75;">May your plans find steady ground, and may you and your household experience a month of blessing.</p>
+      </td></tr>
+      <tr><td align="center" style="padding:18px 30px;background:#f7f3ed;color:#6e6257;font:12px/1.6 Arial,Helvetica,sans-serif;">Warm wishes from Watergate Church Global<br>&copy; {{year}}</td></tr>
+    </table>
+  </td></tr></table>
 </body>
 </html>
