@@ -1,265 +1,118 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Participant } from './entities/participant.entity.js';
-import { RegisterParticipantDto, BulkRegistrationDto, ParticipantQueryDto } from './dto/participant.dto.js';
-import { EventsService } from '../events/events.service.js';
-import { NotificationService } from '../notifications/notification.service.js';
-import {
-  NotificationType,
-  DeliveryChannel,
-} from '../notifications/types/notification-types.js';
-import { EventStatus } from '../events/entities/event.entity.js';
-import { ResilientRedisService } from '../infrastructure/redis/resilient-redis-service.js';
-import { PARTICIPANT_CACHE, EVENT_CACHE } from '../common/redis/cache.constants.js';
-import { createHash } from 'crypto';
-import { ActivitiesService } from '../activities/activities.service.js';
-import { ActivityAction } from '../activities/entities/activity-log.entity.js';
+import { BadRequestException, ConflictException } from '@nestjs/common';
+import { EventsService } from '../events/events.service';
+import { EventStatus } from '../events/entities/event.entity';
+import { NotificationService } from '../notifications/notification.service';
+import { ResilientRedisService } from '../infrastructure/redis/resilient-redis-service';
+import { ActivitiesService } from '../activities/activities.service';
+import { Participant } from './entities/participant.entity';
+import { RegisterParticipantDto } from './dto/participant.dto';
+import { ParticipantService } from './participant.service';
 
-@Injectable()
-export class ParticipantService {
-  private readonly logger = new Logger(ParticipantService.name);
+describe('ParticipantService registration tickets', () => {
+  const eventId = 'f2f9dfae-1664-4ce7-9e16-4e901197c36a';
+  const event = {
+    id: eventId,
+    status: EventStatus.PUBLISHED,
+    title: 'Ethanim Gathering',
+    description: 'A community gathering',
+    startDate: new Date('2026-11-15T10:00:00.000Z'),
+    endDate: new Date('2026-11-15T15:00:00.000Z'),
+    location: 'Main Hall',
+    bannerImageUrl: null,
+    eventType: { id: 'event-type-id', slug: 'ethanim' },
+  };
+  const dto = {
+    firstName: 'Jordan',
+    lastName: 'Smith',
+    email: 'JORDAN@example.com',
+    consent: true,
+    contactConsent: true,
+    selectedDays: ['2026-11-15'],
+  } as RegisterParticipantDto;
 
-  constructor(
-    @InjectRepository(Participant)
-    private readonly participantRepository: Repository<Participant>,
-    private readonly eventsService: EventsService,
-    private readonly notificationService: NotificationService,
-    private readonly redis: ResilientRedisService,
-    private readonly activitiesService: ActivitiesService,
-  ) {}
+  let participantRepository: {
+    findOne: jest.Mock;
+    create: jest.Mock;
+    save: jest.Mock;
+  };
+  let eventsService: {
+    findOne: jest.Mock;
+    incrementRegistrationCount: jest.Mock;
+    nextRegistrationSequence: jest.Mock;
+  };
+  let notificationService: { send: jest.Mock };
+  let redis: { deleteByPrefix: jest.Mock };
+  let activitiesService: { logActivity: jest.Mock };
+  let service: ParticipantService;
 
-  private hashQuery(params: Record<string, unknown>): string {
-    const sorted = Object.keys(params)
-      .sort()
-      .reduce<Record<string, unknown>>((acc, key) => {
-        if (params[key] !== undefined && params[key] !== null) {
-          acc[key] = params[key];
-        }
-        return acc;
-      }, {});
+  beforeEach(() => {
+    participantRepository = {
+      findOne: jest.fn().mockResolvedValue(null),
+      create: jest.fn((value) => value),
+      save: jest.fn().mockImplementation(async (value) => ({
+        ...value,
+        id: 'participant-id',
+        selectedDays: value.selectedDays,
+      })),
+    };
+    eventsService = {
+      findOne: jest.fn().mockResolvedValue(event),
+      incrementRegistrationCount: jest.fn().mockResolvedValue(undefined),
+      nextRegistrationSequence: jest.fn().mockResolvedValue(1),
+    };
+    notificationService = { send: jest.fn().mockResolvedValue(undefined) };
+    redis = { deleteByPrefix: jest.fn().mockResolvedValue(undefined) };
+    activitiesService = { logActivity: jest.fn().mockResolvedValue(undefined) };
 
-    return createHash('sha256')
-      .update(JSON.stringify(sorted))
-      .digest('hex')
-      .slice(0, 16);
-  }
+    service = new ParticipantService(
+      participantRepository as never,
+      eventsService as unknown as EventsService,
+      notificationService as unknown as NotificationService,
+      redis as unknown as ResilientRedisService,
+      activitiesService as unknown as ActivitiesService,
+    );
+  });
 
-  
-  private async invalidateParticipantCache(eventId: string): Promise<void> {
-    await this.redis.deleteByPrefix(`${PARTICIPANT_CACHE.LIST_PREFIX}${eventId}`);
-  }
+  it('creates a registration and sends its type, year, and zero-padded ticket number', async () => {
+    const result = await service.register(eventId, dto);
+    const year = new Date().getFullYear();
+    const email = notificationService.send.mock.calls[0][0];
 
-  
-  private async invalidateLookupCache(): Promise<void> {
-    await this.redis.deleteByPrefix(PARTICIPANT_CACHE.LOOKUP_PREFIX);
-  }
+    expect(result.id).toBe('participant-id');
+    expect(participantRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'jordan@example.com', eventId }),
+    );
+    expect(eventsService.nextRegistrationSequence).toHaveBeenCalledWith(
+      'event-type-id',
+      year,
+    );
+    expect(email.context.ticketNumber).toBe(`ETHANIM${String(year).slice(-2)}01`);
+    expect(email.channels).toEqual(['email', 'sms']);
+  });
 
-  
-  private async invalidateEventCache(): Promise<void> {
-    await this.redis.deleteByPrefix(EVENT_CACHE.NAMESPACE);
-  }
+  it('expands the ticket number without truncating counts beyond four digits', async () => {
+    eventsService.nextRegistrationSequence.mockResolvedValue(10000);
 
-  async register(
-    eventId: string,
-    dto: RegisterParticipantDto,
-  ): Promise<Participant> {
-    const event = await this.eventsService.findOne(eventId);
+    await service.register(eventId, dto);
 
-    if (event.status !== EventStatus.PUBLISHED) {
-      throw new BadRequestException('This event is not currently accepting registrations');
-    }
+    const year = String(new Date().getFullYear()).slice(-2);
+    expect(notificationService.send.mock.calls[0][0].context.ticketNumber).toBe(
+      `ETHANIM${year}10000`,
+    );
+  });
 
-    const email = dto.email.toLowerCase();
+  it('rejects duplicate registrations before allocating a ticket number', async () => {
+    participantRepository.findOne.mockResolvedValue({ id: 'existing-participant' });
 
-    const existing = await this.participantRepository.findOne({
-      where: { eventId, email },
-    });
+    await expect(service.register(eventId, dto)).rejects.toBeInstanceOf(ConflictException);
+    expect(eventsService.nextRegistrationSequence).not.toHaveBeenCalled();
+    expect(notificationService.send).not.toHaveBeenCalled();
+  });
 
-    if (existing) {
-      throw new ConflictException('You are already registered for this event');
-    }
+  it('rejects registrations for events that are not accepting registrations', async () => {
+    eventsService.findOne.mockResolvedValue({ ...event, status: EventStatus.DRAFT });
 
-    const participant = this.participantRepository.create({
-      ...dto,
-      email,
-      eventId,
-    });
-
-    const saved = await this.participantRepository.save(participant);
-    await this.eventsService.incrementRegistrationCount(eventId);
-
-    this.notificationService
-      .send({
-        type: NotificationType.EVENT_REGISTRATION_CONFIRMATION,
-        channels: [DeliveryChannel.EMAIL, DeliveryChannel.SMS],
-        recipient: {
-          email,
-          phone: dto.phone ?? undefined,
-          name: dto.firstName,
-        },
-        context: {
-          firstName: participant.firstName,
-          bannerImageUrl: event.bannerImageUrl ?? undefined,
-          startDate: event.startDate,
-          endDate: event.endDate,
-          selectedDays: saved.selectedDays,
-          title: event.title,
-          location: event.location,
-          description: event.description ?? undefined,
-          registrationId: participant.id,
-          year: new Date().getFullYear(),
-        },
-      })
-      .catch((error) => {
-        this.logger.error(
-          `Failed to send registration notification to ${email}: ${error.message}`,
-        );
-      });
-
-    this.logger.log(`New participant registration for event "${event.title}": ${email}`);
-
-    await Promise.all([
-      this.invalidateParticipantCache(eventId),
-      this.invalidateLookupCache(),
-      this.invalidateEventCache(),
-    ]);
-
-    await this.activitiesService.logActivity({
-      action: ActivityAction.REGISTER_EVENT,
-      participantId: saved.id,
-      details: `Registered for event ${event.title}`,
-    });
-
-    return saved;
-  }
-
-  async checkIn(eventId: string, participantId: string): Promise<Participant> {
-    const participant = await this.participantRepository.findOne({
-      where: { id: participantId, eventId },
-    });
-
-    if (!participant) {
-      throw new NotFoundException('Participant registration not found for this event');
-    }
-
-    if (participant.hasAttended) {
-      throw new BadRequestException('Participant has already checked in');
-    }
-
-    participant.hasAttended = true;
-    participant.checkInTime = new Date();
-    
-    const updated = await this.participantRepository.save(participant);
-    this.logger.log(`Participant checked in: ${participantId} for event ${eventId}`);
-
-    await this.invalidateParticipantCache(eventId);
-    
-    await this.activitiesService.logActivity({
-      action: ActivityAction.CHECK_IN_EVENT,
-      participantId: updated.id,
-      details: `Checked in for event ${eventId}`,
-    });
-
-    return updated;
-  }
-
-  async getParticipantsForEvent(
-    eventId: string,
-    query: ParticipantQueryDto,
-  ): Promise<{ data: Participant[]; total: number }> {
-    await this.eventsService.findOne(eventId);
-
-    const cacheKey = `${PARTICIPANT_CACHE.LIST_PREFIX}${eventId}:${this.hashQuery(query as unknown as Record<string, unknown>)}`;
-
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-
-    const qb = this.participantRepository
-      .createQueryBuilder('p')
-      .where('p.eventId = :eventId', { eventId });
-
-    if (query.hasAttended !== undefined) {
-      qb.andWhere('p.hasAttended = :hasAttended', { hasAttended: query.hasAttended });
-    }
-
-    if (query.search) {
-      qb.andWhere(
-        '(LOWER(p.firstName) LIKE LOWER(:search) OR LOWER(p.lastName) LIKE LOWER(:search) OR LOWER(p.email) LIKE LOWER(:search))',
-        { search: `%${query.search}%` },
-      );
-    }
-
-    qb.orderBy('p.createdAt', 'DESC')
-      .skip(query.skip)
-      .take(query.limit);
-
-    const [data, total] = await qb.getManyAndCount();
-    const result = { data, total };
-
-    await this.redis.set(cacheKey, JSON.stringify(result), 'EX', PARTICIPANT_CACHE.TTL_SEC);
-
-    return result;
-  }
-
-  async getRegistrationsByEmail(
-    email: string,
-    query: ParticipantQueryDto,
-  ): Promise<{ data: Participant[]; total: number }> {
-    const normalizedEmail = email.toLowerCase();
-    const cacheKey = `${PARTICIPANT_CACHE.LOOKUP_PREFIX}${normalizedEmail}:${this.hashQuery(query as unknown as Record<string, unknown>)}`;
-
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-
-    const qb = this.participantRepository
-      .createQueryBuilder('p')
-      .leftJoinAndSelect('p.event', 'event')
-      .where('p.email = :email', { email: normalizedEmail });
-
-    if (query.hasAttended !== undefined) {
-      qb.andWhere('p.hasAttended = :hasAttended', { hasAttended: query.hasAttended });
-    }
-
-    qb.orderBy('p.createdAt', 'DESC')
-      .skip(query.skip)
-      .take(query.limit);
-
-    const [data, total] = await qb.getManyAndCount();
-    const result = { data, total };
-
-    await this.redis.set(cacheKey, JSON.stringify(result), 'EX', PARTICIPANT_CACHE.TTL_SEC);
-
-    return result;
-  }
-
-  async removeRegistration(eventId: string, participantId: string): Promise<void> {
-    const participant = await this.participantRepository.findOne({
-      where: { id: participantId, eventId },
-    });
-
-    if (!participant) {
-      throw new NotFoundException('Participant registration not found');
-    }
-
-    await this.participantRepository.softRemove(participant);
-    await this.eventsService.decrementRegistrationCount(eventId);
-    this.logger.log(`Participant registration removed: ${participantId}`);
-
-    await Promise.all([
-      this.invalidateParticipantCache(eventId),
-      this.invalidateLookupCache(),
-      this.invalidateEventCache(),
-    ]);
-  }
-}
+    await expect(service.register(eventId, dto)).rejects.toBeInstanceOf(BadRequestException);
+    expect(participantRepository.save).not.toHaveBeenCalled();
+  });
+});
