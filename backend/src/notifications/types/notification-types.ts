@@ -32,7 +32,7 @@ export interface NotificationContextMap {
     title: string;
     location: string;
     description?: string;
-    registrationId: string;
+    ticketNumber: string;
     year?: number;
   };
 
