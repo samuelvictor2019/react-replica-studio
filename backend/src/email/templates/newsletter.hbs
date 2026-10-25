@@ -1,46 +1,17 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f7; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #1a237e, #283593); color: #ffffff; text-align: center; padding: 32px 24px; }
-    .header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-    .body { padding: 32px 24px; color: #333333; line-height: 1.7; }
-    .newsletter-content { font-size: 15px; color: #1e293b; }
-    .newsletter-content img { max-width: 100%; height: auto; border-radius: 8px; }
-    .newsletter-content h1, .newsletter-content h2, .newsletter-content h3 { color: #1a237e; }
-    .newsletter-content a { color: #283593; text-decoration: underline; }
-    .divider { height: 1px; background: #e2e8f0; margin: 24px 0; }
-    .footer { text-align: center; padding: 24px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; background: #fafafa; }
-    .footer a { color: #64748b; text-decoration: underline; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>{{subject}}</h1>
-    </div>
-    <div class="body">
-      {{#if preheader}}
-      <p style="font-size: 14px; color: #64748b; margin-top: 0;">{{preheader}}</p>
-      <div class="divider"></div>
-      {{/if}}
-
-      <div class="newsletter-content">
-        {{{htmlContent}}}
-      </div>
-
-      <div class="divider"></div>
-      <p style="font-size: 13px; color: #94a3b8; text-align: center;">
-        You are receiving this email because you are connected with Watergate Church Global.
-      </p>
-    </div>
-    <div class="footer">
-      <p>&copy; {{year}} Watergate Church Global. All rights reserved.</p>
-    </div>
-  </div>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>{{subject}}</title></head>
+<body style="margin:0;padding:0;background:#f3f0e9;color:#2e302d;font-family:Georgia,'Times New Roman',serif;">
+  {{#if preheader}}<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">{{preheader}}</div>{{/if}}
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f0e9;"><tr><td align="center" style="padding:34px 14px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#fff;">
+      <tr><td style="padding:16px 34px;background:#315d4b;color:#fff;font:700 11px Arial,Helvetica,sans-serif;letter-spacing:1.6px;text-transform:uppercase;">WaterGate / Community letter</td></tr>
+      <tr><td style="padding:34px 34px 24px;border-bottom:1px solid #dfe3dc;"><h1 style="margin:0;color:#263b31;font:normal 32px/1.25 Georgia,'Times New Roman',serif;">{{subject}}</h1>{{#if preheader}}<p style="margin:12px 0 0;color:#5b665e;font:15px/1.6 Arial,Helvetica,sans-serif;">{{preheader}}</p>{{/if}}</td></tr>
+      <tr><td style="padding:30px 34px;color:#303833;font:16px/1.8 Arial,Helvetica,sans-serif;">
+        <div>{{{htmlContent}}}</div>
+      </td></tr>
+      <tr><td style="padding:20px 34px;background:#f5f6f2;color:#58645d;font:12px/1.7 Arial,Helvetica,sans-serif;">You are receiving this email because you are connected with Watergate Church Global.<br>&copy; {{year}} Watergate Church Global. All rights reserved.</td></tr>
+    </table>
+  </td></tr></table>
 </body>
 </html>
