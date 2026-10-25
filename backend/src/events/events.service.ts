@@ -2,11 +2,14 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder, LessThan, In } from 'typeorm';
+import { QueryFailedError, Repository, SelectQueryBuilder, LessThan, In } from 'typeorm';
+import { isUUID } from 'class-validator';
 import { Event, EventStatus } from './entities/event.entity.js';
+import { EventType } from '../event-types/entities/event-type.entity.js';
 import { CreateEventDto, UpdateEventDto, EventQueryDto } from './dto/event.dto.js';
 import { ResilientRedisService } from '../infrastructure/redis/resilient-redis-service.js';
 import { EVENT_CACHE } from '../common/redis/cache.constants.js';
@@ -20,6 +23,8 @@ export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(EventType)
+    private readonly eventTypeRepository: Repository<EventType>,
     private readonly redis: ResilientRedisService,
     private readonly dashboardService: DashboardService,
   ) { }
@@ -55,17 +60,27 @@ export class EventsService {
   async create(dto: CreateEventDto): Promise<Event> {
     this.assertDateOrder(dto.startDate, dto.endDate);
 
-    const slug = this.generateSlug(dto.title);
+    const slug = dto.slug?.trim()
+      ? this.normalizeSlug(dto.slug)
+      : this.generateSlug(dto.title);
 
     const event = this.eventRepository.create({
       ...dto,
       slug,
       startDate: new Date(dto.startDate),
       endDate: new Date(dto.endDate),
-      dailySchedule: dto.dailySchedule ? JSON.stringify(dto.dailySchedule) : "",
+      dailySchedule: dto.dailySchedule || [],
     });
 
-    const saved = await this.eventRepository.save(event);
+    let saved: Event;
+    try {
+      saved = await this.eventRepository.save(event);
+    } catch (error) {
+      if (this.isUniqueConstraintViolation(error)) {
+        throw new ConflictException('This registration alias is already in use');
+      }
+      throw error;
+    }
     this.logger.log(`Event created: "${saved.title}" (${saved.slug})`);
 
     await this.invalidateEventCache();
@@ -170,24 +185,53 @@ export class EventsService {
   }
 
   async findBySlug(slug: string): Promise<Event> {
-    const cacheKey = `${EVENT_CACHE.SLUG_PREFIX}${slug}`;
-
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-
     const event = await this.eventRepository.findOne({
-      where: { slug },
-      relations: { participants: true, eventType: true },
+      where: { slug: this.normalizeSlug(slug) },
+      relations: { eventType: true },
     });
     if (!event) {
       throw new NotFoundException(`Event "${slug}" not found`);
     }
 
-    await this.redis.set(cacheKey, JSON.stringify(event), 'EX', EVENT_CACHE.TTL_SEC);
-
     return event;
+  }
+
+  async findRegistrationEvent(identifier: string) {
+    const event = isUUID(identifier)
+      ? await this.eventRepository.findOne({
+          where: { id: identifier },
+          relations: { eventType: true },
+        })
+      : await this.eventRepository.findOne({
+          where: { slug: this.normalizeSlug(identifier) },
+          relations: { eventType: true },
+        });
+
+    if (
+      !event ||
+      ![EventStatus.PUBLISHED, EventStatus.ONGOING].includes(event.status)
+    ) {
+      throw new NotFoundException('Registration event not found');
+    }
+
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      location: event.location,
+      bannerImageUrl: event.bannerImageUrl,
+      status: event.status,
+      slug: event.slug,
+      eventType: event.eventType
+        ? {
+            id: event.eventType.id,
+            name: event.eventType.name,
+            slug: event.eventType.slug,
+          }
+        : null,
+    };
   }
 
   async findOne(id: string): Promise<Event> {
@@ -200,7 +244,7 @@ export class EventsService {
 
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: { participants: true, eventType: true },
+      relations: { eventType: true },
     });
     if (!event) {
       throw new NotFoundException(`Event with ID "${id}" not found`);
@@ -214,10 +258,6 @@ export class EventsService {
   async update(id: string, dto: UpdateEventDto): Promise<Event> {
     const event = await this.findOne(id);
 
-    if (dto.title && dto.title !== event.title) {
-      (dto as any).slug = this.generateSlug(dto.title);
-    }
-
     if (dto.startDate) {
       (dto as any).startDate = new Date(dto.startDate);
     }
@@ -229,12 +269,20 @@ export class EventsService {
     const effectiveEnd = dto.endDate ? new Date(dto.endDate) : event.endDate;
     this.assertDateOrder(effectiveStart, effectiveEnd);
 
-    if (dto.dailySchedule !== undefined) {
-      (dto as any).dailySchedule = JSON.stringify(dto.dailySchedule);
+    Object.assign(event, dto);
+    if (dto.slug !== undefined) {
+      event.slug = this.normalizeSlug(dto.slug);
     }
 
-    Object.assign(event, dto);
-    const updated = await this.eventRepository.save(event);
+    let updated: Event;
+    try {
+      updated = await this.eventRepository.save(event);
+    } catch (error) {
+      if (this.isUniqueConstraintViolation(error)) {
+        throw new ConflictException('This registration alias is already in use');
+      }
+      throw error;
+    }
     this.logger.log(`Event updated: "${updated.title}"`);
 
     await this.invalidateEventCache();
@@ -254,6 +302,27 @@ export class EventsService {
   async incrementRegistrationCount(eventId: string): Promise<void> {
     await this.eventRepository.increment({ id: eventId }, 'registrationCount', 1);
     await this.invalidateEventCache();
+  }
+
+  async nextRegistrationSequence(eventTypeId: string, year: number): Promise<number> {
+    const result = await this.eventTypeRepository
+      .createQueryBuilder()
+      .update(EventType)
+      .set({
+        registrationSequenceYear: year,
+        registrationSequence: () =>
+          `CASE WHEN "registrationSequenceYear" = ${year} THEN "registrationSequence" + 1 ELSE 1 END`,
+      })
+      .where('id = :id', { id: eventTypeId })
+      .returning('"registrationSequence"')
+      .execute();
+
+    const sequence = Number(result.raw[0]?.registrationSequence);
+    if (!Number.isInteger(sequence)) {
+      throw new Error(`Could not allocate a registration number for event type ${eventTypeId}`);
+    }
+
+    return sequence;
   }
 
   async decrementRegistrationCount(eventId: string): Promise<void> {
@@ -332,12 +401,35 @@ export class EventsService {
   }
 
   private generateSlug(title: string): string {
-    const baseSlug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+    const baseSlug = this.normalizeSlug(title);
 
     const uniqueSuffix = Date.now().toString(36);
     return `${baseSlug}-${uniqueSuffix}`;
+  }
+
+  private normalizeSlug(value: string): string {
+    const slug = value
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!slug) {
+      throw new BadRequestException('Registration alias must contain letters or numbers');
+    }
+    if (isUUID(slug)) {
+      throw new BadRequestException('Registration alias cannot be a UUID');
+    }
+
+    return slug;
+  }
+
+  private isUniqueConstraintViolation(error: unknown): boolean {
+    return (
+      error instanceof QueryFailedError &&
+      (error.driverError as { code?: string }).code === '23505'
+    );
   }
 }
