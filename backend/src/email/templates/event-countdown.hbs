@@ -1,63 +1,27 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f7; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .header { background: linear-gradient(135deg, #1a237e, #283593); color: #ffffff; text-align: center; padding: 36px 24px; }
-    .countdown-banner { background: #e8eaf6; color: #1a237e; text-align: center; padding: 12px; font-weight: bold; font-size: 16px; border-bottom: 1px solid #c5cae9; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-    .body { padding: 32px 24px; color: #333333; line-height: 1.6; }
-    .body h2 { color: #1a237e; margin-top: 0; font-size: 18px; }
-    .event-box { background: #f8f9fa; border-radius: 8px; padding: 16px; margin: 20px 0; text-align: center; border: 1px solid #eeeeee; }
-    .checklist { background: #ffffff; border-left: 3px solid #ff9800; padding: 10px 10px 10px 20px; margin: 20px 0; font-size: 14px; }
-    .btn-container { text-align: center; margin: 30px 0; }
-    .btn { background: #1a237e; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: bold; display: inline-block; }
-    .footer { text-align: center; padding: 20px; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee; background: #fafafa; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>We Cannot Wait to See You!</h1>
-    </div>
-    <div class="countdown-banner">
-      ⏳ Happening in {{timeRemaining}}!
-    </div>
-    <div class="body">
-      <h2>Hello {{firstName}},</h2>
-      <p>This is a quick reminder that <strong>{{eventName}}</strong> is just around the corner. Everything is set, and we are looking forward to a wonderful time with you.</p>
-      
-      <div class="event-box">
-        <h3 style="margin: 0 0 8px 0; color: #1a237e;">{{eventName}}</h3>
-        <p style="margin: 4px 0; font-size: 15px;"><strong>📅 When:</strong> {{eventDate}} at {{eventTime}}</p>
-        <p style="margin: 4px 0; font-size: 15px;"><strong>📍 Where:</strong> {{location}}</p>
-      </div>
-
-      {{#if checklistItems}}
-      <div class="checklist">
-        <strong>A Few Things to Keep in Mind:</strong>
-        <ul style="margin: 8px 0 0 0; padding-left: 16px;">
-          {{#each checklistItems}}
-            <li style="margin-bottom: 4px;">{{this}}</li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-
-      {{#if actionUrl}}
-      <div class="btn-container">
-        <a href="{{actionUrl}}" class="btn">{{#if isVirtual}}Join Online Room{{else}}Get Directions{{/if}}</a>
-      </div>
-      {{/if}}
-
-      <p>See you soon!</p>
-      <p>God bless you! 🙏</p>
-    </div>
-    <div class="footer">
-      <p>&copy; {{year}} Watergate Church Global. All rights reserved.</p>
-    </div>
-  </div>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>{{eventName}} reminder</title></head>
+<body style="margin:0;padding:0;background:#f8f1ee;color:#302a28;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">{{eventName}} is coming up in {{timeRemaining}}. Check your event details.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f8f1ee;"><tr><td align="center" style="padding:34px 14px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:580px;background:#fff;">
+      <tr><td align="center" style="padding:32px 26px 28px;background:#763e37;color:#fff;">
+        <p style="margin:0 0 10px;color:#f1d2bd;font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;">A date to look forward to</p>
+        <p style="margin:0;font:normal 27px/1.3 Georgia,'Times New Roman',serif;">{{timeRemaining}}</p>
+        <h1 style="margin:12px 0 0;font:normal 18px/1.4 Arial,sans-serif;">until {{eventName}}</h1>
+      </td></tr>
+      <tr><td style="padding:30px 32px;">
+        <p style="margin:0 0 18px;font-size:15px;line-height:1.7;">Hello {{firstName}}, we are looking forward to seeing you soon. Here is your event information.</p>
+        <h2 style="margin:0 0 18px;color:#763e37;font:normal 25px/1.3 Georgia,'Times New Roman',serif;">{{eventName}}</h2>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <tr><td style="padding:12px 0;border-top:1px solid #e8ded9;color:#665550;font-size:13px;width:86px;">Date</td><td style="padding:12px 0;border-top:1px solid #e8ded9;font-size:15px;">{{eventDate}}{{#if eventTime}} at {{eventTime}}{{/if}}</td></tr>
+          <tr><td style="padding:12px 0;border-top:1px solid #e8ded9;color:#665550;font-size:13px;">Location</td><td style="padding:12px 0;border-top:1px solid #e8ded9;font-size:15px;">{{location}}</td></tr>
+        </table>
+        {{#if checklistItems}}<h3 style="margin:24px 0 8px;color:#302a28;font-size:15px;">Before you go</h3><ul style="margin:0;padding-left:22px;font-size:14px;line-height:1.8;">{{#each checklistItems}}<li style="padding:2px 0;">{{this}}</li>{{/each}}</ul>{{/if}}
+        {{#if actionUrl}}<p style="margin:24px 0 0;"><a href="{{actionUrl}}" style="display:inline-block;padding:14px 20px;background:#17615b;color:#fff;text-decoration:underline;font-weight:bold;line-height:1.4;">View event information</a></p>{{/if}}
+      </td></tr>
+      <tr><td style="padding:17px 32px;background:#f3ece8;color:#665550;font-size:12px;line-height:1.6;">Watergate Church Global &middot; &copy; {{year}}</td></tr>
+    </table>
+  </td></tr></table>
 </body>
 </html>
