@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Eye, Edit, Globe, Lock, Plus, Trash2, ExternalLink, Save } from 'lucide-react';
-import { adminRequest } from '@/lib/adminApi';
+import { FileText, Eye, Edit, Globe, Lock, Plus, Trash2, ExternalLink, Save, Loader2 } from 'lucide-react';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 type Page = {
   id: string;
   title: string;
@@ -33,6 +36,9 @@ const AdminPagesPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [pages, setPages] = useState<Page[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState<Page | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
   const [viewingPage, setViewingPage] = useState<Page | null>(null);
   const [formData, setFormData] = useState({
@@ -47,17 +53,14 @@ const AdminPagesPage = () => {
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const loadPages = async () => {
     setLoading(true);
     try {
       const res = await adminRequest<{ data: Page[] }>('/pages');
       setPages(res.data || []);
-      setError('');
     } catch (e: any) {
       console.warn('Failed to load pages:', e.message);
-      setError('Failed to load pages');
     } finally {
       setLoading(false);
     }
@@ -120,7 +123,9 @@ const AdminPagesPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
       if (editingPage) {
         await adminRequest(`/pages/${editingPage.id}`, {
@@ -132,24 +137,35 @@ const AdminPagesPage = () => {
           method: 'POST',
           body: JSON.stringify(formData)
         });
+        toast.success(`Page "${formData.title}" created.`);
       }
       setIsDialogOpen(false);
       resetForm();
       loadPages();
     } catch (e: any) {
       console.warn('Failed to save page:', e.message);
-      setError('Failed to save page');
+      const msg = describeApiError(e, 'Failed to save page');
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this page?')) return;
+  const confirmDelete = async () => {
+    if (!pageToDelete) return;
+    setIsDeleting(true);
+
     try {
-      await adminRequest(`/pages/${id}`, { method: 'DELETE' });
+      await adminRequest(`/pages/${pageToDelete.id}`, { method: 'DELETE' });
+      toast.success(`Page "${pageToDelete.title}" deleted.`);
+      setPageToDelete(null);
       loadPages();
     } catch (e: any) {
       console.warn('Failed to delete page:', e.message);
-      setError('Failed to delete page');
+      const msg = describeApiError(e, 'Failed to delete page');
+      toast.error(msg);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -159,10 +175,12 @@ const AdminPagesPage = () => {
         method: 'PATCH',
         body: JSON.stringify({ status: 'published' })
       });
+      toast.success('Page published successfully.');
       loadPages();
     } catch (e: any) {
       console.warn('Failed to publish page:', e.message);
-      setError('Failed to publish page');
+      const msg = describeApiError(e, 'Failed to publish page');
+      toast.error(msg);
     }
   };
 
@@ -218,6 +236,10 @@ const AdminPagesPage = () => {
 
   if (!can('content.read')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="pages" variant="table" columns={6} />;
   }
 
   return (
@@ -350,7 +372,7 @@ const AdminPagesPage = () => {
                               </>
                             )}
                             {can('content.delete') && (
-                              <Button variant="ghost" size="sm" onClick={() => handleDelete(page.id)}>
+                              <Button variant="ghost" size="sm" onClick={() => setPageToDelete(page)}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             )}
@@ -432,7 +454,7 @@ const AdminPagesPage = () => {
                                 </>
                               )}
                               {can('content.delete') && (
-                                <Button variant="ghost" size="sm" onClick={() => handleDelete(page.id)}>
+                                <Button variant="ghost" size="sm" onClick={() => setPageToDelete(page)}>
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               )}
@@ -450,7 +472,7 @@ const AdminPagesPage = () => {
       </Tabs>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !submitting && setIsDialogOpen(open)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPage ? 'Edit Page' : 'Create New Page'}</DialogTitle>
@@ -549,12 +571,15 @@ const AdminPagesPage = () => {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingPage ? 'Update Page' : 'Create Page'}
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingPage ? 'Updating Page...' : 'Creating Page...')
+                  : (editingPage ? 'Update Page' : 'Create Page')}
               </Button>
             </div>
           </form>
@@ -633,6 +658,20 @@ const AdminPagesPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(pageToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setPageToDelete(null)}
+        title="Delete Page?"
+        description={
+          pageToDelete
+            ? `Are you sure you want to delete "${pageToDelete.title}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this page?'
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Page'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

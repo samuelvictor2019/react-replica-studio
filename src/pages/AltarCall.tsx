@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import altarImg from "@/assets/altarcall_form.jpg";
 import { sanitizePhoneInput } from "@/lib/formValidation";
+import { describePublicError, postForm } from "@/lib/api";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 
 type Props = { modal?: boolean; onClose?: () => void };
 
@@ -30,6 +33,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = (field: string, value: string | boolean) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -40,21 +44,21 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
   const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      const { postForm } = await import('@/lib/api');
       await postForm('altar-call', formData);
       setSubmitted(true);
     } catch (err: any) {
-      alert(err?.message || 'Submission failed');
+      setSubmitError(describePublicError(err, 'Failed to submit altar call form. Please try again.'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-3xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
+      <div className={`relative w-full max-w-3xl bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
         <div className="hidden md:block relative">
           <img src={altarImg} alt="Person at altar" className="absolute inset-0 w-full h-full object-cover" />
         </div>
@@ -68,7 +72,7 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
         </button>
 
         {/* Right form area */}
-        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10 overflow-y-auto">
+        <div className="flex flex-col px-6 py-8 md:px-8 md:py-10">
           {!submitted && (
             <div className="mb-6">
               <div className="flex items-center gap-4 mb-2">
@@ -91,24 +95,25 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
 
           {/* Submitted state */}
           {submitted ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center min-h-[400px]">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="font-heading text-xl font-semibold text-foreground">Thank You!</h2>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Your response has been received. Someone from the church will
-                reach out to you soon. God bless you!
-              </p>
-              <a
-                href="/"
-                className="mt-2 text-sm font-medium text-primary hover:underline"
-              >
-                Return Home
-              </a>
-            </div>
+            <PublicSuccessView
+              title="Thank You!"
+              description="Your response has been received. Someone from the church will reach out to you soon. God bless you!"
+              actionText="Submit Another Response"
+              onAction={() => {
+                setFormData({
+                  fullName: "",
+                  phone: "",
+                  decision: "",
+                  whenDecision: "",
+                  followUp: "",
+                  prayerNeed: "",
+                  consent: false,
+                });
+                setStep(1);
+                setSubmitted(false);
+                setSubmitError(null);
+              }}
+            />
           ) : (
             <>
               {/* Step 1 */}
@@ -232,12 +237,22 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                 </div>
               </div>
 
+              {submitError && (
+                <PublicInlineAlert
+                  type="error"
+                  message={submitError}
+                  onDismiss={() => setSubmitError(null)}
+                  className="mt-4"
+                />
+              )}
+
               {/* Buttons */}
-              <div className="flex items-center gap-3 mt-6">
+              <div className="flex items-center justify-start gap-3 mt-6">
                 {step === 2 && (
                   <Button
-                    variant="outline"
+                    type="button"
                     className={secondaryButtonClass}
+                    disabled={submitting}
                     onClick={() => setStep(1)}
                   >
                     PREVIOUS
@@ -257,7 +272,14 @@ const AltarCall = ({ modal = false, onClose }: Props) => {
                     disabled={!canSubmit || submitting}
                     onClick={handleSubmit}
                   >
-                    {submitting ? 'SENDING...' : 'SUBMIT FORM'}
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        SUBMITTING...
+                      </>
+                    ) : (
+                      'SUBMIT FORM'
+                    )}
                   </Button>
                 )}
               </div>

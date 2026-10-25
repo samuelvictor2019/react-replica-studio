@@ -1,6 +1,5 @@
-import { useMemo, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, Search, ChevronLeft, ChevronRight, List } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import mediaIcon from "@/assets/media_icon.png";
 import { getMedia } from "@/lib/api";
 
@@ -55,8 +54,6 @@ export default function LatestMediaSection() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [activeTab, setActiveTab] = useState("SERMON");
-  const [sort, setSort] = useState("recent");
-  const [query, setQuery] = useState("");
 
   // Fetch logic
   useEffect(() => {
@@ -84,12 +81,7 @@ export default function LatestMediaSection() {
     fetchData();
   }, [page]); 
   
-  const displayItems = useMemo(() => {
-    let list = [...items];
-    if (query) list = list.filter(i => i.title.toLowerCase().includes(query.toLowerCase()));
-    if (sort === 'atoz') list.sort((a,b) => a.title.localeCompare(b.title));
-    return list;
-  }, [items, query, sort]);
+  const displayItems = items;
 
   const leftColumn = displayItems.slice(0, 5);
   const rightColumn = displayItems.slice(5, 10);

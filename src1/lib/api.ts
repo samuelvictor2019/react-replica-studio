@@ -230,7 +230,6 @@ export async function registerEventParticipant(
       phone: payload.phone,
       gender: payload.gender ? String(payload.gender).toUpperCase() : undefined,
       allDays: payload.allDays,
-      member: payload.member,
       accommodation: payload.accommodation,
       consent: payload.consent,
       contactConsent: payload.contactConsent,

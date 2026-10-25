@@ -94,6 +94,11 @@ const AdminLayout = () => {
               </NavLink>
             )}
             {can('content.read') && (
+              <NavLink to="/admin/event-types" className={linkClass} onClick={() => setSidebarOpen(false)}>
+                Event Types
+              </NavLink>
+            )}
+            {can('content.read') && (
               <NavLink to="/admin/media" className={linkClass} onClick={() => setSidebarOpen(false)}>
                 Media
               </NavLink>

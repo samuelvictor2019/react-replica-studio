@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { postForm } from "@/lib/api";
-import { X } from "lucide-react";
+import { postForm, describePublicError } from "@/lib/api";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 import counsellingImg from "@/assets/counseling_form.jpg";
 import { isValidEmail, sanitizePhoneInput } from "@/lib/formValidation";
 
@@ -26,6 +28,7 @@ const Counselling = ({ modal = false, onClose }: Props) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
   const canProceed = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email);
@@ -34,14 +37,14 @@ const Counselling = ({ modal = false, onClose }: Props) => {
   const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
       <div className="hidden md:block relative">
           <img src={counsellingImg} alt="counselling" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
         <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></button>
 
-        <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
+        <div className="p-6 md:p-8 flex flex-col">
           {!submitted && (
             <div className="mb-4 flex items-start justify-between">
               <div>
@@ -53,14 +56,26 @@ const Counselling = ({ modal = false, onClose }: Props) => {
           )}
 
           {submitted ? (
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <h2 className="font-heading text-lg font-semibold">Request Sent</h2>
-              <p className="text-sm text-muted-foreground mt-2">Thanks — our pastoral team will review and reach out to you.</p>
-              <a href="/" className="mt-3 text-sm text-primary hover:underline">Return home</a>
-            </div>
+            <PublicSuccessView
+              title="Request Sent"
+              description="Thanks — our pastoral team will review your request and reach out to you."
+              actionText="Submit Another Request"
+              onAction={() => {
+                setForm({
+                  fullName: "",
+                  phone: "",
+                  email: "",
+                  type: "",
+                  message: "",
+                  session: "",
+                  member: "",
+                  consent: false,
+                });
+                setStep(1);
+                setSubmitted(false);
+                setSubmitError(null);
+              }}
+            />
           ) : (
             <>
               <div className={`flex-1 flex flex-col gap-4 transition-all duration-300 ${step === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 absolute pointer-events-none'}`}>
@@ -96,8 +111,8 @@ const Counselling = ({ modal = false, onClose }: Props) => {
                   </Select>
                 </div>
 
-                <div className="mt-6">
-                  <Button className={primaryButtonClass} disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
+                <div className="mt-6 flex items-center justify-start gap-3">
+                  <Button type="button" className={primaryButtonClass} disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
                 </div>
               </div>
 
@@ -140,23 +155,43 @@ const Counselling = ({ modal = false, onClose }: Props) => {
                   <Label className="text-[11px]">I understand that counselling is pastoral, confidential, and subject to availability and scheduling.</Label>
                 </div>
 
-                <div className="flex items-center gap-3 mt-4">
-                  <Button variant="outline" className={secondaryButtonClass} onClick={() => setStep(1)}>PREVIOUS</Button>
+                {submitError && (
+                  <PublicInlineAlert
+                    type="error"
+                    message={submitError}
+                    onDismiss={() => setSubmitError(null)}
+                    className="mt-4"
+                  />
+                )}
+
+                <div className="flex items-center justify-start gap-3 mt-4">
+                  <Button type="button" className={secondaryButtonClass} disabled={submitting} onClick={() => setStep(1)}>PREVIOUS</Button>
                   <Button
                     className={primaryButtonClass}
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
+                      if (submitting) return;
                       setSubmitting(true);
+                      setSubmitError(null);
                       try {
                         await postForm('counselling', form);
                         setSubmitted(true);
                       } catch (err: any) {
-                        alert(err?.message || 'Submission failed');
+                        setSubmitError(describePublicError(err, 'Failed to submit counselling request. Please try again.'));
                       } finally {
                         setSubmitting(false);
                       }
                     }}
-                  >{submitting ? 'SENDING...' : 'SUBMIT REQUEST'}</Button>
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        SUBMITTING...
+                      </>
+                    ) : (
+                      'SUBMIT REQUEST'
+                    )}
+                  </Button>
                 </div>
               </div>
             </>

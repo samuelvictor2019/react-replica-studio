@@ -58,6 +58,24 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+export function sanitizeCssColor(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  if (/(?:gradient|url\(|var\(|expression\(|behavior\s*:)/i.test(normalized)) {
+    return null;
+  }
+
+  const safeColorPattern = /^(?:#[0-9a-fA-F]{3,8}|(?:rgba?|hsla?)\([^)]*\)|(?:transparent|currentColor|inherit|initial|unset|revert|revert-layer)|[a-zA-Z-]+)$/i;
+  return safeColorPattern.test(normalized) ? normalized : null;
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
@@ -75,7 +93,8 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    const safeColor = sanitizeCssColor(color);
+    return safeColor ? `  --color-${key}: ${safeColor};` : null;
   })
   .join("\n")}
 }
@@ -163,7 +182,7 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color || item.payload.fill || item.color;
+            const indicatorColor = sanitizeCssColor(color || item.payload.fill || item.color) ?? "currentColor";
 
             return (
               <div

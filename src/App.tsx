@@ -1,9 +1,7 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import FloatingActions from "@/components/FloatingActions";
 import Index from "./pages/Index";
@@ -43,52 +41,12 @@ import AdminAppointmentsPage from "./pages/admin/AdminAppointmentsPage";
 
 const queryClient = new QueryClient();
 
-// Allow a local dev API URL via env: VITE_API_URL (e.g. http://localhost:4000)
-
-const TitleUpdater = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    const titles: Record<string, string> = {
-      "/": "Home",
-      "/about": "About",
-      "/events": "Events",
-      "/media": "Media",
-      "/new-member": "New Member",
-      "/new-member-registration": "New Member Registration",
-      "/doctrine": "Doctrine",
-      "/contact": "Contact Us",
-      "/forms": "Forms",
-      "/counselling": "Counselling",
-      "/baby-dedication": "Baby Dedication",
-      "/event-registration": "Event Registration",
-      "/pre-marital-counseling": "Pre‑Marital Counseling",
-      "/testimony": "Testimony",
-      "/apostle": "Apostle",
-      "/stewards": "Faithful Stewards",
-      "/altar-call": "Altar Call",
-    };
-
-    const title = (location.pathname.startsWith('/event-registration/')
-      ? 'Event Registration'
-      : titles[location.pathname]) ?? (() => {
-      const seg = location.pathname.split("/").filter(Boolean).pop() ?? "Page";
-      return seg.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
-    })();
-
-    document.title = `WaterGate Church | ${title}`;
-  }, [location]);
-
-  return null;
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <TooltipProvider>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <FloatingActions />
         <Routes>
           <Route path="/" element={<Index />} />
@@ -102,8 +60,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/counselling" element={<Counselling />} />
           <Route path="/baby-dedication" element={<BabyDedication />} />
-          <Route path="/event-registration" element={<EventRegistration />} />
-          <Route path="/event-registration/:eventId" element={<EventRegistration />} />
+          <Route path="/register" element={<EventRegistration />} />
+          <Route path="/register/:registrationIdentifier" element={<EventRegistration />} />
             <Route path="/pre-marital-counseling" element={<PreMaritalCounseling />} />
           <Route path="/testimony" element={<Testimony />} />
            <Route path="/apostle" element={<ApostleProfile />} />

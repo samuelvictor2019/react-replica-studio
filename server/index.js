@@ -63,7 +63,6 @@ const db = initDb({
   adminEmail: ADMIN_EMAIL,
   adminPassword: ADMIN_PASSWORD,
   rolePermissions: ROLE_PERMISSIONS,
-  coreCollections: CORE_DYNAMIC_COLLECTIONS,
 });
 
 const activeSessions = new Map();

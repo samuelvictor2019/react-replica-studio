@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminLogin, demoLogin } from '@/lib/adminApi';
+import { adminLogin } from '@/lib/adminApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -11,10 +12,10 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('ManOnMission@123!');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [showDemoLogin, setShowDemoLogin] = useState(false);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError('');
 
@@ -70,7 +71,14 @@ const AdminLogin = () => {
             className="w-full mt-4"
             disabled={submitting}
           >
-            {submitting ? 'Authenticating...' : 'Continue'}
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </Button>
         </form>
       </div>

@@ -4,6 +4,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes admin-shimmer {
+  100% { background-position-x: -200%; }
+}
+
+.shimmer-skeleton {
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    hsl(var(--foreground) / 0.08) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-skeleton {
+    animation: none;
+    background-image: none;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 98%;

@@ -1,4 +1,3 @@
-import React from "react";
 import newMemberImg from "@/assets/welcome-1.png";
 import houseGroupsImg from "@/assets/welcome-2.png";
 import sermonsImg from "@/assets/welcome-3.png";
@@ -31,7 +30,7 @@ const JoinCards = () => {
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 place-items-center">
               <Card href="/new-member" img={newMemberImg} title={`I'm a New Member`} />
-              <Card href="/house-groups" img={houseGroupsImg} title={`Join a House Group`} />
+              <Card href="/house-groups" img={houseGroupsImg} title={`House Group`} />
               <Card href="/media" img={sermonsImg} title={`Listen to Sermons`} />
             </div>
           </div>

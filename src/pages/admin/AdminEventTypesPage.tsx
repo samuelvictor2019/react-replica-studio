@@ -635,13 +635,15 @@ const AdminEventTypesPage = () => {
             </div>
           </form>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-2 sm:gap-2 sm:justify-start">
             <Button type="button" variant="outline" onClick={closeForm} disabled={saving}>
               Cancel
             </Button>
             <Button id="event-type-submit" type="submit" form="event-type-form" disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {editing ? 'Save changes' : 'Create event type'}
+              {saving
+                ? (editing ? 'Saving changes...' : 'Creating event type...')
+                : (editing ? 'Save changes' : 'Create event type')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -680,7 +682,7 @@ const AdminEventTypesPage = () => {
                 <dd className="col-span-2 font-mono text-xs break-all text-muted-foreground">{viewing.id}</dd>
               </dl>
               {canUpdate && (
-                <DialogFooter>
+                <DialogFooter className="sm:justify-start">
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -708,7 +710,7 @@ const AdminEventTypesPage = () => {
               Consider deactivating it instead if you only want to hide it from new events.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="sm:justify-start">
             <AlertDialogCancel disabled={deleteInProgress}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               id="event-type-confirm-delete"
@@ -720,7 +722,7 @@ const AdminEventTypesPage = () => {
               className="bg-red-600 text-white hover:bg-red-700"
             >
               {deleteInProgress && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Delete
+              {deleteInProgress ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

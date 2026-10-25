@@ -71,13 +71,13 @@ const Navbar = () => {
             )
           )}
 
-          {/* Admin Link */}
+          {/* Admin Link
           <a
             href="/admin/login"
             className="text-[11px] font-semibold tracking-widest text-black/80 hover:text-black transition-colors"
           >
             ADMIN
-          </a>
+          </a> */}
         </div>
 
         {/* CTA */}
@@ -135,13 +135,13 @@ const Navbar = () => {
             )
           )}
 
-          {/* Admin Link */}
+          {/* Admin Link
           <a
             href="/admin/login"
             className="text-xs font-semibold tracking-widest text-black/80 hover:text-black py-2"
           >
             ADMIN
-          </a>
+          </a> */}
 
           <a
             href="/events"

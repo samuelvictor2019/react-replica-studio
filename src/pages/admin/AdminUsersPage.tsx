@@ -6,13 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { Users, Shield, UserPlus, Edit, Trash2, Key, Activity, Search, Filter, MoreHorizontal, Eye, Ban, CheckCircle } from 'lucide-react';
+import { Users, Shield, UserPlus, Edit, Trash2, Key, Activity, Search, MoreHorizontal, Ban, CheckCircle, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { adminRequest, getRoleLabel, normalizeRole } from '@/lib/adminApi';
+import { adminRequest, describeApiError, getRoleLabel, normalizeRole } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 
 type User = {
   id: string;
@@ -52,6 +55,9 @@ const AdminUsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userFormData, setUserFormData] = useState({
     username: '',
@@ -66,7 +72,6 @@ const AdminUsersPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -78,10 +83,8 @@ const AdminUsersPage = () => {
       const usersArray = Array.isArray(usersRes) ? usersRes : Array.isArray(usersRes.data) ? usersRes.data : [];
       setUsers(usersArray);
       setActivities(activitiesRes.data || []);
-      setError('');
     } catch (error) {
       console.warn('Failed to load users data:', error);
-      setError('Failed to load users data');
     } finally {
       setLoading(false);
     }
@@ -121,7 +124,7 @@ const AdminUsersPage = () => {
     setUserFormData({
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: normalizeRole(user.role),
       status: user.status,
       passwordResetRequired: user.passwordResetRequired || false,
       twoFactorEnabled: user.twoFactorEnabled || false
@@ -132,8 +135,9 @@ const AdminUsersPage = () => {
 
   const handleUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canManageUsers) return;
+    if (!canManageUsers || submitting) return;
 
+    setSubmitting(true);
     try {
       if (editingUser) {
         await adminRequest(`/auth/users/${editingUser.id}`, {
@@ -145,26 +149,33 @@ const AdminUsersPage = () => {
           method: 'POST',
           body: JSON.stringify(userFormData)
         });
+        toast.success(`User "${userFormData.email}" created.`);
       }
       setIsUserDialogOpen(false);
       resetUserForm();
       loadData();
     } catch (e: any) {
       console.warn('Failed to save user:', e.message);
-      alert(e.message || 'Failed to save user');
+      toast.error(describeApiError(e, 'Failed to save user'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleUserDelete = async (id: string) => {
-    if (!canManageUsers) return;
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+  const confirmDelete = async () => {
+    if (!userToDelete || !canManageUsers) return;
+    setIsDeleting(true);
 
     try {
-      await adminRequest(`/users/${id}`, { method: 'DELETE' });
+      await adminRequest(`/users/${userToDelete.id}`, { method: 'DELETE' });
+      toast.success(`User "${userToDelete.email}" deleted.`);
+      setUserToDelete(null);
       loadData();
     } catch (e: any) {
       console.warn('Failed to delete user:', e.message);
-      alert(e.message || 'Failed to delete user');
+      toast.error(describeApiError(e, 'Failed to delete user'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -176,9 +187,10 @@ const AdminUsersPage = () => {
         body: JSON.stringify({ status: newStatus })
       });
       loadData();
+      toast.success(`User status updated to "${newStatus}".`);
     } catch (e: any) {
       console.warn('Failed to change status:', e.message);
-      alert(e.message || 'Failed to change user status');
+      toast.error(describeApiError(e, 'Failed to change user status'));
     }
   };
 
@@ -187,10 +199,10 @@ const AdminUsersPage = () => {
     try {
       await adminRequest(`/auth/users/${id}/password-reset`, { method: 'POST' });
       loadData();
-      alert('Password reset has been initiated for this user.');
+      toast.success('Password reset email has been initiated for this user.');
     } catch (e: any) {
       console.warn('Failed to reset password:', e.message);
-      alert(e.message || 'Failed to initiate password reset');
+      toast.error(describeApiError(e, 'Failed to initiate password reset'));
     }
   };
 
@@ -231,6 +243,10 @@ const AdminUsersPage = () => {
 
   if (!can('users.read')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="users" variant="table" columns={7} />;
   }
 
   return (
@@ -415,7 +431,7 @@ const AdminUsersPage = () => {
                                 </DropdownMenuItem>
                               )}
                               {user.id !== '1' && (
-                                <DropdownMenuItem onClick={() => handleUserDelete(user.id)} className="text-red-600">
+                                <DropdownMenuItem onClick={() => setUserToDelete(user)} className="text-red-600">
                                   <Trash2 className="w-4 h-4 mr-2" />
                                   Delete User
                                 </DropdownMenuItem>
@@ -482,7 +498,7 @@ const AdminUsersPage = () => {
       </Tabs>
 
       {/* Create/Edit User Dialog */}
-      <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
+      <Dialog open={isUserDialogOpen} onOpenChange={(open) => !submitting && setIsUserDialogOpen(open)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
@@ -571,17 +587,34 @@ const AdminUsersPage = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsUserDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsUserDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingUser ? 'Update User' : 'Add User'}
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingUser ? 'Updating User...' : 'Adding User...')
+                  : (editingUser ? 'Update User' : 'Add User')}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(userToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setUserToDelete(null)}
+        title="Delete User Account?"
+        description={
+          userToDelete
+            ? `Are you sure you want to delete user "${userToDelete.email}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this user?'
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete User'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

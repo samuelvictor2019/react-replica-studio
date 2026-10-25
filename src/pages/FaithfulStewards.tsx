@@ -18,7 +18,6 @@ import stewardSlide4 from "@/assets/stewardslide4.jpg";
 import stewardSlide5 from "@/assets/stewardslide5.jpg";
 import leaderImg1 from "@/assets/stewards1.jpg";
 import leaderImg2 from "@/assets/stewards2.jpg";
-import leaderImg3 from "@/assets/leader-31.jpg";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 /* ── Departments data ── */

@@ -1,23 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-// import { getEventById, postForm } from "@/lib/api";
-import { getEventById, registerEventParticipant } from "@/lib/api";
-import { X } from "lucide-react";
+import { getRegistrationEvent, registerEventParticipant, describePublicError } from "@/lib/api";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 import eventImg from "@/assets/event_form.jpg";
 import { isValidEmail, sanitizePhoneInput } from "@/lib/formValidation";
+import { getStorageItem, setStorageItem } from "@/lib/storage";
 
 const LOCAL_EVENT_REGISTRATIONS_KEY = 'wgc_event_registrations';
 
 const EventRegistration = () => {
   const navigate = useNavigate();
-  const { eventId: eventIdParam } = useParams();
+  const { registrationIdentifier: pathIdentifier } = useParams();
   const [searchParams] = useSearchParams();
-  const eventId = eventIdParam || searchParams.get('eventId') || '';
+  const registrationIdentifier = pathIdentifier || searchParams.get('eventId') || '';
 
   const [step, setStep] = useState(1);
   const [eventDetails, setEventDetails] = useState<{
@@ -29,6 +31,7 @@ const EventRegistration = () => {
     endDate?: string;
   } | null>(null);
   const [eventLoading, setEventLoading] = useState(false);
+  const [eventLoadError, setEventLoadError] = useState<string | null>(null);
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
@@ -43,14 +46,15 @@ const EventRegistration = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
-  const canProceed = form.fullName.trim() && form.phone.trim() && isValidEmail(form.email);
-  const canSubmit = form.contactConsent;
+  const canProceed = Boolean(eventDetails?.id) && form.fullName.trim() && form.phone.trim() && isValidEmail(form.email);
+  const canSubmit = Boolean(eventDetails?.id && form.contactConsent);
 
   const persistLocalRegistration = () => {
     try {
-      const existingRaw = localStorage.getItem(LOCAL_EVENT_REGISTRATIONS_KEY);
+      const existingRaw = getStorageItem(LOCAL_EVENT_REGISTRATIONS_KEY, "local");
       const existing = existingRaw ? JSON.parse(existingRaw) : [];
       const list = Array.isArray(existing) ? existing : [];
       const record = {
@@ -66,7 +70,7 @@ const EventRegistration = () => {
           allDays: form.allDays,
           member: form.member.toLowerCase() === "yes" ? true : false,
           accommodation: form.accommodation,
-          eventId,
+          eventId: eventDetails?.id,
           eventTitle: eventDetails?.title,
           eventType: eventDetails?.type,
           eventLocation: eventDetails?.location,
@@ -74,55 +78,50 @@ const EventRegistration = () => {
           eventEndDate: eventDetails?.endDate,
         },
       };
-      localStorage.setItem(LOCAL_EVENT_REGISTRATIONS_KEY, JSON.stringify([record, ...list].slice(0, 500)));
+      setStorageItem(LOCAL_EVENT_REGISTRATIONS_KEY, JSON.stringify([record, ...list].slice(0, 500)), "local");
     } catch (error) {
       console.warn('Failed to persist local event registration:', error);
     }
   };
 
   useEffect(() => {
-    const queryFallback = {
-      id: eventId || 'custom',
-      title: searchParams.get('title') || 'Event Registration',
-      type: searchParams.get('type') || undefined,
-      location: searchParams.get('location') || undefined,
-      startDate: searchParams.get('startDate') || undefined,
-      endDate: searchParams.get('endDate') || undefined,
-    };
-
-    if (!eventId) {
-      if (queryFallback.title !== 'Event Registration') {
-        setEventDetails(queryFallback);
-      }
+    setEventDetails(null);
+    setEventLoadError(null);
+    if (!registrationIdentifier) {
+      setEventLoading(false);
       return;
     }
 
+    let isCurrentRequest = true;
     const loadEvent = async () => {
       try {
         setEventLoading(true);
-        const event = await getEventById(eventId);
-        if (event) {
-          setEventDetails({
+        const event = await getRegistrationEvent(registrationIdentifier);
+        if (isCurrentRequest) {
+          setEventDetails(event ? {
             id: event.id,
-            title: event.title || queryFallback.title,
-            type: event.type || queryFallback.type,
-            location: event.location || queryFallback.location,
-            startDate: event.startDate || queryFallback.startDate,
-            endDate: event.endDate || queryFallback.endDate,
-          });
-          return;
+            title: event.title || 'Event Registration',
+            type: event.eventType?.name || event.type || undefined,
+            location: event.location || undefined,
+            startDate: event.startDate || undefined,
+            endDate: event.endDate || undefined,
+          } : null);
         }
       } catch (error) {
         console.warn('Failed to load event for registration:', error);
+        if (isCurrentRequest) {
+          setEventLoadError('We could not reach event registration right now. Please refresh and try again.');
+        }
       } finally {
-        setEventLoading(false);
+        if (isCurrentRequest) setEventLoading(false);
       }
-
-      setEventDetails(queryFallback.title !== 'Event Registration' ? queryFallback : null);
     };
 
     loadEvent();
-  }, [eventId, searchParams]);
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [registrationIdentifier]);
 
   const formatEventDate = (startDate?: string, endDate?: string) => {
     if (!startDate) return '';
@@ -212,8 +211,8 @@ const EventRegistration = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/20 p-4">
-      <div className="relative w-full max-w-4xl bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1.15fr_1fr] min-h-[640px]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/55 p-4 backdrop-blur-[2px]">
+      <div className="relative my-auto grid w-full max-w-4xl grid-rows-[minmax(0,1fr)] grid-cols-1 overflow-hidden rounded-2xl bg-background shadow-2xl md:grid-cols-[1.15fr_1fr] min-h-[min(640px,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)]">
         <div className="hidden md:block relative">
           <img src={eventImg} alt="event" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
@@ -227,7 +226,7 @@ const EventRegistration = () => {
           <X className="w-5 h-5" />
         </button>
 
-        <div className="p-6 md:p-8 flex flex-col">
+        <div className="min-h-0 overflow-y-auto p-6 md:p-8 flex flex-col">
           {!submitted && (
             <div className="mb-4">
               <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Event Registration</h1>
@@ -238,6 +237,13 @@ const EventRegistration = () => {
                 Registration helps us prepare adequately and ensure a smooth experience for everyone.
               </p>
               {eventLoading && <p className="text-[11px] text-muted-foreground mt-2">Loading event details...</p>}
+              {!eventLoading && !eventDetails && (
+                <PublicInlineAlert
+                  type="error"
+                  message={eventLoadError || 'This registration link is invalid or the event is unavailable.'}
+                  className="mt-3"
+                />
+              )}
               {eventDetails && (
                 <div className="mt-3 rounded-md border border-border bg-muted/30 p-3 space-y-1">
                   <p className="text-xs font-semibold text-foreground">{eventDetails.title}</p>
@@ -252,14 +258,28 @@ const EventRegistration = () => {
           )}
 
           {submitted ? (
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <h2 className="font-heading text-lg font-semibold">Registered</h2>
-              <p className="text-sm text-muted-foreground mt-2">Thanks — we'll be in touch with event details and confirmations.</p>
-              <a href="/" className="mt-3 text-sm text-primary hover:underline">Return home</a>
-            </div>
+            <PublicSuccessView
+              title="Registered Successfully"
+              description="Thanks — we'll be in touch with event details and confirmations."
+              actionText="Register Another Person"
+              onAction={() => {
+                setForm({
+                  fullName: "",
+                  phone: "",
+                  email: "",
+                  gender: "",
+                  selectedDays: [],
+                  allDays: false,
+                  member: "",
+                  accommodation: "",
+                  consent: false,
+                  contactConsent: false,
+                });
+                setStep(1);
+                setSubmitted(false);
+                setSubmitError(null);
+              }}
+            />
           ) : (
             <>
               <div className={`flex-1 flex flex-col gap-4 transition-all duration-300 ${step === 1 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8 absolute pointer-events-none'}`}>
@@ -291,8 +311,8 @@ const EventRegistration = () => {
                   </Select>
                 </div>
 
-                <div className="mt-6">
-                  <Button className="bg-foreground text-background px-6 py-3 rounded-full" disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
+                <div className="mt-6 flex items-center justify-start gap-3">
+                  <Button type="button" className="h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal" disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
                 </div>
               </div>
 
@@ -353,31 +373,53 @@ const EventRegistration = () => {
                   <Label className="text-[11px]">I consent to be contacted regarding this event.</Label>
                 </div>
 
-                <div className="flex items-center gap-3 mt-4">
-                  <Button variant="outline" className="h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
+                {submitError && (
+                  <PublicInlineAlert
+                    type="error"
+                    message={submitError}
+                    onDismiss={() => setSubmitError(null)}
+                    className="mt-4"
+                  />
+                )}
+
+                <div className="flex items-center justify-start gap-3 mt-4">
                   <Button
-                    className="bg-foreground text-background h-12 px-10 text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90"
+                    type="button"
+                    className="h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal"
+                    disabled={submitting}
+                    onClick={() => setStep(1)}
+                  >
+                    PREVIOUS
+                  </Button>
+                  <Button
+                    className="bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black h-12 px-8 text-sm font-medium tracking-normal rounded-full disabled:opacity-50"
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
+                      if (submitting) return;
+                      const resolvedEventId = eventDetails?.id;
+                      if (!resolvedEventId) return;
                       setSubmitting(true);
+                      setSubmitError(null);
                       try {
-                        await registerEventParticipant(eventId, 
-                          form
-                          // eventTitle: eventDetails?.title,
-                          // eventType: eventDetails?.type,
-                          // eventLocation: eventDetails?.location,
-                          // eventStartDate: eventDetails?.startDate,
-                          // eventEndDate: eventDetails?.endDate,
-                        );
+                        await registerEventParticipant(resolvedEventId, form);
                         persistLocalRegistration();
                         setSubmitted(true);
                       } catch (err: any) {
-                        alert(err?.message || 'Submission failed');
+                        setSubmitError(describePublicError(err, 'Failed to submit event registration. Please try again.'));
                       } finally {
                         setSubmitting(false);
                       }
                     }}
-                  >{submitting ? 'SENDING...' : 'REGISTER'}</Button>
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        REGISTERING...
+                      </>
+                    ) : (
+                      'REGISTER'
+                    )}
+                  </Button>
                 </div>
               </div>
             </>

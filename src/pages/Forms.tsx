@@ -78,16 +78,18 @@ const Forms = () => {
 
       {/* Modal overlay */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
-          <div className="relative z-50 mx-4 w-full max-w-3xl h-[calc(100dvh-2rem)] sm:h-auto sm:max-h-[90vh] overflow-hidden">
-            {activeModal === 'newMember' && <NewMemberRegistration modal onClose={closeModal} />}
-            {activeModal === 'altarCall' && <AltarCall modal onClose={closeModal} />}
-            {activeModal === 'testimony' && <Testimony modal onClose={closeModal} />}
-            {activeModal === 'preMarital' && <PreMaritalCounseling modal onClose={closeModal} />}
-            {activeModal === 'counselling' && <Counselling modal onClose={closeModal} />}
-            {activeModal === 'volunteer' && <Volunteer modal onClose={closeModal} />}
-            {activeModal === 'feedback' && <Feedback modal onClose={closeModal} />}
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/60 transition-opacity" onClick={closeModal} />
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div className="relative z-50 w-full max-w-3xl my-auto">
+              {activeModal === 'newMember' && <NewMemberRegistration modal onClose={closeModal} />}
+              {activeModal === 'altarCall' && <AltarCall modal onClose={closeModal} />}
+              {activeModal === 'testimony' && <Testimony modal onClose={closeModal} />}
+              {activeModal === 'preMarital' && <PreMaritalCounseling modal onClose={closeModal} />}
+              {activeModal === 'counselling' && <Counselling modal onClose={closeModal} />}
+              {activeModal === 'volunteer' && <Volunteer modal onClose={closeModal} />}
+              {activeModal === 'feedback' && <Feedback modal onClose={closeModal} />}
+            </div>
           </div>
         </div>
       )}

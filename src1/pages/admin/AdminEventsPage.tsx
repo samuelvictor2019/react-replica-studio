@@ -18,6 +18,17 @@ import autoTable from 'jspdf-autotable';
 import { buildEventRegistrationUrl, getEventTypes } from '@/lib/api';
 import QRCode from 'qrcode';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import UploadedImagePicker from '@/components/admin/UploadedImagePicker';
+
+type EventStatus = 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
+
+const EVENT_STATUS_DOT: Record<EventStatus, string> = {
+  draft: 'bg-yellow-500',
+  published: 'bg-blue-500',
+  ongoing: 'bg-green-500',
+  completed: 'bg-gray-500',
+  cancelled: 'bg-red-500',
+};
 
 type Event = {
   id: string;
@@ -33,7 +44,7 @@ type Event = {
   location: string;
   bannerImageUrl?: string;
   price: number;
-  status: 'draft' | 'published' | 'cancelled' | 'completed';
+  status: EventStatus;
   typeId: string;
   eventType?: { id: string; name: string; slug: string; };
   createdAt: string;
@@ -136,7 +147,7 @@ const AdminEventsPage = () => {
     location: '',
     bannerImageUrl: '',
     price: 0,
-    status: 'published' as 'draft' | 'published' | 'cancelled' | 'completed',
+    status: 'published' as EventStatus,
     typeId: ''
   });
 
@@ -704,7 +715,7 @@ const AdminEventsPage = () => {
                         <div className="text-xs text-muted-foreground line-clamp-1">{event.description}</div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{event.eventType?.name || event.type || '-'}</Badge>
+                        <Badge variant="outline">{event.eventType?.name || event.eventType?.slug || '-'}</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
@@ -719,12 +730,7 @@ const AdminEventsPage = () => {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="gap-1.5 capitalize font-medium px-2 py-0.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            event.status === 'published' ? 'bg-blue-500' :
-                            event.status === 'ongoing' ? 'bg-green-500' :
-                            event.status === 'completed' ? 'bg-gray-500' :
-                            'bg-yellow-500'
-                          }`}></span>
+                          <span className={`w-1.5 h-1.5 rounded-full ${EVENT_STATUS_DOT[event.status] ?? 'bg-yellow-500'}`}></span>
                           {event.status}
                         </Badge>
                       </TableCell>
@@ -741,7 +747,7 @@ const AdminEventsPage = () => {
                                 <p>View Registrants</p>
                               </TooltipContent>
                             </Tooltip>
-                            
+
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button variant="ghost" size="icon" onClick={() => copyRegistrationLink(event)}>
@@ -776,7 +782,7 @@ const AdminEventsPage = () => {
                                 </TooltipContent>
                               </Tooltip>
                             )}
-                            
+
                             {can('content.delete') && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1042,28 +1048,28 @@ const AdminEventsPage = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
-                <Select value={formData.status} onValueChange={(value: 'draft' | 'published' | 'cancelled' | 'completed') => setFormData(prev => ({ ...prev, status: value }))}>
+                <Select value={formData.status} onValueChange={(value: EventStatus) => setFormData(prev => ({ ...prev, status: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="ongoing">Ongoing</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium">Banner Image URL</label>
-              <Input
-                value={formData.bannerImageUrl}
-                onChange={(e) => setFormData(prev => ({ ...prev, bannerImageUrl: e.target.value }))}
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
+            <UploadedImagePicker
+              id="event-banner-image"
+              label="Banner Image"
+              folder="wgc"
+              value={formData.bannerImageUrl}
+              onChange={(url) => setFormData(prev => ({ ...prev, bannerImageUrl: url }))}
+            />
 
             <div>
               <label className="text-sm font-medium">Description</label>

@@ -4,13 +4,16 @@ import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, UserPlus, CheckCircle, Clock, Phone, Mail, MapPin, Plus, Edit, Trash2, Eye } from 'lucide-react';
-import { adminRequest } from '@/lib/adminApi';
+import { Users, UserPlus, CheckCircle, Clock, Phone, Mail, MapPin, Plus, Edit, Trash2, Eye, Loader2 } from 'lucide-react';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 
 type Member = {
   id: string;
@@ -33,24 +36,14 @@ type Member = {
   formSubmissionId?: string;
 };
 
-type FormSubmission = {
-  id: string;
-  type: string;
-  status: 'new' | 'in_progress' | 'completed' | 'archived';
-  notes?: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  data?: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
-};
-
-
 const AdminMembersPage = () => {
-  const { can, user } = useOutletContext<AdminOutletContext>();
+  const { can } = useOutletContext<AdminOutletContext>();
   const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [viewingMember, setViewingMember] = useState<Member | null>(null);
   const [formData, setFormData] = useState({
@@ -66,28 +59,6 @@ const AdminMembersPage = () => {
     notes: ''
   });
 
-  const splitName = (fullName: string) => {
-    const clean = (fullName || '').trim().replace(/\s+/g, ' ');
-    if (!clean) return { firstName: 'Unknown', lastName: 'Member' };
-    const parts = clean.split(' ');
-    if (parts.length === 1) return { firstName: parts[0], lastName: '' };
-    return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
-  };
-
-  const mapFormStatusToMemberStatus = (status?: string): Member['status'] => {
-    if (status === 'completed' || status === 'archived') return 'integrated';
-    if (status === 'in_progress') return 'approved';
-    return 'pending';
-  };
-
-  const mapMaritalStatus = (value?: string): Member['maritalStatus'] => {
-    const normalized = String(value || '').toLowerCase();
-    if (normalized === 'single' || normalized === 'married' || normalized === 'divorced' || normalized === 'widowed') {
-      return normalized;
-    }
-    return 'single';
-  };
-
   const loadMembers = async () => {
     try {
       const res = await adminRequest<{ data: Member[] }>('/members');
@@ -95,6 +66,8 @@ const AdminMembersPage = () => {
     } catch (error) {
       console.warn('Failed to load members from API:', error);
       setMembers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,36 +119,47 @@ const AdminMembersPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
 
+    setSubmitting(true);
     try {
       if (editingMember) {
         await adminRequest(`/members/${editingMember.id}`, {
           method: 'PATCH',
           body: JSON.stringify(formData)
         });
+        toast.success(`Member "${formData.firstName} ${formData.lastName}" updated.`);
       } else {
         await adminRequest('/members', {
           method: 'POST',
           body: JSON.stringify(formData)
         });
+        toast.success(`Member "${formData.firstName} ${formData.lastName}" created.`);
       }
       setIsDialogOpen(false);
       resetForm();
       loadMembers();
     } catch (e: any) {
       console.warn('Failed to save member:', e.message);
-      alert(e.message || 'Failed to save member');
+      toast.error(describeApiError(e, 'Failed to save member'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this member record?')) return;
+  const confirmDelete = async () => {
+    if (!memberToDelete) return;
+    setIsDeleting(true);
     try {
-      await adminRequest(`/members/${id}`, { method: 'DELETE' });
+      await adminRequest(`/members/${memberToDelete.id}`, { method: 'DELETE' });
+      toast.success(`Member "${memberToDelete.firstName} ${memberToDelete.lastName}" deleted.`);
+      setMemberToDelete(null);
       loadMembers();
     } catch (e: any) {
       console.warn('Failed to delete member:', e.message);
-      alert(e.message || 'Failed to delete member');
+      toast.error(describeApiError(e, 'Failed to delete member'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -217,6 +201,10 @@ const AdminMembersPage = () => {
 
   if (!can('content.read')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="members" variant="table" columns={5} />;
   }
 
   return (
@@ -342,7 +330,7 @@ const AdminMembersPage = () => {
                               </Button>
                             )}
                             {can('content.delete') && (
-                              <Button variant="ghost" size="sm" onClick={() => handleDelete(member.id)}>
+                              <Button variant="ghost" size="sm" onClick={() => setMemberToDelete(member)}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             )}
@@ -417,7 +405,7 @@ const AdminMembersPage = () => {
                                 </Button>
                               )}
                               {can('content.delete') && (
-                                <Button variant="ghost" size="sm" onClick={() => handleDelete(member.id)}>
+                                <Button variant="ghost" size="sm" onClick={() => setMemberToDelete(member)}>
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               )}
@@ -435,7 +423,7 @@ const AdminMembersPage = () => {
       </Tabs>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !submitting && setIsDialogOpen(open)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingMember ? 'Edit Member' : 'Add New Member'}</DialogTitle>
@@ -545,12 +533,15 @@ const AdminMembersPage = () => {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingMember ? 'Update Member' : 'Add Member'}
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingMember ? 'Updating Member...' : 'Adding Member...')
+                  : (editingMember ? 'Update Member' : 'Add Member')}
               </Button>
             </div>
           </form>
@@ -644,6 +635,20 @@ const AdminMembersPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(memberToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setMemberToDelete(null)}
+        title="Delete Member Record?"
+        description={
+          memberToDelete
+            ? `Are you sure you want to delete the record for "${memberToDelete.firstName} ${memberToDelete.lastName}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this member record?'
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Member'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

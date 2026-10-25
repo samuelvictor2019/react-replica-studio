@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/select";
 import babyImg from "@/assets/babydedication_form.jpg";
 import { sanitizePhoneInput } from "@/lib/formValidation";
+import { describePublicError, postForm } from "@/lib/api";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 
 const BabyDedication = () => {
   const [step, setStep] = useState(1);
@@ -29,22 +32,25 @@ const BabyDedication = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = (field: string, value: string | boolean) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
 
   const canProceed = formData.parentName.trim() && formData.phone.trim() && formData.babyName.trim() && formData.dob;
   const canSubmit = formData.consent;
+  const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
+  const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      const { postForm } = await import('@/lib/api');
       await postForm('baby-dedication', formData);
       setSubmitted(true);
     } catch (err: any) {
-      alert(err?.message || 'Submission failed');
+      setSubmitError(describePublicError(err, 'Failed to submit baby dedication request. Please try again.'));
     } finally {
       setSubmitting(false);
     }
@@ -80,16 +86,26 @@ const BabyDedication = () => {
           )}
 
           {submitted ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="font-heading text-xl font-semibold text-foreground">Thank You!</h2>
-              <p className="text-sm text-muted-foreground max-w-xs">Your response has been received. Someone from the church will reach out to you soon.</p>
-              <a href="/" className="mt-2 text-sm font-medium text-primary hover:underline">Return Home</a>
-            </div>
+            <PublicSuccessView
+              title="Thank You!"
+              description="Your baby dedication request has been received. Someone from the church will reach out to you soon."
+              actionText="Submit Another Response"
+              onAction={() => {
+                setFormData({
+                  parentName: "",
+                  phone: "",
+                  babyName: "",
+                  dob: "",
+                  activeMember: "",
+                  preferredDate: "",
+                  notes: "",
+                  consent: false,
+                });
+                setStep(1);
+                setSubmitted(false);
+                setSubmitError(null);
+              }}
+            />
           ) : (
             <>
               <div className={`flex-1 flex flex-col gap-5 transition-all duration-300 ${step === 1 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8 absolute pointer-events-none"}`}>
@@ -144,15 +160,52 @@ const BabyDedication = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 mt-6">
+              {submitError && (
+                <PublicInlineAlert
+                  type="error"
+                  message={submitError}
+                  onDismiss={() => setSubmitError(null)}
+                  className="mt-4"
+                />
+              )}
+
+              <div className="flex items-center justify-start gap-3 mt-6">
                 {step === 2 && (
-                  <Button variant="outline" className="flex-1 h-11 text-xs font-semibold tracking-wider rounded-sm" onClick={() => setStep(1)}>PREVIOUS</Button>
+                  <Button
+                    type="button"
+                    className={secondaryButtonClass}
+                    disabled={submitting}
+                    onClick={() => setStep(1)}
+                  >
+                    PREVIOUS
+                  </Button>
                 )}
 
                 {step === 1 ? (
-                  <Button className="flex-1 h-11 bg-foreground text-background text-xs font-semibold tracking-wider rounded-sm hover:bg-foreground/90" disabled={!canProceed} onClick={() => setStep(2)}>NEXT</Button>
+                  <Button
+                    type="button"
+                    className={primaryButtonClass}
+                    disabled={!canProceed}
+                    onClick={() => setStep(2)}
+                  >
+                    NEXT
+                  </Button>
                 ) : (
-                  <Button className="flex-1 h-12 bg-foreground text-background text-sm font-semibold tracking-[0.08em] rounded-full hover:bg-foreground/90" disabled={!canSubmit || submitting} onClick={handleSubmit}>{submitting ? 'SENDING...' : 'SUBMIT FORM'}</Button>
+                  <Button
+                    type="button"
+                    className={primaryButtonClass}
+                    disabled={!canSubmit || submitting}
+                    onClick={handleSubmit}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        SUBMITTING...
+                      </>
+                    ) : (
+                      'SUBMIT FORM'
+                    )}
+                  </Button>
                 )}
               </div>
             </>

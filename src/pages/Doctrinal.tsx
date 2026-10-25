@@ -3,8 +3,6 @@ import Footer from "@/components/Footer";
 import { useState } from "react";
 import doctrinalHero from "@/assets/doctrinalhero.jpg";
 import postureHero from "@/assets/doctrinal1.jpg";
-import welcomeImg from "@/assets/ourposture.jpg";
-// posture image removed — no longer used
 
 const Doctrinal = () => {
 	const sections = [

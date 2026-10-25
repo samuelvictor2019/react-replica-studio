@@ -1,142 +1,81 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Users, CheckCircle, Clock, Mail, Phone, MessageSquare, Edit, Trash2, Eye, Check } from 'lucide-react';
-import { adminRequest } from '@/lib/adminApi';
-
-type FormSubmission = {
-  id: string;
-  type: string;
-  status: 'new' | 'in_progress' | 'completed' | 'archived';
-  notes?: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  data: {
-    fullName?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    message?: string;
-    feedbackType?: string;
-    decision?: string;
-    prayerNeed?: string;
-    parentName?: string;
-    babyName?: string;
-    dob?: string;
-    activeMember?: string;
-    preferredDate?: string;
-    title?: string;
-    testimony?: string;
-    shareOption?: string;
-    confirm?: boolean;
-    consent?: boolean;
-    [key: string]: any;
-  };
-  createdAt: string;
-  updatedAt: string;
-};
-
-const DEDICATED_TYPES = new Set(['new comers', 'newcomers', 'new member', 'new-member', 'testimony']);
-
-const parseSubmissionData = (rawData: any): Record<string, any> => {
-  if (rawData && typeof rawData === 'object') return rawData;
-  if (typeof rawData === 'string') {
-    try {
-      const parsed = JSON.parse(rawData);
-      return parsed && typeof parsed === 'object' ? parsed : {};
-    } catch {
-      return {};
-    }
-  }
-  return {};
-};
-
-const normalizeSubmission = (submission: any): FormSubmission => {
-  const data = parseSubmissionData(submission?.data);
-  const status = ['new', 'in_progress', 'completed', 'archived'].includes(String(submission?.status || ''))
-    ? submission.status
-    : 'new';
-
-  return {
-    id: String(submission?.id || `local-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`),
-    type: String(submission?.type || 'Feedback'),
-    status,
-    notes: submission?.notes || '',
-    fullName: submission?.fullName || data.fullName || data.name || '',
-    email: submission?.email || data.email || '',
-    phone: submission?.phone || data.phone || '',
-    data,
-    createdAt: submission?.createdAt || new Date().toISOString(),
-    updatedAt: submission?.updatedAt || submission?.createdAt || new Date().toISOString(),
-  };
-};
-
-const isManagedByFormsPage = (submission: FormSubmission) => {
-  const normalizedType = String(submission.type || '').toLowerCase().trim();
-  if (DEDICATED_TYPES.has(normalizedType)) return false;
-
-  const data = parseSubmissionData(submission.data);
-  const isEventRegistrationLike = normalizedType === 'feedback' && Boolean(data.eventId || data.eventTitle || data.selectedDays || data.accommodation);
-  if (isEventRegistrationLike) return false;
-
-  return true;
+import { FileText, Users, CheckCircle, Clock, Mail, Phone, MessageSquare, Edit, Trash2, Eye, Check, XCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  deleteFormSubmission,
+  describeApiError,
+  listFormSubmissions,
+  updateFormSubmission,
+  updateFormSubmissionStatus,
+  type FormStatus,
+  type FormSubmission,
+  type FormType,
+} from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
+const readString = (data: Record<string, unknown>, key: string) => {
+  const value = data[key];
+  return typeof value === 'string' ? value : '';
 };
 
 const AdminFormsPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [activeStatus, setActiveStatus] = useState<FormStatus | 'all'>('all');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, limit: 25, total: 0, totalPages: 1 });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionToDelete, setSubmissionToDelete] = useState<FormSubmission | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingSubmission, setEditingSubmission] = useState<FormSubmission | null>(null);
   const [viewingSubmission, setViewingSubmission] = useState<FormSubmission | null>(null);
   const [formData, setFormData] = useState({
-    type: 'Feedback',
+    type: 'Feedback' as FormType,
     fullName: '',
     email: '',
     phone: '',
     message: '',
-    status: 'new' as 'new' | 'in_progress' | 'completed' | 'archived',
-    notes: ''
+    status: 'pending' as FormStatus
   });
 
-  const isNotFoundError = (error: any) => {
-    const message = String(error?.message || '');
-    return message.includes('NOT_FOUND') || message.includes('404');
-  };
+  const loadSubmissions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await listFormSubmissions({
+        page,
+        limit: 25,
+        statuses: activeStatus === 'all' ? undefined : [activeStatus],
+      });
+      setSubmissions(response.data);
+      setPagination(response.pagination);
+      setError('');
+    } catch (e: any) {
+      console.warn('Failed to load submissions from API:', e.message);
+      setError(describeApiError(e, 'Failed to load form submissions.'));
+      setSubmissions([]);
+      setPagination({ page, limit: 25, total: 0, totalPages: 1 });
+    } finally {
+      setLoading(false);
+    }
+  }, [activeStatus, page]);
 
-  const isAuthPermissionError = (error: any) => {
-    const message = String(error?.message || '').toLowerCase();
-    return message.includes('forbidden') || message.includes('403') || message.includes('unauthorized') || message.includes('401') || message.includes('authentication expired');
-  };
-
-  // Load submissions from API on component mount
   useEffect(() => {
-    const loadSubmissions = async () => {
-      try {
-        const res = await adminRequest<{ items?: FormSubmission[]; data?: FormSubmission[] }>('/forms/submissions?page=1&limit=100');
-        const apiItems = Array.isArray(res.items) ? res.items : Array.isArray(res.data) ? res.data : [];
-        const normalizedItems = apiItems.map(normalizeSubmission).filter(isManagedByFormsPage);
-        setSubmissions(normalizedItems);
-        setError('');
-      } catch (e: any) {
-        console.warn('Failed to load submissions from API:', e.message);
-        setError('Failed to load forms from backend.');
-        setSubmissions([]);
-      }
-    };
-
-    loadSubmissions();
-  }, []);
+    if (can('forms.read')) void loadSubmissions();
+  }, [can, loadSubmissions]);
 
   const resetForm = () => {
     setFormData({
@@ -145,27 +84,26 @@ const AdminFormsPage = () => {
       email: '',
       phone: '',
       message: '',
-      status: 'new',
-      notes: ''
+      status: 'pending'
     });
     setEditingSubmission(null);
   };
 
-  const openCreateDialog = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-
   const openEditDialog = (submission: FormSubmission) => {
-    const data = parseSubmissionData(submission.data);
+    const data = submission.data;
     setFormData({
       type: submission.type,
-      fullName: submission.fullName || data.fullName || data.name || '',
-      email: submission.email || data.email || '',
-      phone: submission.phone || data.phone || '',
-      message: data.message || '',
-      status: submission.status,
-      notes: submission.notes || ''
+      fullName: submission.fullName || readString(data, 'fullName') || readString(data, 'name'),
+      email: submission.email || readString(data, 'email'),
+      phone: submission.phone || readString(data, 'phone'),
+      message: readString(data, 'message'),
+      status: submission.status === 'new' || submission.status === 'in_progress'
+        ? 'pending'
+        : submission.status === 'completed'
+          ? 'approved'
+          : submission.status === 'archived'
+            ? 'cancelled'
+            : submission.status
     });
     setEditingSubmission(submission);
     setIsDialogOpen(true);
@@ -177,80 +115,72 @@ const AdminFormsPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const now = new Date().toISOString();
+    if (submitting) return;
 
+    if (!editingSubmission) return;
+
+    setSubmitting(true);
     try {
-      if (editingSubmission) {
-        // Update submission status and notes
-        await adminRequest(`/forms/submissions/${editingSubmission.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({
-            status: formData.status,
-            notes: formData.notes
-          })
-        });
-        
-        // Update local state
-        setSubmissions(prev => prev.map(submission =>
-          submission.id === editingSubmission.id
-            ? {
-                ...submission,
-                status: formData.status,
-                notes: formData.notes,
-                updatedAt: now
-              }
-            : submission
-        ));
-      } else {
-        alert('Creating new submissions is not supported. Submissions are created automatically when users submit forms on the website.');
-        return;
-      }
+      await updateFormSubmission(editingSubmission.id, {
+        type: formData.type,
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        status: formData.status,
+        data: { ...editingSubmission.data, message: formData.message },
+      });
+      toast.success('Form submission updated successfully.');
       setIsDialogOpen(false);
       resetForm();
+      await loadSubmissions();
     } catch (e: any) {
       console.warn('API call failed:', e.message);
-      setError(e.message || 'Failed to update submission');
+      const msg = describeApiError(e, 'Failed to update submission');
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this form submission?')) return;
+  const confirmDelete = async () => {
+    if (!submissionToDelete) return;
+    setIsDeleting(true);
 
     try {
-      await adminRequest(`/forms/submissions/${id}`, { method: 'DELETE' });
-      setSubmissions(prev => prev.filter(submission => submission.id !== id));
+      await deleteFormSubmission(submissionToDelete.id);
+      toast.success('Form submission deleted.');
+      setSubmissionToDelete(null);
+      if (submissions.length === 1 && page > 1) setPage(page - 1);
+      else await loadSubmissions();
     } catch (e: any) {
       console.warn('API delete failed:', e.message);
-      setError(e.message || 'Failed to delete submission');
+      const msg = describeApiError(e, 'Failed to delete submission');
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleStatusUpdate = async (id: string, status: 'new' | 'in_progress' | 'completed' | 'archived') => {
-    const now = new Date().toISOString();
-    
+  const handleStatusUpdate = async (id: string, status: FormStatus) => {
     try {
-      await adminRequest(`/forms/submissions/${id}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status })
-      });
-      
-      setSubmissions(prev => prev.map(submission =>
-        submission.id === id
-          ? {
-              ...submission,
-              status,
-              updatedAt: now
-            }
-          : submission
-      ));
+      await updateFormSubmissionStatus(id, status);
+      toast.success(`Status updated to "${status.replace('_', ' ')}".`);
+      await loadSubmissions();
     } catch (e: any) {
       console.warn('API update failed:', e.message);
-      setError(e.message || 'Failed to update status');
+      const msg = describeApiError(e, 'Failed to update status');
+      setError(msg);
+      toast.error(msg);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
       case 'new': return 'bg-blue-100 text-blue-800';
       case 'in_progress': return 'bg-yellow-100 text-yellow-800';
       case 'completed': return 'bg-green-100 text-green-800';
@@ -261,6 +191,9 @@ const AdminFormsPage = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'pending': return <Clock className="w-4 h-4" />;
+      case 'approved': return <CheckCircle className="w-4 h-4" />;
+      case 'cancelled': return <XCircle className="w-4 h-4" />;
       case 'new': return <Clock className="w-4 h-4" />;
       case 'in_progress': return <MessageSquare className="w-4 h-4" />;
       case 'completed': return <CheckCircle className="w-4 h-4" />;
@@ -284,41 +217,29 @@ const AdminFormsPage = () => {
   };
 
   const getSubmissionName = (submission: FormSubmission) => {
-    const data = parseSubmissionData(submission.data);
-    return submission.fullName || data.fullName || data.name || 'N/A';
+    return submission.fullName || readString(submission.data, 'fullName') || readString(submission.data, 'name') || 'N/A';
   };
 
   const getSubmissionEmail = (submission: FormSubmission) => {
-    const data = parseSubmissionData(submission.data);
-    return submission.email || data.email || 'N/A';
+    return submission.email || readString(submission.data, 'email') || 'N/A';
   };
 
   const getSubmissionPhone = (submission: FormSubmission) => {
-    const data = parseSubmissionData(submission.data);
-    return submission.phone || data.phone || '';
+    return submission.phone || readString(submission.data, 'phone');
   };
 
   const getSubmissionSummary = (submission: FormSubmission) => {
-    const data = parseSubmissionData(submission.data);
-    return data.message || data.testimony || data.title || Object.values(data).find((value) => typeof value === 'string' && value.length > 10) || 'N/A';
-  };
-
-  const groupedSubmissions = submissions.reduce((acc, submission) => {
-    if (!acc[submission.status]) acc[submission.status] = [];
-    acc[submission.status].push(submission);
-    return acc;
-  }, {} as Record<string, FormSubmission[]>);
-
-  const stats = {
-    total: submissions.length,
-    new: groupedSubmissions.new?.length || 0,
-    inProgress: groupedSubmissions.in_progress?.length || 0,
-    completed: groupedSubmissions.completed?.length || 0,
-    archived: groupedSubmissions.archived?.length || 0
+    const data = submission.data;
+    return readString(data, 'message') || readString(data, 'testimony') || readString(data, 'title') ||
+      Object.values(data).find((value): value is string => typeof value === 'string' && value.length > 10) || 'N/A';
   };
 
   if (!can('forms.read')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="form submissions" variant="table" columns={6} />;
   }
 
   return (
@@ -336,56 +257,24 @@ const AdminFormsPage = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <FileText className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium">Total</span>
-            </div>
-            <p className="text-2xl font-bold">{stats.total}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium">New</span>
-            </div>
-            <p className="text-2xl font-bold">{stats.new}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className="h-4 w-4 text-yellow-600" />
-              <span className="text-sm font-medium">In Progress</span>
-            </div>
-            <p className="text-2xl font-bold">{stats.inProgress}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium">Archived</span>
-            </div>
-            <p className="text-2xl font-bold">{stats.archived}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <p className="text-sm text-muted-foreground">{pagination.total} matching submissions</p>
 
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto">
-          <TabsTrigger value="all" className="text-xs sm:text-sm">All ({stats.total})</TabsTrigger>
-          <TabsTrigger value="new" className="text-xs sm:text-sm">New ({stats.new})</TabsTrigger>
-          <TabsTrigger value="in_progress" className="text-xs sm:text-sm">In Progress ({stats.inProgress})</TabsTrigger>
-          <TabsTrigger value="completed" className="text-xs sm:text-sm">Completed ({stats.completed})</TabsTrigger>
-          <TabsTrigger value="archived" className="text-xs sm:text-sm">Archived ({groupedSubmissions.archived?.length || 0})</TabsTrigger>
+      <Tabs
+        value={activeStatus}
+        onValueChange={(value) => {
+          setPage(1);
+          setActiveStatus(value as FormStatus | 'all');
+        }}
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+          <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+          <TabsTrigger value="pending" className="text-xs sm:text-sm">Pending</TabsTrigger>
+          <TabsTrigger value="approved" className="text-xs sm:text-sm">Approved</TabsTrigger>
+          <TabsTrigger value="cancelled" className="text-xs sm:text-sm">Cancelled</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-4">
+        <TabsContent value={activeStatus} className="space-y-4">
           {submissions.length === 0 ? (
             <p className="text-muted-foreground">No form submissions found</p>
           ) : (
@@ -449,20 +338,30 @@ const AdminFormsPage = () => {
                                 <Button variant="ghost" size="sm" onClick={() => openEditDialog(submission)}>
                                   <Edit className="w-4 h-4" />
                                 </Button>
+                                {submission.status === 'pending' && (
+                                  <>
+                                    <Button variant="ghost" size="sm" aria-label="Approve submission" title="Approve submission" onClick={() => handleStatusUpdate(submission.id, 'approved')}>
+                                      <Check className="w-4 h-4 text-green-600" />
+                                    </Button>
+                                    <Button variant="ghost" size="sm" aria-label="Cancel submission" title="Cancel submission" onClick={() => handleStatusUpdate(submission.id, 'cancelled')}>
+                                      <XCircle className="w-4 h-4 text-red-600" />
+                                    </Button>
+                                  </>
+                                )}
                                 {submission.status === 'new' && (
-                                  <Button variant="ghost" size="sm" onClick={() => handleStatusUpdate(submission.id, 'in_progress')}>
+                                  <Button variant="ghost" size="sm" aria-label="Approve submission" title="Approve submission" onClick={() => handleStatusUpdate(submission.id, 'approved')}>
                                     <Check className="w-4 h-4 text-green-600" />
                                   </Button>
                                 )}
                                 {submission.status === 'in_progress' && (
-                                  <Button variant="ghost" size="sm" onClick={() => handleStatusUpdate(submission.id, 'completed')}>
+                                  <Button variant="ghost" size="sm" aria-label="Approve submission" title="Approve submission" onClick={() => handleStatusUpdate(submission.id, 'approved')}>
                                     <CheckCircle className="w-4 h-4 text-green-600" />
                                   </Button>
                                 )}
                               </>
                             )}
                             {can('forms.delete') && (
-                              <Button variant="ghost" size="sm" onClick={() => handleDelete(submission.id)}>
+                              <Button variant="ghost" size="sm" onClick={() => setSubmissionToDelete(submission)}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             )}
@@ -477,112 +376,32 @@ const AdminFormsPage = () => {
           )}
         </TabsContent>
 
-        {['new', 'in_progress', 'completed', 'archived'].map((status) => (
-          <TabsContent key={status} value={status} className="space-y-4">
-            {groupedSubmissions[status]?.length === 0 ? (
-              <p className="text-muted-foreground">No {status.replace('_', ' ')} submissions found</p>
-            ) : (
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Subject</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Submitted</TableHead>
-                        <TableHead className="w-[150px]">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {groupedSubmissions[status]?.map((submission) => (
-                        <TableRow key={submission.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{getSubmissionName(submission)}</p>
-                              <div className="flex items-center gap-1 text-sm text-gray-500">
-                                <Mail className="w-3 h-3" />
-                                {getSubmissionEmail(submission)}
-                              </div>
-                              {getSubmissionPhone(submission) && (
-                                <div className="flex items-center gap-1 text-sm text-gray-500">
-                                  <Phone className="w-3 h-3" />
-                                  {getSubmissionPhone(submission)}
-                                </div>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getFormTypeColor(submission.type)}>
-                              {submission.type.replace(/([A-Z])/g, ' $1').trim()}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <p className="line-clamp-1">{getSubmissionSummary(submission)}</p>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(submission.status)}>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(submission.status)}
-                                {submission.status.replace('_', ' ')}
-                              </div>
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {new Date(submission.createdAt).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm" onClick={() => openViewDialog(submission)}>
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              {can('forms.update') && (
-                                <>
-                                  <Button variant="ghost" size="sm" onClick={() => openEditDialog(submission)}>
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  {submission.status === 'new' && (
-                                    <Button variant="ghost" size="sm" onClick={() => handleStatusUpdate(submission.id, 'in_progress')}>
-                                      <Check className="w-4 h-4 text-green-600" />
-                                    </Button>
-                                  )}
-                                  {submission.status === 'in_progress' && (
-                                    <Button variant="ghost" size="sm" onClick={() => handleStatusUpdate(submission.id, 'completed')}>
-                                      <CheckCircle className="w-4 h-4 text-green-600" />
-                                    </Button>
-                                  )}
-                                </>
-                              )}
-                              {can('forms.delete') && (
-                                <Button variant="ghost" size="sm" onClick={() => handleDelete(submission.id)}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        ))}
       </Tabs>
 
+      <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+        <span>Page {page} of {Math.max(1, pagination.totalPages)} · {pagination.total} submissions</span>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" aria-label="Next page" disabled={page >= pagination.totalPages} onClick={() => setPage((current) => current + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !submitting && setIsDialogOpen(open)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingSubmission ? 'Edit Submission' : 'Add New Submission'}</DialogTitle>
+            <DialogTitle>Edit Submission</DialogTitle>
+            <DialogDescription>Update the details and status for this submission.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Form Type</label>
-                <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+                <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value as FormType }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -600,15 +419,14 @@ const AdminFormsPage = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
-                <Select value={formData.status} onValueChange={(value: 'new' | 'in_progress' | 'completed' | 'archived') => setFormData(prev => ({ ...prev, status: value }))}>
+                <Select value={formData.status} onValueChange={(value: FormStatus) => setFormData(prev => ({ ...prev, status: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -642,24 +460,6 @@ const AdminFormsPage = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium">Type</label>
-                <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Feedback">Feedback</SelectItem>
-                    <SelectItem value="Testimony">Testimony</SelectItem>
-                    <SelectItem value="Altar Call">Altar Call</SelectItem>
-                    <SelectItem value="Naming Ceremony">Baby Dedication</SelectItem>
-                    <SelectItem value="Counselling">Counselling</SelectItem>
-                    <SelectItem value="New Comers">New Member</SelectItem>
-                    <SelectItem value="Pre-Marital Counselling">Pre-Marital Counseling</SelectItem>
-                    <SelectItem value="Volunteer">Volunteer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div>
@@ -672,22 +472,15 @@ const AdminFormsPage = () => {
               />
             </div>
 
-            <div>
-              <label className="text-sm font-medium">Internal Notes</label>
-              <Textarea
-                value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                rows={3}
-                placeholder="Internal notes for processing this submission"
-              />
-            </div>
-
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingSubmission ? 'Update Submission' : 'Add Submission'}
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingSubmission ? 'Updating Submission...' : 'Adding Submission...')
+                  : (editingSubmission ? 'Update Submission' : 'Add Submission')}
               </Button>
             </div>
           </form>
@@ -696,74 +489,103 @@ const AdminFormsPage = () => {
 
       {/* View Submission Dialog */}
       <Dialog open={!!viewingSubmission} onOpenChange={() => setViewingSubmission(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Form Submission Details</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-h-[88vh] overflow-hidden p-0 sm:max-w-2xl">
           {viewingSubmission && (
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold mb-2">{getSubmissionName(viewingSubmission)}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                    <Badge className={getFormTypeColor(viewingSubmission.type)}>
-                      {viewingSubmission.type.replace(/([A-Z])/g, ' $1').trim()}
-                    </Badge>
-                    <Badge className={getStatusColor(viewingSubmission.status)}>
-                      <div className="flex items-center gap-1">
-                        {getStatusIcon(viewingSubmission.status)}
-                        {viewingSubmission.status.replace('_', ' ')}
-                      </div>
-                    </Badge>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4" />
-                      <span>{getSubmissionEmail(viewingSubmission)}</span>
+            <>
+              <div className="max-h-[88vh] overflow-y-auto p-8 sm:p-10">
+                <DialogHeader className="space-y-0 border-b pb-7 pr-10 text-left">
+                  <p className="text-xs font-medium text-muted-foreground">Form submission</p>
+                  <DialogDescription className="sr-only">
+                    Contact information, message, and status for this form submission.
+                  </DialogDescription>
+                  <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <DialogTitle className="min-w-0 text-2xl leading-tight">
+                      {getSubmissionName(viewingSubmission)}
+                    </DialogTitle>
+                    <div className="flex shrink-0 flex-wrap items-center gap-2">
+                      <Badge className={getFormTypeColor(viewingSubmission.type)}>
+                        {viewingSubmission.type?.replace(/([A-Z])/g, ' $1').trim() || 'Unknown type'}
+                      </Badge>
+                      <Badge className={getStatusColor(viewingSubmission.status)}>
+                        <span className="flex items-center gap-1.5 capitalize">
+                          {getStatusIcon(viewingSubmission.status)}
+                          {viewingSubmission.status.replace('_', ' ')}
+                        </span>
+                      </Badge>
                     </div>
-                    {getSubmissionPhone(viewingSubmission) && (
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{getSubmissionPhone(viewingSubmission)}</span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              </div>
+                </DialogHeader>
 
-              <div>
-                <label className="text-sm font-medium text-gray-500">Name</label>
-                <p className="mt-1 font-medium">{getSubmissionName(viewingSubmission)}</p>
-              </div>
+                <section aria-label="Submitter contact" className="grid gap-5 border-b py-7 sm:grid-cols-2">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">Email</p>
+                      <p className="mt-1 break-all text-sm text-foreground">{getSubmissionEmail(viewingSubmission)}</p>
+                    </div>
+                  </div>
+                  {getSubmissionPhone(viewingSubmission) && (
+                    <div className="flex min-w-0 items-start gap-3">
+                      <Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-muted-foreground">Phone</p>
+                        <p className="mt-1 break-words text-sm text-foreground">{getSubmissionPhone(viewingSubmission)}</p>
+                      </div>
+                    </div>
+                  )}
+                </section>
 
-              <div>
-                <label className="text-sm font-medium text-gray-500">Message</label>
-                <div className="mt-1 p-4 bg-muted rounded-lg">
-                  <p className="text-gray-800 whitespace-pre-wrap">{getSubmissionSummary(viewingSubmission)}</p>
-                </div>
-              </div>
+                <section aria-label="Submission message and notes" className="space-y-7 border-b py-7">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground">Message</h3>
+                    <p className="mt-3 whitespace-pre-wrap break-words text-base leading-7 text-foreground">
+                      {getSubmissionSummary(viewingSubmission)}
+                    </p>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <label className="font-medium text-gray-500">Submitted</label>
-                  <p>{new Date(viewingSubmission.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <label className="font-medium text-gray-500">Last Updated</label>
-                  <p>{new Date(viewingSubmission.updatedAt).toLocaleDateString()}</p>
-                </div>
-              </div>
+                  {viewingSubmission.notes && (
+                    <div className="border-t pt-6">
+                      <h3 className="text-sm font-medium text-muted-foreground">Internal notes</h3>
+                      <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
+                        {viewingSubmission.notes}
+                      </p>
+                    </div>
+                  )}
+                </section>
 
-              {viewingSubmission.notes && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Internal Notes</label>
-                  <p className="mt-1 p-3 bg-blue-50 rounded text-sm">{viewingSubmission.notes}</p>
-                </div>
-              )}
-            </div>
+                <dl className="grid grid-cols-2 gap-5 pt-7 text-sm">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Submitted</dt>
+                    <dd className="mt-1 text-foreground">
+                      {new Date(viewingSubmission.createdAt).toLocaleDateString()}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Last updated</dt>
+                    <dd className="mt-1 text-foreground">
+                      {new Date(viewingSubmission.updatedAt).toLocaleDateString()}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(submissionToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setSubmissionToDelete(null)}
+        title="Delete Form Submission?"
+        description={
+          submissionToDelete
+            ? `Are you sure you want to delete the submission from "${submissionToDelete.fullName || submissionToDelete.email || 'this user'}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this form submission?'
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Submission'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

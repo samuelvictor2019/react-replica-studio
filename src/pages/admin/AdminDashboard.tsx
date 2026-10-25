@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
-import { adminRequest, getRoleLabel, normalizeRole } from '@/lib/adminApi';
+import { adminRequest, getRoleLabel } from '@/lib/adminApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Users,
@@ -169,13 +168,6 @@ const AdminDashboard = () => {
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const roleBadgeClass = () => {
-    const role = normalizeRole(user.role);
-    if (role === 'super_admin') return 'bg-red-100 text-red-800';
-    if (role === 'editor') return 'bg-blue-100 text-blue-800';
-    return 'bg-muted text-gray-800';
-  };
-
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
@@ -185,9 +177,9 @@ const AdminDashboard = () => {
           <h1 className="font-semibold text-2xl sm:text-3xl text-foreground mt-1 tracking-tight">
             Welcome back, {user.firstName} {user.lastName}
           </h1>
-          <p className="text-sm text-foreground mt-1 flex items-center gap-2">
+          <div className="text-sm text-foreground mt-1 flex items-center gap-2">
             Role: <Badge variant="outline" className="border-border bg-muted/50 text-foreground font-medium shadow-none">{getRoleLabel(user.role)}</Badge>
-          </p>
+          </div>
           <p className="text-xs text-muted-foreground mt-2">Data source: Live API · Updated {formatTimeAgo(stats.lastUpdated)}</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">

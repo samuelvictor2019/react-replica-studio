@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { adminRequest } from '@/lib/adminApi';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
 import type { AdminOutletContext } from './AdminLayout';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, Clock, MapPin, Plus, Edit, Trash2, Eye, Download, Search, Link as LinkIcon, QrCode, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Download, Search, Link as LinkIcon, QrCode, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
@@ -19,8 +22,15 @@ import { buildEventRegistrationUrl, getEventTypes } from '@/lib/api';
 import QRCode from 'qrcode';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import UploadedImagePicker from '@/components/admin/UploadedImagePicker';
+import { getStorageItem, removeStorageItem, setStorageItem } from '@/lib/storage';
 
 type EventStatus = 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
+
+type DailyScheduleItem = {
+  day: string;
+  session: string;
+  time: string;
+};
 
 const EVENT_STATUS_DOT: Record<EventStatus, string> = {
   draft: 'bg-yellow-500',
@@ -32,15 +42,12 @@ const EVENT_STATUS_DOT: Record<EventStatus, string> = {
 
 type Event = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   startDate: string;
   endDate: string;
-  dailySchedule?: Array<{
-    day: string;
-    session: string;
-    time: string;
-  }>;
+  dailySchedule?: DailyScheduleItem[] | string | null;
   location: string;
   bannerImageUrl?: string;
   price: number;
@@ -65,7 +72,18 @@ type EventRegistrant = {
   updatedAt?: string;
 };
 
-const STORAGE_KEY = 'wgc_admin_events';
+function normalizeDailySchedule(value: Event['dailySchedule']): DailyScheduleItem[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 const LOCAL_EVENT_REGISTRATIONS_KEY = 'wgc_event_registrations';
 const FORMS_ACCESS_BLOCKED_KEY = 'wgc_forms_access_blocked';
 
@@ -79,13 +97,15 @@ const AdminEventsPage = () => {
   const [isRegistrantsDialogOpen, setIsRegistrantsDialogOpen] = useState(false);
   const [isQrDialogOpen, setIsQrDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [qrEvent, setQrEvent] = useState<Event | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [registrants, setRegistrants] = useState<EventRegistrant[]>([]);
   const [registrantsLoading, setRegistrantsLoading] = useState(false);
   const [formsAccessBlocked, setFormsAccessBlocked] = useState(() => {
-    return localStorage.getItem(FORMS_ACCESS_BLOCKED_KEY) === 'true';
+    return getStorageItem(FORMS_ACCESS_BLOCKED_KEY, 'local') === 'true';
   });
   const [registrantsSearch, setRegistrantsSearch] = useState('');
   const [accommodationFilter, setAccommodationFilter] = useState<'all' | 'yes' | 'no'>('all');
@@ -140,6 +160,7 @@ const AdminEventsPage = () => {
 
   const [formData, setFormData] = useState({
     title: '',
+    slug: '',
     description: '',
     startDate: '',
     endDate: '',
@@ -150,6 +171,7 @@ const AdminEventsPage = () => {
     status: 'published' as EventStatus,
     typeId: ''
   });
+  const [submitting, setSubmitting] = useState(false);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -198,6 +220,7 @@ const AdminEventsPage = () => {
   const resetForm = () => {
     setFormData({
       title: '',
+      slug: '',
       description: '',
       startDate: '',
       endDate: '',
@@ -232,10 +255,11 @@ const AdminEventsPage = () => {
 
     setFormData({
       title: event.title,
+      slug: event.slug || '',
       description: event.description,
       startDate: formatForDateTimeLocal(event.startDate),
       endDate: formatForDateTimeLocal(event.endDate),
-      dailySchedule: event.dailySchedule || [],
+      dailySchedule: normalizeDailySchedule(event.dailySchedule),
       location: event.location,
       bannerImageUrl: event.bannerImageUrl || '',
       price: event.price,
@@ -248,6 +272,7 @@ const AdminEventsPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
 
     // Convert datetime-local values back to ISO format for API
     const convertToISOString = (dateTimeLocal: string) => {
@@ -262,63 +287,51 @@ const AdminEventsPage = () => {
       endDate: convertToISOString(formData.endDate)
     };
 
+    setSubmitting(true);
     try {
       if (editingEvent) {
         await adminRequest(`/events/${editingEvent.id}`, {
           method: 'PATCH',
           body: JSON.stringify(apiData)
         });
+        toast.success(`Event "${apiData.title}" updated.`);
       } else {
         await adminRequest('/events', {
           method: 'POST',
           body: JSON.stringify(apiData)
         });
+        toast.success(`Event "${apiData.title}" created.`);
       }
       setIsDialogOpen(false);
       resetForm();
+      setError('');
       loadEvents();
     } catch (e: any) {
-      let errorMessage = e.message || 'Failed to save event';
-
-      if (e.message?.includes('CORS_ERROR')) {
-        errorMessage = 'CORS Error: Backend server does not allow requests from this origin.';
-      } else if (e.message?.includes('BACKEND_ERROR')) {
-        errorMessage = 'Backend Error: Server is currently unavailable (502 Bad Gateway).';
-      } else if (e.message?.includes('NETWORK_ERROR')) {
-        errorMessage = 'Network Error: Unable to connect to backend server.';
-      } else if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
-        errorMessage = 'Authentication Error: Invalid or expired token.';
-      } else if (e.message?.includes('403') || e.message?.includes('Forbidden')) {
-        errorMessage = 'Permission Error: You do not have permission to perform this action.';
-      }
-
+      const errorMessage = describeApiError(e, 'Failed to save event');
       setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
+  const confirmDelete = async () => {
+    if (!eventToDelete) return;
+    setIsDeleting(true);
 
     try {
-      await adminRequest(`/events/${id}`, { method: 'DELETE' });
+      await adminRequest(`/events/${eventToDelete.id}`, { method: 'DELETE' });
+      toast.success(`Event "${eventToDelete.title}" deleted.`);
+      setEventToDelete(null);
+      setError('');
       loadEvents();
-      setError(''); // Clear error on success
+      loadCounts();
     } catch (e: any) {
-      let errorMessage = e.message || 'Failed to delete event';
-
-      if (e.message?.includes('CORS_ERROR')) {
-        errorMessage = 'CORS Error: Backend server does not allow requests from this origin.';
-      } else if (e.message?.includes('BACKEND_ERROR')) {
-        errorMessage = 'Backend Error: Server is currently unavailable (502 Bad Gateway).';
-      } else if (e.message?.includes('NETWORK_ERROR')) {
-        errorMessage = 'Network Error: Unable to connect to backend server.';
-      } else if (e.message?.includes('401') || e.message?.includes('Unauthorized')) {
-        errorMessage = 'Authentication Error: Invalid or expired token.';
-      } else if (e.message?.includes('403') || e.message?.includes('Forbidden')) {
-        errorMessage = 'Permission Error: You do not have permission to perform this action.';
-      }
-
+      const errorMessage = describeApiError(e, 'Failed to delete event');
       setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -376,7 +389,7 @@ const AdminEventsPage = () => {
           const formItems = extractItems(formsRes);
           if (formsAccessBlocked) {
             setFormsAccessBlocked(false);
-            localStorage.removeItem(FORMS_ACCESS_BLOCKED_KEY);
+            removeStorageItem(FORMS_ACCESS_BLOCKED_KEY, 'local');
           }
 
           formMappedItems = formItems
@@ -430,7 +443,7 @@ const AdminEventsPage = () => {
           console.warn('Failed to load form-based registrations:', formsMessage || formsError);
           if (isAuthOrPermissionError(formsMessage)) {
             setFormsAccessBlocked(true);
-            localStorage.setItem(FORMS_ACCESS_BLOCKED_KEY, 'true');
+            setStorageItem(FORMS_ACCESS_BLOCKED_KEY, 'true', 'local');
           }
           if (isAuthOrPermissionError(formsMessage) && participantItems.length === 0) {
             if (formsMessage.toLowerCase().includes('403') || formsMessage.toLowerCase().includes('forbidden')) {
@@ -444,7 +457,7 @@ const AdminEventsPage = () => {
 
       let localMappedItems: EventRegistrant[] = [];
       try {
-        const localRaw = localStorage.getItem(LOCAL_EVENT_REGISTRATIONS_KEY);
+        const localRaw = getStorageItem(LOCAL_EVENT_REGISTRATIONS_KEY, 'local');
         const localItems = localRaw ? JSON.parse(localRaw) : [];
         const list = Array.isArray(localItems) ? localItems : [];
 
@@ -557,14 +570,7 @@ const AdminEventsPage = () => {
   };
 
   const copyRegistrationLink = async (event: Event) => {
-    const link = `${window.location.origin}${buildEventRegistrationUrl({
-      id: event.id,
-      title: event.title,
-      type: event.eventType?.name || '',
-      startDate: event.startDate,
-      endDate: event.endDate,
-      location: event.location,
-    })}`;
+    const link = `${window.location.origin}${buildEventRegistrationUrl({ id: event.id, slug: event.slug })}`;
 
     await navigator.clipboard.writeText(link);
     setError('Registration link copied to clipboard');
@@ -572,14 +578,7 @@ const AdminEventsPage = () => {
   };
 
   const openQrDialog = async (event: Event) => {
-    const link = `${window.location.origin}${buildEventRegistrationUrl({
-      id: event.id,
-      title: event.title,
-      type: event.eventType?.name || '',
-      startDate: event.startDate,
-      endDate: event.endDate,
-      location: event.location,
-    })}`;
+    const link = `${window.location.origin}${buildEventRegistrationUrl({ id: event.id, slug: event.slug })}`;
 
     try {
       const dataUrl = await QRCode.toDataURL(link, {
@@ -603,11 +602,12 @@ const AdminEventsPage = () => {
     anchor.click();
   };
 
-  const upcomingEvents = (events || []).filter(e => e.status === 'published' && new Date(e.startDate) >= new Date());
-  const pastEvents = (events || []).filter(e => e.status === 'completed' || (e.status === 'published' && new Date(e.endDate) < new Date()));
-
   if (!can('content.read')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="events" variant="table" columns={6} />;
   }
 
   return (
@@ -786,7 +786,7 @@ const AdminEventsPage = () => {
                             {can('content.delete') && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" onClick={() => handleDelete(event.id)} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+                                  <Button variant="ghost" size="icon" onClick={() => setEventToDelete(event)} className="text-red-500 hover:text-red-600 hover:bg-red-50">
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </TooltipTrigger>
@@ -949,18 +949,11 @@ const AdminEventsPage = () => {
 
             {qrEvent && (
               <div className="rounded-md bg-muted p-2 text-[11px] text-muted-foreground break-all">
-                {`${window.location.origin}${buildEventRegistrationUrl({
-                  id: qrEvent.id,
-                  title: qrEvent.title,
-                  type: qrEvent.eventType?.name || '',
-                  startDate: qrEvent.startDate,
-                  endDate: qrEvent.endDate,
-                  location: qrEvent.location,
-                })}`}
+                {`${window.location.origin}${buildEventRegistrationUrl({ id: qrEvent.id, slug: qrEvent.slug })}`}
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2 justify-end">
+            <div className="flex flex-wrap gap-2 justify-start">
               {qrEvent && (
                 <Button variant="outline" onClick={() => copyRegistrationLink(qrEvent)}>
                   <LinkIcon className="w-4 h-4 mr-1" /> Copy Link
@@ -975,7 +968,7 @@ const AdminEventsPage = () => {
       </Dialog>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !submitting && setIsDialogOpen(open)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</DialogTitle>
@@ -987,6 +980,16 @@ const AdminEventsPage = () => {
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Registration alias</label>
+                <Input
+                  value={formData.slug}
+                  onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                  placeholder="ethanim2026"
+                  maxLength={100}
                   required
                 />
               </div>
@@ -1081,17 +1084,30 @@ const AdminEventsPage = () => {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto">
-                {editingEvent ? 'Update Event' : 'Create Event'}
+              <Button type="submit" disabled={submitting} className="bg-white text-black border border-black/20 hover:bg-sky-100 hover:text-black w-full sm:w-auto disabled:opacity-50">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingEvent ? 'Updating Event...' : 'Creating Event...')
+                  : (editingEvent ? 'Update Event' : 'Create Event')}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(eventToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setEventToDelete(null)}
+        title={eventToDelete ? `Delete "${eventToDelete.title}"?` : 'Delete Event'}
+        description="Are you sure you want to delete this event? This action cannot be undone and registered attendees will no longer find this event."
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Event'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

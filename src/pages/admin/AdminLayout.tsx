@@ -1,8 +1,9 @@
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { AdminUser, adminLogout, adminMe, clearAdminToken, getRoleLabel, hasPermission } from '@/lib/adminApi';
+import { AdminUser, adminLogout, adminMe, getRoleLabel, hasPermission } from '@/lib/adminApi';
 import { useTheme } from '@/components/ThemeProvider';
 import { Sun, Moon } from 'lucide-react';
+import { getStorageItem, removeStorageItem } from '@/lib/storage';
 
 export type AdminOutletContext = {
   user: AdminUser;
@@ -43,7 +44,7 @@ const AdminLayout = () => {
 
   const onLogout = async () => {
     // Clear demo mode flag
-    localStorage.removeItem('demo_mode');
+    removeStorageItem('demo_mode', 'local');
     await adminLogout();
     navigate('/admin/login', { replace: true });
   };
@@ -55,6 +56,8 @@ const AdminLayout = () => {
   }
 
   if (!user) return <Navigate to="/admin/login" replace />;
+
+  const demoModeLabel = getStorageItem('demo_mode', 'local') === 'true' ? 'Demo Mode - Local Data' : 'Offline Mode - Using Local Data';
 
   return (
     <div className="min-h-screen bg-background flex font-sans text-foreground selection:bg-primary selection:text-primary-foreground">
@@ -77,7 +80,7 @@ const AdminLayout = () => {
             {isOfflineMode && (
               <div className="mt-2 px-2 py-1 bg-yellow-600 text-yellow-100 text-xs rounded-md flex items-center gap-1">
                 <span className="w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></span>
-                {localStorage.getItem('demo_mode') === 'true' ? 'Demo Mode - Local Data' : 'Offline Mode - Using Local Data'}
+                {demoModeLabel}
               </div>
             )}
             <p className="text-xs text-slate-300 mt-2">{user.firstName} {user.lastName} • {getRoleLabel(user.role)}</p>

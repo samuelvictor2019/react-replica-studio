@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, ArrowUp } from "lucide-react";
-import { useTheme } from "next-themes";
+import { ArrowUp } from "lucide-react";
 
 const FloatingActions = () => {
-  const { theme, setTheme } = useTheme();
   const [showScroll, setShowScroll] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -34,14 +32,6 @@ const FloatingActions = () => {
         <ArrowUp size={18} />
       </button>
 
-      {/* Theme toggle */}
-      {/* <button
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        aria-label="Toggle theme"
-        className="p-2.5 rounded-full bg-card border border-border shadow-lg text-foreground transition-all duration-200 hover:scale-110"
-      >
-        {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-      </button> */}
     </div>
   );
 };

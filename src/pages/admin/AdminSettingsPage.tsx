@@ -7,8 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Settings, Database, Globe, Lock, Save } from 'lucide-react';
-import { adminRequest } from '@/lib/adminApi';
+import { Settings, Database, Globe, Lock, Save, Loader2 } from 'lucide-react';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 
 type SystemSettings = {
   siteName: string;
@@ -49,9 +51,9 @@ const AdminSettingsPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [settings, setSettings] = useState<SystemSettings>(getDefaultSettings());
   const [saveMessage, setSaveMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const loadSettings = async () => {
     setLoading(true);
@@ -60,10 +62,8 @@ const AdminSettingsPage = () => {
       if (res.data) {
         setSettings({ ...getDefaultSettings(), ...res.data });
       }
-      setError('');
     } catch (e: any) {
       console.warn('Failed to load settings:', e.message);
-      setError('Failed to load settings');
     } finally {
       setLoading(false);
     }
@@ -75,11 +75,14 @@ const AdminSettingsPage = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+
     const updated = {
       ...settings,
       updatedAt: new Date().toISOString(),
     };
     
+    setSaving(true);
     try {
       await adminRequest('/settings', {
         method: 'PATCH',
@@ -87,15 +90,23 @@ const AdminSettingsPage = () => {
       });
       setSettings(updated);
       setSaveMessage('System settings saved successfully.');
+      toast.success('System settings saved successfully.');
       setTimeout(() => setSaveMessage(''), 2500);
     } catch (e: any) {
       console.warn('Failed to save settings:', e.message);
-      setError('Failed to save settings');
+      const msg = describeApiError(e, 'Failed to save settings');
+      toast.error(msg);
+    } finally {
+      setSaving(false);
     }
   };
 
   if (!can('users.update')) {
     return <p className="text-sm text-red-600">Access denied</p>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="settings" variant="settings" />;
   }
 
   return (
@@ -326,10 +337,10 @@ const AdminSettingsPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" className="w-full sm:w-auto">
-                <Save className="w-4 h-4 mr-2" />
-                Save Settings
+            <div className="flex justify-start">
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {saving ? 'Saving Settings...' : 'Save Settings'}
               </Button>
             </div>
           </form>

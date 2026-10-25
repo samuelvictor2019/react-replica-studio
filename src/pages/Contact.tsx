@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 import { Turnstile } from '@marsidev/react-turnstile';
 import Navbar from "@/components/Navbar";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
-import { postForm } from "@/lib/api";
+import { postForm, describePublicError } from "@/lib/api";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +31,7 @@ const Contact = () => {
   const [loadTime, setLoadTime] = useState(0);
   const [honeypot, setHoneypot] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoadTime(Date.now());
@@ -66,10 +70,11 @@ const Contact = () => {
     }
 
     if (!captchaToken) {
-      alert("Please complete the security check to continue.");
+      setSubmitError("Please complete the security check to continue.");
       return;
     }
 
+    setSubmitError(null);
     setSubmitting(true);
     const timeToSubmitMs = Date.now() - loadTime;
 
@@ -89,7 +94,7 @@ const Contact = () => {
       });
       setSubmitted(true);
     } catch (err: any) {
-      alert(err?.message || "Failed to submit contact form");
+      setSubmitError(describePublicError(err, "Failed to submit contact form. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -114,18 +119,26 @@ const Contact = () => {
 
             <div className="mt-10 md:mt-12 flex justify-center">
               {submitted ? (
-                <div className="w-full max-w-3xl rounded-[28px] bg-[#edf2ff] p-8 md:p-12 text-center shadow-sm border border-black/5">
-                  <h2 className="font-heading text-4xl md:text-5xl font-medium mb-3">Thank You</h2>
-                  <p className="text-sm text-black/70 max-w-xl mx-auto">
-                    Your message has been sent successfully. Our team will respond as soon as possible.
-                  </p>
-                  <Button
-                    onClick={() => setSubmitted(false)}
-                    className="mt-8 h-11 px-7 rounded-full bg-[#0f1b37] text-white hover:bg-[#17284f]"
-                  >
-                    SEND ANOTHER MESSAGE
-                  </Button>
-                </div>
+                <PublicSuccessView
+                  title="Thank You"
+                  subtitle="Message Received"
+                  description="Your message has been sent successfully. Our team will review your enquiry and respond to you as soon as possible."
+                  actionLabel="SEND ANOTHER MESSAGE"
+                  onAction={() => {
+                    setSubmitted(false);
+                    setForm({
+                      fullName: "",
+                      phone: "",
+                      email: "",
+                      enquiryType: "",
+                      message: "",
+                      responseMethod: "",
+                      consent: false,
+                    });
+                    setCaptchaToken(null);
+                    setSubmitError(null);
+                  }}
+                />
               ) : (
                 <>
                   <form
@@ -237,18 +250,36 @@ const Contact = () => {
                         <Turnstile
                           siteKey="1x00000000000000000000AA"
                           options={{ appearance: 'interaction-only' }}
-                          onSuccess={(token) => setCaptchaToken(token)}
+                          onSuccess={(token) => {
+                            setCaptchaToken(token);
+                            setSubmitError(null);
+                          }}
                           onError={() => setCaptchaToken(null)}
                           onExpire={() => setCaptchaToken(null)}
                         />
                       </div>
 
+                      {submitError && (
+                        <PublicInlineAlert
+                          type="error"
+                          message={submitError}
+                          onDismiss={() => setSubmitError(null)}
+                        />
+                      )}
+
                       <Button
                         type="submit"
                         disabled={!canSubmit || submitting}
-                        className="mt-2 h-11 px-6 rounded-full bg-[#0f1b37] text-white hover:bg-[#17284f] disabled:opacity-40 text-[12px] tracking-widest"
+                        className="mt-2 h-11 px-6 rounded-full bg-[#0f1b37] text-white hover:bg-[#17284f] disabled:opacity-40 text-[12px] tracking-widest inline-flex items-center justify-center"
                       >
-                        {submitting ? 'SUBMITTING...' : 'SUBMIT MESSAGE'}
+                        {submitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            SUBMITTING...
+                          </>
+                        ) : (
+                          'SUBMIT MESSAGE'
+                        )}
                       </Button>
                     </div>
                   </form>

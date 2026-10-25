@@ -1,0 +1,9 @@
+[
+  {
+    "id": "1",
+    "email": "admin@wgc.local",
+    "password": "admin",
+    "role": "super_admin",
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

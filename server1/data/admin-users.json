@@ -1,0 +1,52 @@
+[
+  {
+    "id": "2b560a77-e6cd-4f8e-a530-23331a64efab",
+    "createdAt": "2026-03-21T17:32:57.572Z",
+    "updatedAt": "2026-03-21T17:32:57.572Z",
+    "email": "admin@wgc.local",
+    "name": "Super Admin",
+    "role": "super_admin",
+    "active": true,
+    "passwordHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+  },
+  {
+    "id": "8cc9abfa-cc5d-4d3c-9e04-67842d1c7c52",
+    "createdAt": "2026-03-21T17:32:57.589Z",
+    "updatedAt": "2026-03-21T17:32:57.589Z",
+    "email": "editor@wgc.local",
+    "name": "Content Editor",
+    "role": "editor",
+    "active": true,
+    "passwordHash": "7368783207f1c85f8ec4ef6cc5643cb863417db165cc8dfe68c904f685c4ae47"
+  },
+  {
+    "id": "5ec6c331-8a03-49d9-bd85-806fb4361001",
+    "createdAt": "2026-03-21T17:32:57.589Z",
+    "updatedAt": "2026-03-21T17:32:57.589Z",
+    "email": "forms@wgc.local",
+    "name": "Forms Manager",
+    "role": "forms_manager",
+    "active": true,
+    "passwordHash": "e70e8ff75dc53365a07cc00ae8c00e0f48c223717c7db270bff464c092717384"
+  },
+  {
+    "id": "01b31d83-8585-4a8c-ba3b-ccf87ac3df7f",
+    "createdAt": "2026-03-21T17:32:57.589Z",
+    "updatedAt": "2026-03-21T17:32:57.589Z",
+    "email": "viewer@wgc.local",
+    "name": "Read Only Viewer",
+    "role": "viewer",
+    "active": true,
+    "passwordHash": "5b601f1dddff95687115700d6ab159cd20331cb51090c2fd0479d518460300a6"
+  },
+  {
+    "id": "07705174-4004-4235-9716-0be06504f4f7",
+    "createdAt": "2026-03-21T18:15:19.176Z",
+    "updatedAt": "2026-03-21T18:15:19.176Z",
+    "email": "test@wgc.local",
+    "name": "test",
+    "role": "viewer",
+    "active": true,
+    "passwordHash": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+  }
+]

@@ -1,3 +1,5 @@
+import { getStorageItem, setStorageItem } from '@/lib/storage';
+
 export async function postForm(formType: string, data: any) {
   const LOCAL_FORMS_STORAGE_KEY = 'wgc_frontend_form_submissions';
   // Map frontend form types to backend expected types
@@ -51,9 +53,12 @@ export async function postForm(formType: string, data: any) {
   }
 
   const url = (import.meta.env.VITE_API_URL ?? '') + `/forms`;
+
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ type: backendType, ...filteredData }),
   });
 
@@ -65,7 +70,7 @@ export async function postForm(formType: string, data: any) {
   const responseJson = await res.json();
 
   try {
-    const existingRaw = localStorage.getItem(LOCAL_FORMS_STORAGE_KEY);
+    const existingRaw = getStorageItem(LOCAL_FORMS_STORAGE_KEY, 'local');
     const existing = existingRaw ? JSON.parse(existingRaw) : [];
     const list = Array.isArray(existing) ? existing : [];
     const now = new Date().toISOString();
@@ -84,7 +89,7 @@ export async function postForm(formType: string, data: any) {
       updatedAt: responseData?.updatedAt || now,
     };
 
-    localStorage.setItem(LOCAL_FORMS_STORAGE_KEY, JSON.stringify([record, ...list].slice(0, 1000)));
+    setStorageItem(LOCAL_FORMS_STORAGE_KEY, JSON.stringify([record, ...list].slice(0, 1000)), 'local');
   } catch (error) {
     console.warn('Failed to mirror form submission locally:', error);
   }
@@ -132,6 +137,20 @@ export async function getEventById(eventId: string) {
   }
 }
 
+export async function getRegistrationEvent(identifier: string) {
+  const url = (import.meta.env.VITE_API_URL ?? '') + `/events/registration/${encodeURIComponent(identifier)}`;
+  const res = await fetch(url);
+  const contentType = res.headers.get('content-type') || '';
+  if (res.status === 404 && contentType.includes('application/json')) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error(`Failed to fetch registration event: ${res.status}`);
+  }
+  const data = await res.json();
+  return data?.data || data?.item || data;
+}
+
 export interface EventType {
   id: string;
   createdAt: string;
@@ -176,25 +195,9 @@ export async function getEventTypeById(id: string): Promise<EventType | null> {
   }
 }
 
-export function buildEventRegistrationUrl(event: {
-  id: string;
-  title?: string;
-  type?: string;
-  startDate?: string;
-  endDate?: string;
-  location?: string;
-}) {
-  const path = `/event-registration/${encodeURIComponent(event.id)}`;
-  const params = new URLSearchParams();
-
-  if (event.title) params.set('title', event.title);
-  if (event.type) params.set('type', event.type);
-  if (event.startDate) params.set('startDate', event.startDate);
-  if (event.endDate) params.set('endDate', event.endDate);
-  if (event.location) params.set('location', event.location);
-
-  const query = params.toString();
-  return query ? `${path}?${query}` : path;
+export function buildEventRegistrationUrl(event: { id: string; slug?: string | null }) {
+  const identifier = event.slug?.trim() || event.id;
+  return `/register/${encodeURIComponent(identifier)}`;
 }
 
 export async function registerEventParticipant(
@@ -219,24 +222,24 @@ export async function registerEventParticipant(
 
 
   const url = (import.meta.env.VITE_API_URL ?? '') + `/events/${encodeURIComponent(eventId)}/participants/register`;
-  delete payload["allDays"]
+
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       firstName,
       lastName,
       email: payload.email,
       phone: payload.phone,
       gender: payload.gender ? String(payload.gender).toUpperCase() : undefined,
-      allDays: payload.allDays,
       accommodation: payload.accommodation,
       consent: payload.consent,
       contactConsent: payload.contactConsent,
       selectedDays: payload.selectedDays
     }),
   });
-  console.log("Result: res")
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || 'Failed to register participant');
@@ -335,35 +338,6 @@ function getFallbackEvents() {
   ];
 }
 
-function getFallbackMedia() {
-  return [
-    {
-      id: 'fallback-1',
-      title: "Partakers Of The HolyGhost (PART ONE)",
-      type: "youtube",
-      url: "https://youtube.com/watch?v=example1",
-      category: "sermons",
-      author: "Apostle Adebowale Adesina",
-      description: "A powerful message about the Holy Spirit",
-      thumbnail: "/src/assets/media_icon.png",
-      createdAt: "2025-08-01T10:00:00Z",
-      updatedAt: "2025-08-01T10:00:00Z"
-    },
-    {
-      id: 'fallback-2',
-      title: "Walking in the Spirit",
-      type: "youtube",
-      url: "https://youtube.com/watch?v=example2",
-      category: "sermons",
-      author: "Apostle Adebowale Adesina",
-      description: "Understanding how to walk in the Spirit daily",
-      thumbnail: "/src/assets/media_icon.png",
-      createdAt: "2025-07-18T10:00:00Z",
-      updatedAt: "2025-07-18T10:00:00Z"
-    }
-  ];
-}
-
 function getFallbackTestimonies() {
   return [
     {
@@ -379,4 +353,41 @@ function getFallbackTestimonies() {
       updatedAt: "2025-01-15T10:00:00Z"
     }
   ];
+}
+
+/**
+ * Maps errors from public API calls (e.g. form submissions, registrations)
+ * into friendly, reassuring human-readable messages suitable for church visitors.
+ */
+export function describePublicError(
+  error: any,
+  fallback = "Unable to submit your details right now. Please check your connection and try again."
+): string {
+  const message: string = error?.message || (typeof error === "string" ? error : "");
+  if (!message) return fallback;
+
+  if (message.includes("Failed to fetch") || message.includes("NetworkError") || message.includes("NETWORK_ERROR")) {
+    return "Network connection issue. Please verify your internet connection and try again.";
+  }
+  if (message.includes("CORS_ERROR") || message.includes("Failed to connect")) {
+    return "Our server is temporarily unreachable. Please try again in a few moments.";
+  }
+  if (message.includes("502") || message.includes("503") || message.includes("504") || message.includes("BACKEND_ERROR")) {
+    return "Our service is momentarily undergoing maintenance. Please try again shortly.";
+  }
+
+  // Parse NestJS-style JSON errors: { statusCode: 400, message: string | string[] }
+  try {
+    const parsed = JSON.parse(message);
+    if (Array.isArray(parsed?.message)) {
+      return parsed.message.join(", ");
+    }
+    if (parsed?.message) {
+      return String(parsed.message);
+    }
+  } catch {
+    /* not JSON */
+  }
+
+  return message;
 }

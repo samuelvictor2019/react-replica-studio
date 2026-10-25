@@ -4,13 +4,15 @@ import type { AdminOutletContext } from './AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Play, Image as ImageIcon, Youtube, Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
-import { adminRequest } from '@/lib/adminApi';
-import AdminImageLibrary from './AdminImageLibrary';
+import { Upload, Play, Image as ImageIcon, Youtube, Plus, Edit, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 
 type MediaItem = {
   id: string;
@@ -30,6 +32,9 @@ const AdminMediaPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [mediaToDelete, setMediaToDelete] = useState<MediaItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -42,17 +47,14 @@ const AdminMediaPage = () => {
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const loadMedia = async () => {
     setLoading(true);
     try {
       const res = await adminRequest<{ data: MediaItem[] }>('/media');
       setMedia(res.data || []);
-      setError('');
     } catch (e: any) {
       console.warn('Failed to load media:', e.message);
-      setError('Failed to load media');
     } finally {
       setLoading(false);
     }
@@ -96,37 +98,50 @@ const AdminMediaPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (submitting) return;
+
+    setSubmitting(true);
     try {
       if (editingMedia) {
         await adminRequest(`/media/${editingMedia.id}`, {
           method: 'PATCH',
           body: JSON.stringify(formData)
         });
+        toast.success(`Media "${formData.title}" updated.`);
       } else {
         await adminRequest('/media', {
           method: 'POST',
           body: JSON.stringify(formData)
         });
+        toast.success(`Media "${formData.title}" added.`);
       }
       setIsDialogOpen(false);
       resetForm();
       loadMedia();
     } catch (e: any) {
       console.warn('Failed to save media:', e.message);
-      setError('Failed to save media');
+      const msg = describeApiError(e, 'Failed to save media');
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this media item?')) return;
+  const confirmDelete = async () => {
+    if (!mediaToDelete) return;
+    setIsDeleting(true);
 
     try {
-      await adminRequest(`/media/${id}`, { method: 'DELETE' });
+      await adminRequest(`/media/${mediaToDelete.id}`, { method: 'DELETE' });
+      toast.success(`Media "${mediaToDelete.title}" deleted.`);
+      setMediaToDelete(null);
       loadMedia();
     } catch (e: any) {
       console.warn('Failed to delete media:', e.message);
-      setError('Failed to delete media');
+      const msg = describeApiError(e, 'Failed to delete media');
+      toast.error(msg);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -158,6 +173,10 @@ const AdminMediaPage = () => {
     return <p className="text-sm text-red-600">Access denied</p>;
   }
 
+  if (loading) {
+    return <AdminPageSkeleton label="media library" variant="cards" count={6} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -175,9 +194,8 @@ const AdminMediaPage = () => {
       </div>
 
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
           <TabsTrigger value="all" className="text-xs sm:text-sm">All ({media.length})</TabsTrigger>
-          <TabsTrigger value="images" className="text-xs sm:text-sm">Image Library</TabsTrigger>
           <TabsTrigger value="sermons" className="text-xs sm:text-sm">Sermons ({groupedMedia.sermons?.length || 0})</TabsTrigger>
           <TabsTrigger value="worship" className="text-xs sm:text-sm">Worship ({groupedMedia.worship?.length || 0})</TabsTrigger>
           <TabsTrigger value="announcements" className="text-xs sm:text-sm">Announcements ({groupedMedia.announcements?.length || 0})</TabsTrigger>
@@ -209,7 +227,7 @@ const AdminMediaPage = () => {
                           </Button>
                         )}
                         {can('content.delete') && (
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(item.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => setMediaToDelete(item)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         )}
@@ -230,12 +248,6 @@ const AdminMediaPage = () => {
               ))}
             </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="images" className="space-y-4">
-          <div className="bg-card border rounded-lg p-6">
-            <AdminImageLibrary />
-          </div>
         </TabsContent>
 
         {['sermons', 'worship', 'announcements', 'other'].map((category) => (
@@ -264,7 +276,7 @@ const AdminMediaPage = () => {
                             </Button>
                           )}
                           {can('content.delete') && (
-                            <Button variant="ghost" size="sm" onClick={() => handleDelete(item.id)}>
+                            <Button variant="ghost" size="sm" onClick={() => setMediaToDelete(item)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           )}
@@ -290,7 +302,7 @@ const AdminMediaPage = () => {
       </Tabs>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !submitting && setIsDialogOpen(open)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingMedia ? 'Edit Media' : 'Add New Media'}</DialogTitle>
@@ -375,17 +387,34 @@ const AdminMediaPage = () => {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row justify-start items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={submitting} className="w-full sm:w-auto">
                 Cancel
               </Button>
-              <Button type="submit" className="w-full sm:w-auto">
-                {editingMedia ? 'Update Media' : 'Add Media'}
+              <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {submitting
+                  ? (editingMedia ? 'Updating Media...' : 'Adding Media...')
+                  : (editingMedia ? 'Update Media' : 'Add Media')}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
+      <AdminConfirmDialog
+        open={Boolean(mediaToDelete)}
+        onOpenChange={(open) => !open && !isDeleting && setMediaToDelete(null)}
+        title="Delete Media Item?"
+        description={
+          mediaToDelete
+            ? `Are you sure you want to delete "${mediaToDelete.title}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this media item?'
+        }
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete Media'}
+        loading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

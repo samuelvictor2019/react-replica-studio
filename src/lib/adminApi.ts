@@ -1,4 +1,5 @@
 import type { EventType } from '@/lib/api';
+import { getStorageItem, removeStorageItem, setStorageItem } from '@/lib/storage';
 
 export type Role = 'super_admin' | 'editor' | 'viewer' | 'admin' | 'user';
 export type CanonicalRole = 'super_admin' | 'editor' | 'viewer';
@@ -19,24 +20,24 @@ const REFRESH_TOKEN_KEY = 'wgc_refresh_token';
 const API_BASE = import.meta.env.VITE_API_URL ?? '';
 
 export function getAdminToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return getStorageItem(TOKEN_KEY, 'session');
 }
 
 export function getRefreshToken() {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  return getStorageItem(REFRESH_TOKEN_KEY, 'session');
 }
 
 export function setAdminToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+  setStorageItem(TOKEN_KEY, token, 'session');
 }
 
 export function setRefreshToken(token: string) {
-  localStorage.setItem(REFRESH_TOKEN_KEY, token);
+  setStorageItem(REFRESH_TOKEN_KEY, token, 'session');
 }
 
 export function clearAdminToken() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  removeStorageItem(TOKEN_KEY, 'session');
+  removeStorageItem(REFRESH_TOKEN_KEY, 'session');
 }
 
 export function normalizeRole(role?: string): CanonicalRole {
@@ -88,14 +89,16 @@ export async function adminRequest<T = any>(
   
   if (method === 'GET' && cacheDurationMs > 0) {
     const cacheKey = `api_cache_${path}`;
-    const cachedStr = localStorage.getItem(cacheKey);
+    const cachedStr = getStorageItem(cacheKey, 'session');
     if (cachedStr) {
       try {
         const cached = JSON.parse(cachedStr);
         if (Date.now() - cached.timestamp < cacheDurationMs) {
           return cached.data as T;
         }
-      } catch (e) {}
+      } catch (error) {
+        console.debug('Ignoring stale cache payload', error);
+      }
     }
   }
   const headers: Record<string, string> = {
@@ -161,10 +164,10 @@ export async function adminRequest<T = any>(
   
   if (method === 'GET' && cacheDurationMs > 0) {
     const cacheKey = `api_cache_${path}`;
-    localStorage.setItem(cacheKey, JSON.stringify({
+    setStorageItem(cacheKey, JSON.stringify({
       timestamp: Date.now(),
       data
-    }));
+    }), 'session');
   }
   
   return data;
@@ -278,12 +281,52 @@ export function describeApiError(error: any, fallback: string): string {
   try {
     const parsed = JSON.parse(message);
     const detail = Array.isArray(parsed?.message) ? parsed.message.join(', ') : parsed?.message;
+    const validationErrors = Array.isArray(parsed?.errors)
+      ? parsed.errors.filter((item: unknown): item is string => typeof item === 'string')
+      : [];
+    if (validationErrors.length > 0) {
+      return `${detail || 'Validation failed'}: ${validationErrors.join('; ')}`;
+    }
     if (detail) return String(detail);
   } catch {
     /* not JSON */
   }
 
   return message || fallback;
+}
+
+/**
+ * Uploads an image (multipart) to `/uploads/image` and returns the public URL.
+ * Kept separate from `adminRequest`, which forces a JSON Content-Type.
+ */
+export async function uploadAdminImage(file: File, opts: { title?: string; folder?: string } = {}): Promise<string> {
+  const body = new FormData();
+  body.append('file', file);
+  body.append('folder', opts.folder ?? 'wgc');
+  if (opts.title?.trim()) body.append('title', opts.title.trim());
+
+  const token = getAdminToken();
+  const response = await fetch(`${API_BASE}/uploads/image`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body,
+  });
+
+  if (response.status === 401) {
+    clearAdminToken();
+    window.location.href = '/admin/login';
+    throw new Error('Authentication expired');
+  }
+  if (!response.ok) {
+    throw new Error(describeApiError(new Error((await response.text()) || `Upload failed (${response.status})`), 'Upload failed'));
+  }
+
+  const payload: any = await response.json().catch(() => ({}));
+  for (const layer of [payload, payload?.data, payload?.data?.data]) {
+    const url = layer?.secure_url ?? layer?.secureUrl ?? layer?.url ?? layer?.publicUrl ?? layer?.location;
+    if (typeof url === 'string' && url) return url;
+  }
+  throw new Error('Upload succeeded but the server returned no image URL.');
 }
 
 // ---------------------------------------------------------------------------
@@ -331,3 +374,108 @@ export const eventTypesApi = {
     await adminRequest(`/event-types/${encodeURIComponent(id)}`, { method: 'DELETE' });
   },
 };
+
+export type FormStatus = 'new' | 'in_progress' | 'completed' | 'archived' | 'pending' | 'approved' | 'cancelled' | 'rejected';
+
+export type FormType =
+  | 'Volunteer'
+  | 'Naming Ceremony'
+  | 'New Comers'
+  | 'Altar Call'
+  | 'Pre-Marital Counselling'
+  | 'Counselling'
+  | 'Feedback'
+  | 'Testimony'
+  | 'Contact Us';
+
+export type FormSubmission = {
+  id: string;
+  type: FormType;
+  status: FormStatus;
+  notes: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  data: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FormSubmissionPage = {
+  data: FormSubmission[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type FormSubmissionUpdate = Partial<Pick<
+  FormSubmission,
+  'type' | 'status' | 'fullName' | 'email' | 'phone' | 'data'
+>>;
+
+type ListFormSubmissionsOptions = {
+  page: number;
+  limit: number;
+  type?: FormType;
+  statuses?: FormStatus[];
+};
+
+export async function listFormSubmissions({ page, limit, type, statuses }: ListFormSubmissionsOptions): Promise<FormSubmissionPage> {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (type) params.set('type', type);
+  const apiStatuses = [...new Set(statuses?.map((status) => {
+    if (status === 'new' || status === 'in_progress') return 'pending';
+    if (status === 'completed') return 'approved';
+    if (status === 'archived') return 'cancelled';
+    return status;
+  }) ?? [])];
+  apiStatuses.forEach((status) => params.append('status', status));
+
+  const response = await adminRequest<any>(`/forms?${params.toString()}`);
+  const listedSubmissions = extractList<FormSubmission>(response);
+  const singleSubmission = response?.data && typeof response.data === 'object' && !Array.isArray(response.data)
+    && typeof response.data.id === 'string'
+    ? [response.data as FormSubmission]
+    : [];
+  const data = (listedSubmissions.length > 0 ? listedSubmissions : singleSubmission).map((submission) => ({
+    ...submission,
+    status: (typeof submission.status === 'string' ? submission.status : 'new') as FormStatus,
+    data: submission.data && typeof submission.data === 'object' ? submission.data : {},
+  }));
+  const pagination = response?.pagination
+    ?? response?.data?.pagination
+    ?? response?.data?.data?.pagination
+    ?? response?.data?.data?.data?.pagination;
+  const total = Number(pagination?.total ?? data.length);
+
+  return {
+    data,
+    pagination: {
+      page: Number(pagination?.page ?? page),
+      limit: Number(pagination?.limit ?? limit),
+      total,
+      totalPages: Number(pagination?.totalPages ?? Math.max(1, Math.ceil(total / limit))),
+    },
+  };
+}
+
+export function updateFormSubmission(id: string, update: FormSubmissionUpdate) {
+  return adminRequest<FormSubmission>(`/forms/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(update),
+  });
+}
+
+export function updateFormSubmissionStatus(id: string, status: FormStatus) {
+  return adminRequest<FormSubmission>(`/forms/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
+
+export function deleteFormSubmission(id: string) {
+  return adminRequest<void>(`/forms/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}

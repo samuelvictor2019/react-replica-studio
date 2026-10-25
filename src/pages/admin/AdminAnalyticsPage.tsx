@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3, TrendingUp, Users, Eye, FileText, MessageSquare, Calendar, RefreshCw, Download } from 'lucide-react';
 import { adminRequest } from '@/lib/adminApi';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 
 type AnalyticsData = {
   totalPageViews: number;
@@ -70,7 +71,7 @@ const AdminAnalyticsPage = () => {
   }
 
   if (!analytics) {
-    return <div className="text-center py-8">Loading analytics...</div>;
+    return <AdminPageSkeleton label="analytics" variant="analytics" />;
   }
 
   return (
@@ -94,7 +95,7 @@ const AdminAnalyticsPage = () => {
           </Select>
           <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
             <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Button variant="outline">
             <Download className="w-4 h-4 mr-2" />

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Turnstile } from '@marsidev/react-turnstile';
-import { postForm } from "@/lib/api";
-import { X } from "lucide-react";
+import { postForm, describePublicError } from "@/lib/api";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +30,7 @@ const Testimony = ({ modal = false, onClose }: Props) => {
   const [loadTime, setLoadTime] = useState(0);
   const [honeypot, setHoneypot] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoadTime(Date.now());
@@ -37,18 +40,17 @@ const Testimony = ({ modal = false, onClose }: Props) => {
 
   const update = (k: string, v: string | boolean) => setForm((s) => ({ ...s, [k]: v }));
 
-  const canProceed = true; // Name and phone are optional or not strictly validated here
   const canSubmit = form.testimony.trim().length > 0 && form.shareOption;
 
   const Inner = (
-      <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
+      <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
         <div className="hidden md:block relative">
           <img src={waveImg} alt="wave" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
         </div>
 
         <button onClick={() => (onClose ? onClose() : (window.location.href = '/forms'))} className="absolute top-4 right-4 text-foreground/60 hover:bg-sky-100 hover:text-black transition-colors rounded-full p-1 z-10"><X className="w-5 h-5" /></button>
 
-        <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
+        <div className="p-6 md:p-8 flex flex-col">
           {!submitted && (
             <div className="mb-4">
               <div className="flex items-center gap-4 mb-2">
@@ -63,15 +65,30 @@ const Testimony = ({ modal = false, onClose }: Props) => {
 
           {submitted ? (
             <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              </div>
-              <h2 className="font-heading text-lg font-semibold">Thank you — testimony submitted</h2>
-              <p className="text-sm text-muted-foreground mt-2">We appreciate you sharing — we will follow up according to your sharing preference.</p>
-              <a href="/" className="mt-3 text-sm text-primary hover:underline">Return home</a>
+              <PublicSuccessView
+                title="Thank You"
+                subtitle="Testimony Received"
+                description="We appreciate you sharing how God has worked in your life. Your testimony will be reviewed and shared to encourage our church family."
+                actionLabel="SUBMIT ANOTHER TESTIMONY"
+                onAction={() => {
+                  setSubmitted(false);
+                  setStep(1);
+                  setForm({
+                    fullName: "",
+                    phone: "",
+                    email: "",
+                    category: "salvation",
+                    title: "",
+                    content: "",
+                    consent: false,
+                  });
+                  setCaptchaToken(null);
+                  setSubmitError(null);
+                }}
+              />
             </div>
           ) : (
-            <div className="relative flex-1 overflow-hidden">
+            <div className="relative flex-1">
               <form className="relative w-full h-full">
                 
                 {/* Step 1 */}
@@ -92,7 +109,7 @@ const Testimony = ({ modal = false, onClose }: Props) => {
                     <Input type="tel" inputMode="numeric" pattern="[0-9]*" placeholder="Phone Number" value={form.phone} onChange={(e: any) => update('phone', sanitizePhoneInput(e.target.value))} />
                   </div>
 
-                  <div className="pt-4 flex justify-end">
+                  <div className="pt-4 flex items-center justify-start gap-3">
                     <Button
                       type="button"
                       className={primaryButtonClass}
@@ -159,15 +176,28 @@ const Testimony = ({ modal = false, onClose }: Props) => {
                     <Turnstile
                       siteKey="1x00000000000000000000AA"
                       options={{ appearance: 'interaction-only' }}
-                      onSuccess={(token) => setCaptchaToken(token)}
+                      onSuccess={(token) => {
+                        setCaptchaToken(token);
+                        setSubmitError(null);
+                      }}
                       onError={() => setCaptchaToken(null)}
                       onExpire={() => setCaptchaToken(null)}
                     />
                   </div>
 
-                  <div className="pt-4 flex justify-between">
+                  {submitError && (
+                    <PublicInlineAlert
+                      type="error"
+                      message={submitError}
+                      onDismiss={() => setSubmitError(null)}
+                      className="mb-2"
+                    />
+                  )}
+
+                  <div className="pt-4 flex items-center justify-start gap-3">
                     <Button
                       type="button"
+                      disabled={submitting}
                       className={secondaryButtonClass}
                       onClick={() => setStep(1)}
                     >
@@ -178,14 +208,16 @@ const Testimony = ({ modal = false, onClose }: Props) => {
                       disabled={!canSubmit || submitting}
                       onClick={async (e) => {
                         e.preventDefault();
+                        if (submitting) return;
                         if (honeypot) {
                           setSubmitted(true);
                           return;
                         }
                         if (!captchaToken) {
-                          alert("Please complete the security check to continue.");
+                          setSubmitError("Please complete the security check to continue.");
                           return;
                         }
+                        setSubmitError(null);
                         setSubmitting(true);
                         const timeToSubmitMs = Date.now() - loadTime;
                         try {
@@ -197,12 +229,21 @@ const Testimony = ({ modal = false, onClose }: Props) => {
                           });
                           setSubmitted(true);
                         } catch (err: any) {
-                          alert(err?.message || 'Submission failed');
+                          setSubmitError(describePublicError(err, 'Failed to submit testimony. Please try again.'));
                         } finally {
                           setSubmitting(false);
                         }
                       }}
-                    >{submitting ? 'SENDING...' : 'SUBMIT'}</Button>
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          SUBMITTING...
+                        </>
+                      ) : (
+                        'SUBMIT'
+                      )}
+                    </Button>
                   </div>
                 </div>
               </form>

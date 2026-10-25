@@ -40,7 +40,7 @@ function parsePayload(payloadText) {
   }
 }
 
-function initDb({ dbPath, dataDir, adminEmail, adminPassword, rolePermissions, coreCollections }) {
+function initDb({ dbPath, dataDir, adminEmail, adminPassword, rolePermissions }) {
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');

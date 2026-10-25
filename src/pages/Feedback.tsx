@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { postForm } from "@/lib/api";
-import { X } from "lucide-react";
+import { postForm, describePublicError } from "@/lib/api";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 import feedbackImg from "@/assets/feedback_form.jpg";
 import { sanitizePhoneInput } from "@/lib/formValidation";
 
@@ -22,13 +24,14 @@ const Feedback = ({ modal = false, onClose }: Props) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
   const update = (k: string, v: any) => setForm((s) => ({ ...s, [k]: v }));
   const canSubmit = form.message.trim() && form.consent;
 
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
       <div className="hidden md:block relative">
         <img src={feedbackImg} alt="feedback" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
@@ -37,7 +40,7 @@ const Feedback = ({ modal = false, onClose }: Props) => {
         <X className="w-5 h-5" />
       </button>
 
-      <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
+      <div className="p-6 md:p-8 flex flex-col">
         {!submitted && (
           <div className="mb-4">
             <h1 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">Feedback/Suggestion</h1>
@@ -46,14 +49,22 @@ const Feedback = ({ modal = false, onClose }: Props) => {
         )}
 
         {submitted ? (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-            </div>
-            <h2 className="font-heading text-lg font-semibold">Thank You!</h2>
-            <p className="text-sm text-muted-foreground mt-2">Your feedback has been received. We appreciate your input.</p>
-            <a href="/" className="mt-3 text-sm text-primary hover:underline">Return home</a>
-          </div>
+          <PublicSuccessView
+            title="Thank You!"
+            description="Your feedback has been received. We appreciate your input."
+            actionText="Submit Another Response"
+            onAction={() => {
+              setForm({
+                fullName: "",
+                phone: "",
+                feedbackType: "",
+                message: "",
+                consent: false,
+              });
+              setSubmitted(false);
+              setSubmitError(null);
+            }}
+          />
         ) : (
           <div className="flex-1 flex flex-col gap-4">
             <div className="space-y-1.5">
@@ -91,22 +102,43 @@ const Feedback = ({ modal = false, onClose }: Props) => {
               <Label className="text-[11px]">I understand this feedback will be reviewed by the church leadership.</Label>
             </div>
 
-            <div className="mt-4">
+            {submitError && (
+              <PublicInlineAlert
+                type="error"
+                message={submitError}
+                onDismiss={() => setSubmitError(null)}
+                className="mt-4"
+              />
+            )}
+
+            <div className="mt-4 flex items-center justify-start gap-3">
               <Button
+                type="button"
                 className={primaryButtonClass}
                 disabled={!canSubmit || submitting}
                 onClick={async () => {
+                  if (submitting) return;
                   setSubmitting(true);
+                  setSubmitError(null);
                   try {
                     await postForm('feedback', form);
                     setSubmitted(true);
                   } catch (err: any) {
-                    alert(err?.message || 'Submission failed');
+                    setSubmitError(describePublicError(err, 'Failed to submit feedback. Please try again.'));
                   } finally {
                     setSubmitting(false);
                   }
                 }}
-              >{submitting ? 'SUBMITTING...' : 'SUBMIT FEEDBACK'}</Button>
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    SUBMITTING...
+                  </>
+                ) : (
+                  'SUBMIT FEEDBACK'
+                )}
+              </Button>
             </div>
           </div>
         )}

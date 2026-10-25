@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import type { AdminOutletContext } from './AdminLayout';
-import { adminRequest } from '@/lib/adminApi';
+import { adminRequest, describeApiError } from '@/lib/adminApi';
+import { toast } from '@/components/ui/sonner';
+import AdminConfirmDialog from '@/components/admin/AdminConfirmDialog';
+import AdminPageSkeleton from '@/components/admin/AdminPageSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CalendarClock, Plus, Trash2, RefreshCw } from 'lucide-react';
+import { CalendarClock, Plus, Trash2, RefreshCw, Loader2 } from 'lucide-react';
 
 type AppointmentType = {
   id: string;
@@ -68,19 +71,18 @@ type OverviewResponse = {
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const toDateTimeLocal = (iso?: string) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-};
-
 const fromDateTimeLocal = (value: string) => (value ? new Date(value).toISOString() : '');
 
 const AdminAppointmentsPage = () => {
   const { can } = useOutletContext<AdminOutletContext>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [confirmAction, setConfirmAction] = useState<{
+    title: string;
+    description: string;
+    action: () => Promise<void>;
+  } | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const [overview, setOverview] = useState<OverviewResponse | null>(null);
   const [types, setTypes] = useState<AppointmentType[]>([]);
@@ -128,6 +130,11 @@ const AdminAppointmentsPage = () => {
     internalNotes: '',
   });
 
+  const [creatingBooking, setCreatingBooking] = useState(false);
+  const [creatingType, setCreatingType] = useState(false);
+  const [creatingAvailability, setCreatingAvailability] = useState(false);
+  const [creatingBlackout, setCreatingBlackout] = useState(false);
+
   const loadAll = async () => {
     if (!can('appointments.read')) return;
     setLoading(true);
@@ -171,7 +178,8 @@ const AdminAppointmentsPage = () => {
   }, [appointments, bookingStatusFilter, bookingSearch]);
 
   const createType = async () => {
-    if (!can('appointments.create')) return;
+    if (!can('appointments.create') || creatingType) return;
+    setCreatingType(true);
     try {
       await adminRequest('/appointments/types', {
         method: 'POST',
@@ -197,8 +205,11 @@ const AdminAppointmentsPage = () => {
         isActive: true,
       });
       await loadAll();
+      toast.success('Appointment type created successfully.');
     } catch (e: any) {
-      alert(e?.message || 'Failed to create appointment type');
+      toast.error(describeApiError(e, 'Failed to create appointment type'));
+    } finally {
+      setCreatingType(false);
     }
   };
 
@@ -210,24 +221,32 @@ const AdminAppointmentsPage = () => {
         body: JSON.stringify({ isActive: !type.isActive }),
       });
       await loadAll();
+      toast.success(`Appointment type "${type.name}" is now ${!type.isActive ? 'active' : 'inactive'}.`);
     } catch (e: any) {
-      alert(e?.message || 'Failed to update appointment type');
+      toast.error(describeApiError(e, 'Failed to update appointment type'));
     }
   };
 
-  const deleteType = async (id: string) => {
+  const promptDeleteType = (type: AppointmentType) => {
     if (!can('appointments.delete')) return;
-    if (!confirm('Delete this appointment type?')) return;
-    try {
-      await adminRequest(`/appointments/types/${id}`, { method: 'DELETE' });
-      await loadAll();
-    } catch (e: any) {
-      alert(e?.message || 'Failed to delete appointment type');
-    }
+    setConfirmAction({
+      title: `Delete "${type.name}"?`,
+      description: 'Are you sure you want to delete this appointment type? This action cannot be undone.',
+      action: async () => {
+        try {
+          await adminRequest(`/appointments/types/${type.id}`, { method: 'DELETE' });
+          toast.success(`Appointment type "${type.name}" deleted.`);
+          await loadAll();
+        } catch (e: any) {
+          toast.error(describeApiError(e, 'Failed to delete appointment type'));
+        }
+      },
+    });
   };
 
   const createAvailability = async () => {
-    if (!can('appointments.create')) return;
+    if (!can('appointments.create') || creatingAvailability) return;
+    setCreatingAvailability(true);
     try {
       await adminRequest('/appointments/availability', {
         method: 'POST',
@@ -239,24 +258,34 @@ const AdminAppointmentsPage = () => {
         }),
       });
       await loadAll();
+      toast.success('Availability window added.');
     } catch (e: any) {
-      alert(e?.message || 'Failed to add availability window');
+      toast.error(describeApiError(e, 'Failed to add availability window'));
+    } finally {
+      setCreatingAvailability(false);
     }
   };
 
-  const deleteAvailability = async (id: string) => {
+  const promptDeleteAvailability = (id: string) => {
     if (!can('appointments.delete')) return;
-    if (!confirm('Delete this availability window?')) return;
-    try {
-      await adminRequest(`/appointments/availability/${id}`, { method: 'DELETE' });
-      await loadAll();
-    } catch (e: any) {
-      alert(e?.message || 'Failed to delete availability window');
-    }
+    setConfirmAction({
+      title: 'Delete Availability Window?',
+      description: 'Are you sure you want to remove this availability window?',
+      action: async () => {
+        try {
+          await adminRequest(`/appointments/availability/${id}`, { method: 'DELETE' });
+          toast.success('Availability window removed.');
+          await loadAll();
+        } catch (e: any) {
+          toast.error(describeApiError(e, 'Failed to delete availability window'));
+        }
+      },
+    });
   };
 
   const createBlackout = async () => {
-    if (!can('appointments.create')) return;
+    if (!can('appointments.create') || creatingBlackout) return;
+    setCreatingBlackout(true);
     try {
       await adminRequest('/appointments/blackouts', {
         method: 'POST',
@@ -268,24 +297,34 @@ const AdminAppointmentsPage = () => {
       });
       setBlackoutForm({ startAt: '', endAt: '', reason: '' });
       await loadAll();
+      toast.success('Blackout window created.');
     } catch (e: any) {
-      alert(e?.message || 'Failed to create blackout window');
+      toast.error(describeApiError(e, 'Failed to create blackout window'));
+    } finally {
+      setCreatingBlackout(false);
     }
   };
 
-  const deleteBlackout = async (id: string) => {
+  const promptDeleteBlackout = (id: string) => {
     if (!can('appointments.delete')) return;
-    if (!confirm('Delete this blackout window?')) return;
-    try {
-      await adminRequest(`/appointments/blackouts/${id}`, { method: 'DELETE' });
-      await loadAll();
-    } catch (e: any) {
-      alert(e?.message || 'Failed to delete blackout window');
-    }
+    setConfirmAction({
+      title: 'Delete Blackout Window?',
+      description: 'Are you sure you want to remove this blackout window?',
+      action: async () => {
+        try {
+          await adminRequest(`/appointments/blackouts/${id}`, { method: 'DELETE' });
+          toast.success('Blackout window removed.');
+          await loadAll();
+        } catch (e: any) {
+          toast.error(describeApiError(e, 'Failed to delete blackout window'));
+        }
+      },
+    });
   };
 
   const createBooking = async () => {
-    if (!can('appointments.create')) return;
+    if (!can('appointments.create') || creatingBooking) return;
+    setCreatingBooking(true);
     try {
       await adminRequest('/appointments', {
         method: 'POST',
@@ -316,8 +355,11 @@ const AdminAppointmentsPage = () => {
         internalNotes: '',
       });
       await loadAll();
+      toast.success(`Booking created for "${bookingForm.guestName}".`);
     } catch (e: any) {
-      alert(e?.message || 'Failed to create booking');
+      toast.error(describeApiError(e, 'Failed to create booking'));
+    } finally {
+      setCreatingBooking(false);
     }
   };
 
@@ -329,24 +371,35 @@ const AdminAppointmentsPage = () => {
         body: JSON.stringify({ status }),
       });
       await loadAll();
+      toast.success(`Booking status updated to "${status}".`);
     } catch (e: any) {
-      alert(e?.message || 'Failed to update booking status');
+      toast.error(describeApiError(e, 'Failed to update booking status'));
     }
   };
 
-  const deleteBooking = async (id: string) => {
+  const promptDeleteBooking = (booking: Appointment) => {
     if (!can('appointments.delete')) return;
-    if (!confirm('Delete this booking?')) return;
-    try {
-      await adminRequest(`/appointments/${id}`, { method: 'DELETE' });
-      await loadAll();
-    } catch (e: any) {
-      alert(e?.message || 'Failed to delete booking');
-    }
+    setConfirmAction({
+      title: 'Delete Booking?',
+      description: `Are you sure you want to delete the booking for "${booking.guestName}"?`,
+      action: async () => {
+        try {
+          await adminRequest(`/appointments/${booking.id}`, { method: 'DELETE' });
+          toast.success(`Booking for "${booking.guestName}" deleted.`);
+          await loadAll();
+        } catch (e: any) {
+          toast.error(describeApiError(e, 'Failed to delete booking'));
+        }
+      },
+    });
   };
 
   if (!can('appointments.read')) {
     return <div className="text-sm text-muted-foreground">You do not have permission to view appointments.</div>;
+  }
+
+  if (loading) {
+    return <AdminPageSkeleton label="appointments" variant="cards" count={4} />;
   }
 
   return (
@@ -433,8 +486,9 @@ const AdminAppointmentsPage = () => {
                 <Textarea value={bookingForm.internalNotes} onChange={(e) => setBookingForm((s) => ({ ...s, internalNotes: e.target.value }))} />
               </div>
               <div className="md:col-span-2">
-                <Button onClick={createBooking} disabled={!bookingForm.guestName || !bookingForm.guestEmail || !bookingForm.startAt || !bookingForm.endAt} className="gap-2">
-                  <Plus className="w-4 h-4" /> Create Booking
+                <Button onClick={createBooking} disabled={!bookingForm.guestName || !bookingForm.guestEmail || !bookingForm.startAt || !bookingForm.endAt || creatingBooking} className="gap-2">
+                  {creatingBooking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {creatingBooking ? 'Creating Booking...' : 'Create Booking'}
                 </Button>
               </div>
             </CardContent>
@@ -496,7 +550,7 @@ const AdminAppointmentsPage = () => {
                               <SelectItem value="no_show">No Show</SelectItem>
                             </SelectContent>
                           </Select>
-                          <Button variant="outline" size="icon" onClick={() => deleteBooking(item.id)}>
+                          <Button variant="outline" size="icon" onClick={() => promptDeleteBooking(item)}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -525,7 +579,10 @@ const AdminAppointmentsPage = () => {
                 <Label>Active</Label>
               </div>
               <div className="md:col-span-3">
-                <Button onClick={createType} disabled={!typeForm.name} className="gap-2"><Plus className="w-4 h-4" /> Create Type</Button>
+                <Button onClick={createType} disabled={!typeForm.name || creatingType} className="gap-2">
+                  {creatingType ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  {creatingType ? 'Creating Type...' : 'Create Type'}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -556,7 +613,7 @@ const AdminAppointmentsPage = () => {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button variant="outline" size="sm" onClick={() => toggleTypeActive(t)}>{t.isActive ? 'Disable' : 'Enable'}</Button>
-                          <Button variant="outline" size="icon" onClick={() => deleteType(t.id)}><Trash2 className="w-4 h-4" /></Button>
+                          <Button variant="outline" size="icon" onClick={() => promptDeleteType(t)}><Trash2 className="w-4 h-4" /></Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -586,7 +643,12 @@ const AdminAppointmentsPage = () => {
                 <Checkbox checked={availabilityForm.isActive} onCheckedChange={(v) => setAvailabilityForm((s) => ({ ...s, isActive: !!v }))} />
                 <Label>Active</Label>
               </div>
-              <div className="pt-6"><Button onClick={createAvailability}><Plus className="w-4 h-4 mr-1" /> Add</Button></div>
+              <div className="pt-6">
+                <Button onClick={createAvailability} disabled={creatingAvailability}>
+                  {creatingAvailability ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+                  {creatingAvailability ? 'Adding...' : 'Add'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -602,7 +664,7 @@ const AdminAppointmentsPage = () => {
                       <TableCell>{a.startTime}</TableCell>
                       <TableCell>{a.endTime}</TableCell>
                       <TableCell><Badge variant={a.isActive ? 'default' : 'secondary'}>{a.isActive ? 'Active' : 'Inactive'}</Badge></TableCell>
-                      <TableCell><Button variant="outline" size="icon" onClick={() => deleteAvailability(a.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
+                      <TableCell><Button variant="outline" size="icon" onClick={() => promptDeleteAvailability(a.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -618,7 +680,12 @@ const AdminAppointmentsPage = () => {
               <div className="space-y-1.5"><Label>Start</Label><Input type="datetime-local" value={blackoutForm.startAt} onChange={(e) => setBlackoutForm((s) => ({ ...s, startAt: e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>End</Label><Input type="datetime-local" value={blackoutForm.endAt} onChange={(e) => setBlackoutForm((s) => ({ ...s, endAt: e.target.value }))} /></div>
               <div className="space-y-1.5"><Label>Reason</Label><Input value={blackoutForm.reason} onChange={(e) => setBlackoutForm((s) => ({ ...s, reason: e.target.value }))} /></div>
-              <div className="md:col-span-3"><Button onClick={createBlackout}><Plus className="w-4 h-4 mr-1" /> Add Blackout</Button></div>
+              <div className="md:col-span-3">
+                <Button onClick={createBlackout} disabled={!blackoutForm.startAt || !blackoutForm.endAt || creatingBlackout}>
+                  {creatingBlackout ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Plus className="w-4 h-4 mr-1" />}
+                  {creatingBlackout ? 'Adding Blackout...' : 'Add Blackout'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -633,7 +700,7 @@ const AdminAppointmentsPage = () => {
                       <TableCell>{new Date(b.startAt).toLocaleString()}</TableCell>
                       <TableCell>{new Date(b.endAt).toLocaleString()}</TableCell>
                       <TableCell>{b.reason || '-'}</TableCell>
-                      <TableCell><Button variant="outline" size="icon" onClick={() => deleteBlackout(b.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
+                      <TableCell><Button variant="outline" size="icon" onClick={() => promptDeleteBlackout(b.id)}><Trash2 className="w-4 h-4" /></Button></TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -648,6 +715,25 @@ const AdminAppointmentsPage = () => {
           <CalendarClock className="w-4 h-4 animate-pulse" /> Loading appointments data...
         </div>
       )}
+
+      <AdminConfirmDialog
+        open={Boolean(confirmAction)}
+        onOpenChange={(open) => !open && !actionLoading && setConfirmAction(null)}
+        title={confirmAction?.title || 'Confirm Action'}
+        description={confirmAction?.description || 'Are you sure you want to proceed?'}
+        confirmLabel={actionLoading ? 'Deleting...' : 'Delete'}
+        loading={actionLoading}
+        onConfirm={async () => {
+          if (!confirmAction) return;
+          setActionLoading(true);
+          try {
+            await confirmAction.action();
+            setConfirmAction(null);
+          } finally {
+            setActionLoading(false);
+          }
+        }}
+      />
     </div>
   );
 };

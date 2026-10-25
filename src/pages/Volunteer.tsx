@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { postForm } from "@/lib/api";
-import { X } from "lucide-react";
+import { postForm, describePublicError } from "@/lib/api";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { PublicInlineAlert } from "@/components/public/PublicInlineAlert";
+import { PublicSuccessView } from "@/components/public/PublicSuccessView";
 import volunteerImg from "@/assets/volunteer_form.jpg";
 import { isValidEmail, sanitizePhoneInput } from "@/lib/formValidation";
 
@@ -23,6 +25,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const primaryButtonClass = "h-12 rounded-full bg-[#1b2545] text-white hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
   const secondaryButtonClass = "h-12 rounded-full bg-[#d6d9e4] text-black hover:bg-sky-100 hover:text-black px-8 text-sm font-medium tracking-normal";
 
@@ -32,7 +35,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
   const canSubmit = form.member && form.serveArea && form.consent;
 
   const Inner = (
-    <div className={`relative w-full ${modal ? 'max-w-3xl h-full md:h-auto md:max-h-[90vh]' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
+    <div className={`relative w-full ${modal ? 'max-w-3xl' : 'max-w-4xl'} bg-background rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_2fr]`}>
       <div className="hidden md:block relative">
         <img src={volunteerImg} alt="volunteer" className="absolute inset-0 w-full h-full object-cover rounded-l-2xl" />
       </div>
@@ -41,7 +44,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
         <X className="w-5 h-5" />
       </button>
 
-      <div className="p-6 md:p-8 flex flex-col overflow-y-auto">
+      <div className="p-6 md:p-8 flex flex-col">
         {!submitted && (
           <div className="mb-4">
             <div className="flex items-center gap-4 mb-2">
@@ -55,14 +58,24 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
         )}
 
         {submitted ? (
-          <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-            </div>
-            <h2 className="font-heading text-lg font-semibold">Thank You!</h2>
-            <p className="text-sm text-muted-foreground mt-2">We've received your volunteer form. Someone from the team will reach out soon.</p>
-            <a href="/" className="mt-3 text-sm text-primary hover:underline">Return home</a>
-          </div>
+          <PublicSuccessView
+            title="Thank You!"
+            description="We've received your volunteer form. Someone from the team will reach out soon."
+            actionText="Submit Another Response"
+            onAction={() => {
+              setForm({
+                fullName: "",
+                phone: "",
+                email: "",
+                member: "",
+                serveArea: "",
+                consent: false,
+              });
+              setStep(1);
+              setSubmitted(false);
+              setSubmitError(null);
+            }}
+          />
         ) : (
           <div className="relative flex-1 overflow-hidden">
             <div className="relative w-full h-full">
@@ -90,7 +103,7 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
                   <Input id="email" type="email" placeholder="Email Address" value={form.email} onChange={(e: any) => update('email', e.target.value)} />
                 </div>
 
-                <div className="pt-4 flex justify-end">
+                <div className="pt-4 flex items-center justify-start gap-3">
                   <Button
                     type="button"
                     className={primaryButtonClass}
@@ -147,9 +160,19 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
                   <Label className="text-[11px] leading-tight">I understand that serving may require training and leadership approval.</Label>
                 </div>
 
-                <div className="pt-4 flex justify-between">
+                {submitError && (
+                  <PublicInlineAlert
+                    type="error"
+                    message={submitError}
+                    onDismiss={() => setSubmitError(null)}
+                    className="mt-4"
+                  />
+                )}
+
+                <div className="pt-4 flex items-center justify-start gap-3">
                   <Button
                     type="button"
+                    disabled={submitting}
                     className={secondaryButtonClass}
                     onClick={() => setStep(1)}
                   >
@@ -159,17 +182,28 @@ const Volunteer = ({ modal = false, onClose }: Props) => {
                     className={primaryButtonClass}
                     disabled={!canSubmit || submitting}
                     onClick={async () => {
+                      if (submitting) return;
                       setSubmitting(true);
+                      setSubmitError(null);
                       try {
                         await postForm('volunteer', form);
                         setSubmitted(true);
                       } catch (err: any) {
-                        alert(err?.message || 'Submission failed');
+                        setSubmitError(describePublicError(err, 'Failed to submit volunteer form. Please try again.'));
                       } finally {
                         setSubmitting(false);
                       }
                     }}
-                  >{submitting ? 'SUBMITTING...' : 'SUBMIT'}</Button>
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        SUBMITTING...
+                      </>
+                    ) : (
+                      'SUBMIT'
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ const tabs = ["UPCOMING", "THIS WEEK", "THIS MONTH"] as const;
 
 interface EventData {
   id: string;
+  slug?: string;
   title: string;
   description?: string;
   date: string;
@@ -28,19 +29,6 @@ interface EventData {
   attendees?: string;
   registration?: string;
   type?: string;
-}
-
-interface ApiEventData {
-  id: string;
-  title: string;
-  description?: string;
-  date: string;
-  time?: string;
-  location?: string;
-  bannerImage?: string;
-  status: 'upcoming' | 'past';
-  createdAt: string;
-  updatedAt: string;
 }
 
 const hardcodedEvents: EventData[] = [
@@ -177,14 +165,7 @@ const EventCard = ({ event }: { event: EventData }) => {
   const displayAttendees = isHardcoded ? 'Open to All' : (event as any).attendees;
   const displayRegistration = isHardcoded ? (event as any).registration : 'Everyone Welcome';
   const buttonText = isHardcoded ? 'REGISTER' : (event.status === 'upcoming' ? 'REGISTER' : 'VIEW DETAILS');
-  const registerUrl = buildEventRegistrationUrl({
-    id: event.id,
-    title: event.title,
-    type: isHardcoded ? displayCategory : (event.type || displayCategory),
-    startDate: event.date,
-    endDate: event.endDate || event.date,
-    location: displayLocation || undefined,
-  });
+  const registerUrl = buildEventRegistrationUrl({ id: event.id, slug: event.slug });
 
   const chipsRef = useRef<HTMLDivElement | null>(null);
   const venueRef = useRef<HTMLDivElement | null>(null);
@@ -209,96 +190,96 @@ const EventCard = ({ event }: { event: EventData }) => {
 
   return (
     <div className="flex flex-col md:flex-row gap-6 bg-sky-100/60 rounded-lg overflow-hidden border border-border p-4 md:p-6">
-    {/* Image */}
-    <div className="w-full md:w-[220px] flex-shrink-0">
-      <img
-        src={displayImage}
-        alt={event.title}
-        className="w-full h-[280px] md:h-[260px] object-cover rounded-lg"
-      />
-    </div>
+      {/* Image */}
+      <div className="w-full md:w-[220px] flex-shrink-0">
+        <img
+          src={displayImage}
+          alt={event.title}
+          className="w-full h-[280px] md:h-[260px] object-cover rounded-lg"
+        />
+      </div>
 
-    {/* Details */}
-    <div className="flex flex-col md:flex-row flex-1 gap-6">
-      {/* Left info */}
-      <div className="flex-1 flex flex-col">
-        <div>
-          <span className="text-xs font-semibold tracking-widest text-black/70 uppercase">
-            {displayCategory}
-          </span>
-          <h3 className="font-body text-xl md:text-2xl font-bold text-black mt-1 mb-3">
-            {event.title}
-          </h3>
-          <p className="text-sm text-black/70 leading-relaxed">
-            {event.description || 'Join us for this special event at WaterGate Church.'}
-          </p>
-        </div>
-        <div className="mt-5">
-          <div ref={chipsRef} className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
-              <Calendar size={12} />
-              {displayDateRange}
+      {/* Details */}
+      <div className="flex flex-col md:flex-row flex-1 gap-6">
+        {/* Left info */}
+        <div className="flex-1 flex flex-col">
+          <div>
+            <span className="text-xs font-semibold tracking-widest text-black/70 uppercase">
+              {displayCategory}
             </span>
-            {displayTime && (
-              <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
-                <Clock size={12} />
-                {displayTime}
+            <h3 className="font-body text-xl md:text-2xl font-bold text-black mt-1 mb-3">
+              {event.title}
+            </h3>
+            <p className="text-sm text-black/70 leading-relaxed">
+              {event.description || 'Join us for this special event at WaterGate Church.'}
+            </p>
+          </div>
+          <div className="mt-5">
+            <div ref={chipsRef} className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 bg-sky-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
+                <Calendar size={12} />
+                {displayDateRange}
               </span>
+              {displayTime && (
+                <span className="inline-flex items-center gap-1.5 bg-green-200 text-black text-[11px] font-semibold px-3 py-1.5 rounded-full border border-black">
+                  <Clock size={12} />
+                  {displayTime}
+                </span>
+              )}
+            </div>
+            {displayLocation && (
+              <div
+                ref={venueRef}
+                className="inline-flex items-center gap-1.5 mt-1 text-[10px] text-black/70 border border-black px-2 py-1 rounded-full overflow-hidden whitespace-nowrap"
+                style={{ width: "auto" }}
+              >
+                <MapPin size={16} className="flex-shrink-0 text-black/70" aria-hidden />
+                <span className="leading-tight">{displayLocation}</span>
+              </div>
             )}
           </div>
-          {displayLocation && (
-            <div
-              ref={venueRef}
-              className="inline-flex items-center gap-1.5 mt-1 text-[10px] text-black/70 border border-black px-2 py-1 rounded-full overflow-hidden whitespace-nowrap"
-              style={{ width: "auto" }}
-            >
-              <MapPin size={16} className="flex-shrink-0 text-black/70" aria-hidden />
-              <span className="leading-tight">{displayLocation}</span>
-            </div>
-          )}
         </div>
-      </div>
 
-      {/* Right info – separated by dotted vertical line */}
-      <div className="flex flex-col items-start md:items-center justify-between md:min-w-[180px] md:pl-6 relative">
-        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-px" style={{ backgroundImage: 'repeating-linear-gradient(to bottom, transparent, transparent 8px, hsl(0 0% 0% / 0.2) 8px, hsl(0 0% 0% / 0.2) 20px)' }} />
-        <div className="md:text-center">
-          <p className="text-sm font-semibold text-black">
-            {displayAttendees}
-          </p>
-          <p className="text-xs text-black/70 mt-0.5">
-            {displayRegistration}
-          </p>
-        </div>
-        <div className="flex flex-col items-start md:items-center gap-3 mt-4">
-          {/* Overlapping participant initials */}
-          <div className="flex -space-x-2">
-            {["C", "T", "N", "A", "W"].map((initial, i) => (
-              <div
-                key={i}
-                className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
-                style={{
-                  backgroundColor: ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"][i],
-                  zIndex: 5 - i,
-                }}
-              >
-                {initial}
-              </div>
-            ))}
+        {/* Right info – separated by dotted vertical line */}
+        <div className="flex flex-col items-start md:items-center justify-between md:min-w-[180px] md:pl-6 relative">
+          <div className="hidden md:block absolute left-0 top-0 bottom-0 w-px" style={{ backgroundImage: 'repeating-linear-gradient(to bottom, transparent, transparent 8px, hsl(0 0% 0% / 0.2) 8px, hsl(0 0% 0% / 0.2) 20px)' }} />
+          <div className="md:text-center">
+            <p className="text-sm font-semibold text-black">
+              {displayAttendees}
+            </p>
+            <p className="text-xs text-black/70 mt-0.5">
+              {displayRegistration}
+            </p>
           </div>
-          {buttonText === 'REGISTER' ? (
-            <Link to={registerUrl} className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
-              {buttonText}
-            </Link>
-          ) : (
-            <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
-              {buttonText}
-            </button>
-          )}
+          <div className="flex flex-col items-start md:items-center gap-3 mt-4">
+            {/* Overlapping participant initials */}
+            <div className="flex -space-x-2">
+              {["C", "T", "N", "A", "W"].map((initial, i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
+                  style={{
+                    backgroundColor: ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6"][i],
+                    zIndex: 5 - i,
+                  }}
+                >
+                  {initial}
+                </div>
+              ))}
+            </div>
+            {buttonText === 'REGISTER' ? (
+              <Link to={registerUrl} className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
+                {buttonText}
+              </Link>
+            ) : (
+              <button className="bg-black text-white text-sm font-semibold px-8 py-2.5 rounded-full hover:bg-sky-100 hover:text-black transition-colors">
+                {buttonText}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 };
 
@@ -359,33 +340,32 @@ const EventsSection = () => {
           options.toDate = formatDateStr(nextMonth);
         }
 
-        let apiEvents = [];
-        if (activeTab === "UPCOMING") {
-          apiEvents = await getEvents(options);
-        } else {
-          // THIS WEEK and THIS MONTH can contain both published and ongoing
-          const [publishedEvents, ongoingEvents] = await Promise.all([
-            getEvents({ ...options, status: 'published' }),
-            getEvents({ ...options, status: 'ongoing' })
-          ]);
-          // Combine and deduplicate just in case
-          const seen = new Set();
-          apiEvents = [...publishedEvents, ...ongoingEvents].filter(ev => {
-            if (seen.has(ev.id)) return false;
-            seen.add(ev.id);
-            return true;
-          });
-        }
+        // Fetch both published and ongoing events for all tabs
+        const [publishedEvents, ongoingEvents] = await Promise.all([
+          getEvents({ ...options, status: 'published' }),
+          getEvents({ ...options, status: 'ongoing' })
+        ]);
+
+        // Combine and deduplicate
+        const seen = new Set();
+        const apiEvents = [...publishedEvents, ...ongoingEvents].filter(ev => {
+          if (seen.has(ev.id)) return false;
+          seen.add(ev.id);
+          return true;
+        });
 
         // Transform API events to match component's expected format
         const transformedEvents = apiEvents.map((event: any) => {
-          console.log("Event: ", event)
           const startDate = new Date(event.startDate);
+          const endDate = event.endDate ? new Date(event.endDate) : startDate;
           const now = new Date();
-          const isUpcoming = startDate >= now;
+
+          // Allow registration if the event hasn't ended or if the backend explicitly marked it as ongoing
+          const isRegistrable = endDate >= now || event.status === 'ongoing';
 
           return {
             id: event.id,
+            slug: event.slug,
             image: event.bannerImageUrl || event1Img,
             category: event.eventType?.name?.toUpperCase() || event.type?.toUpperCase() || "EVENT",
             title: event.title,
@@ -395,11 +375,13 @@ const EventsSection = () => {
             location: event.location || "THE WATERGATE CHURCH, JENDOL BUS-STOP, OJU ORE, OTA",
             attendees: `${event.registrationCount}+ Attending`,
             registration: event.price > 0 ? `₦${event.price} Registration` : "Free Registration Required",
-            status: isUpcoming ? 'upcoming' : 'past',
+            status: (isRegistrable ? 'upcoming' : 'past') as 'upcoming' | 'past',
             date: event.startDate, // Add the actual date for filtering
             endDate: event.endDate,
             bannerImageUrl: event.bannerImageUrl, // Keep the original URL
             type: event.eventType?.name || event.type, // Keep the original type
+            createdAt: event.createdAt || new Date().toISOString(),
+            updatedAt: event.updatedAt || new Date().toISOString(),
           };
         });
 
@@ -473,11 +455,10 @@ const EventsSection = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${
-                  activeTab === tab
+                className={`pb-3 text-xs font-semibold tracking-widest transition-colors ${activeTab === tab
                     ? "text-sky-600 border-b-2 border-sky-300"
                     : "text-black/60 hover:text-black"
-                }`}
+                  }`}
               >
                 {tab}
               </button>
