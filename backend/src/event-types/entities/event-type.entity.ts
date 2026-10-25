@@ -16,6 +16,12 @@ export class EventType extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
+  @Column({ type: 'int', default: 0 })
+  registrationSequence: number;
+
+  @Column({ type: 'int', nullable: true })
+  registrationSequenceYear: number | null;
+
   @OneToMany(() => Event, (event) => event.eventType)
   events: Event[];
 }
