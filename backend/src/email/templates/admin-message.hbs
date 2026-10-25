@@ -1,40 +1,19 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { background-color: #f8f9fa; padding: 15px; border-bottom: 3px solid #0056b3; margin-bottom: 20px; }
-    .category-badge { display: inline-block; padding: 5px 10px; background-color: #e9ecef; color: #495057; font-size: 12px; font-weight: bold; border-radius: 3px; text-transform: uppercase; margin-bottom: 10px; }
-    .category-high { background-color: #dc3545; color: white; }
-    .content { padding: 0 15px; }
-    .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #6c757d; text-align: center; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      {{#if priority}}
-        {{#if (eq priority 'HIGH')}}
-          <div class="category-badge category-high">Urgent Notice</div>
-        {{else}}
-          <div class="category-badge">Important Notice</div>
-        {{/if}}
-      {{else}}
-        <div class="category-badge">Important Notice</div>
-      {{/if}}
-      <h2 style="margin: 0; color: #0056b3;">{{subject}}</h2>
-    </div>
-    
-    <div class="content">
-      {{{htmlContent}}}
-    </div>
-
-    <div class="footer">
-      <p>This is an administrative message from Watergate Church.</p>
-      <p>Please do not reply directly to this email.</p>
-    </div>
-  </div>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>{{subject}}</title></head>
+<body style="margin:0;padding:0;background:#f0f2f3;color:#252e33;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Important update from Watergate Church: {{subject}}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f0f2f3;"><tr><td align="center" style="padding:36px 14px;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#fff;">
+      <tr><td style="padding:24px 30px;background:#273940;color:#fff;border-bottom:5px solid #d39a4a;">
+        <p style="margin:0 0 11px;color:#f3d2a4;font-size:12px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;">{{category}}{{#if priority}} &middot; {{priority}} priority{{/if}}</p>
+        <h1 style="margin:0;font:normal 26px/1.3 Georgia,'Times New Roman',serif;">{{subject}}</h1>
+      </td></tr>
+      <tr><td style="padding:28px 30px;color:#303a3e;font-size:15px;line-height:1.75;">
+        {{{htmlContent}}}
+      </td></tr>
+      <tr><td style="padding:18px 30px;background:#f2f4f4;border-top:1px solid #dce1e2;color:#58656a;font-size:12px;line-height:1.7;">Administrative message from Watergate Church Global.<br>Please do not reply directly to this email. &copy; {{year}}</td></tr>
+    </table>
+  </td></tr></table>
 </body>
 </html>
