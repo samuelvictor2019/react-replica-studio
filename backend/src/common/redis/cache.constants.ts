@@ -6,7 +6,7 @@ export const EVENT_CACHE = {
 
   GROUPED_PREFIX: 'events:grouped:',
 
-  DETAIL_PREFIX: 'events:detail:',
+  DETAIL_PREFIX: 'events:detail:v2:',
 
   SLUG_PREFIX: 'events:slug:',
 
