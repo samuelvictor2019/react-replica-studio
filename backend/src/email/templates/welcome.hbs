@@ -1,31 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f7; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; }
-    .header { background: linear-gradient(135deg, #1a237e, #283593); color: #ffffff; text-align: center; padding: 36px 24px; }
-    .header h1 { margin: 0; font-size: 22px; }
-    .body { padding: 32px 24px; color: #333; }
-    .body h2 { color: #1a237e; }
-    .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eee; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Welcome to {{appName}}</title>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Welcome to {{appName}}!</h1>
-    </div>
-    <div class="body">
-      <h2>Hello {{firstName}},</h2>
-      <p>Welcome to {{appName}}! Your account has been created successfully.</p>
-      <p>You can now browse our events, register for upcoming programs, and stay connected with our community.</p>
-      <p>God bless you! 🙏</p>
-    </div>
-    <div class="footer">
-      <p>&copy; {{year}} {{appName}}. All rights reserved.</p>
-    </div>
-  </div>
+<body style="margin:0;padding:0;background:#f2f5f1;color:#20312d;font-family:Georgia,'Times New Roman',serif;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Your WaterGate community account is ready.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f2f5f1;">
+    <tr><td align="center" style="padding:40px 16px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:#fff;">
+        <tr><td style="padding:18px 36px;background:#17483f;color:#fff;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;letter-spacing:1px;">WATERGATE CHURCH COMMUNITY</td></tr>
+        <tr><td style="height:5px;background:#d4ae68;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td style="padding:44px 36px 40px;">
+          <p style="margin:0 0 12px;color:#56736a;font:700 12px Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;">A place to belong</p>
+          <h1 style="margin:0 0 22px;color:#17483f;font-size:34px;line-height:1.2;font-weight:normal;">Welcome, {{firstName}}.</h1>
+          <p style="margin:0 0 16px;font:16px/1.75 Arial,sans-serif;">Your account is ready, and we are glad you are here.</p>
+          <p style="margin:0;font:16px/1.75 Arial,sans-serif;">Explore upcoming events, find a program that speaks to you, and stay connected with the WaterGate community.</p>
+          <p style="margin:30px 0 0;color:#17483f;font:italic 17px/1.5 Georgia,'Times New Roman',serif;">We look forward to growing together.</p>
+        </td></tr>
+        <tr><td style="padding:20px 36px;background:#e8eee9;color:#52645e;font:12px/1.6 Arial,sans-serif;">&copy; {{year}} {{appName}}. All rights reserved.</td></tr>
+      </table>
+    </td></tr>
+  </table>
 </body>
 </html>
