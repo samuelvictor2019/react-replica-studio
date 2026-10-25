@@ -81,7 +81,7 @@ export class CountdownCronService {
                     firstName: participant.firstName,
                     eventName: event.title,
                     eventDate: `${event.startDate} - ${event.endDate}`,
-                    eventTime: event.dailySchedule ?? undefined,
+                    eventTime: event.dailySchedule?.[0]?.time,
                     location: event.location,
                     daysRemaining,
                     timeRemaining: `${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`,
